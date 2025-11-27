@@ -10,7 +10,7 @@ A modern plumbing company website with real-time scheduling system, service book
 - **Modern UI/UX**: Smooth animations with Vue 3 composables and Tailwind 4
 
 ## 🛠️ Tech Stack
-- **Frontend**: Vue 3, Nuxt 3, TypeScript
+- **Frontend**: Vue 3, Nuxt 3, JavaScript
 - **Styling**: Tailwind CSS 4 with custom design system
 - **Animations**: Vue 3 Transitions & Framer Motion for polished interactions
 - **Calendar**: Vue Calendar component for scheduling
