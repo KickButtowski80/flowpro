@@ -1,5 +1,5 @@
 # FlowPro
-A modern plumbing company website with real-time scheduling system, service booking, and stunning UI/UX design. Featured portfolio piece showcasing Vue.js, Nuxt 3, Tailwind 4, and Supabase.
+A modern plumbing company website with real-time scheduling system, service booking, and stunning UI/UX design. Featured portfolio piece showcasing Vue.js, Nuxt 3, Tailwind 4, and Firebase.
 
 ## 🚀 Features
 - **Real-Time Scheduling**: Interactive calendar showing plumber availability with drag-and-drop booking
@@ -14,7 +14,7 @@ A modern plumbing company website with real-time scheduling system, service book
 - **Styling**: Tailwind CSS 4 with custom design system
 - **Animations**: Vue 3 Transitions & Framer Motion for polished interactions
 - **Calendar**: Vue Calendar component for scheduling
-- **Backend**: Supabase (PostgreSQL, Real-time, Auth)
+- **Backend**: Firebase (Firestore, Real-time Database, Auth, Storage)
 - **Deployment**: Vercel with performance optimization
 
 ## 📱 Responsive Design
