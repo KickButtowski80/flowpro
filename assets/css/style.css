@@ -1,0 +1,50 @@
+/* CONCEPT: Use @theme directives instead of separate config file */
+
+@import "tailwindcss";
+
+@theme {
+  /* Brand colors - Professional blues */
+  --color-flowpro-blue: #2563eb;
+  --color-flowpro-dark: #1e40af;
+  --color-flowpro-light: #dbeafe;
+  --color-flowpro-accent: #3b82f6;
+  --color-flowpro-gray: #64748b;
+  
+  /* Typography scale */
+  --font-family-sans: "Inter", system-ui, sans-serif;
+  --font-family-display: "Inter", system-ui, sans-serif;
+  
+  /* Custom spacing */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  
+  /* Semantic colors */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+}
+
+/* TODO: Add custom FlowPro styles */
+@layer base {
+  h1 {
+    @apply text-4xl font-bold text-flowpro-blue;
+  }
+  
+  h2 {
+    @apply text-3xl font-semibold text-gray-900;
+  }
+  
+  h3 {
+    @apply text-2xl font-medium text-flowpro-dark;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-flowpro-blue text-white px-6 py-3 rounded-lg hover:bg-flowpro-dark transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-flowpro-light text-flowpro-dark px-6 py-3 rounded-lg hover:bg-flowpro-accent transition-colors;
+  }
+}
