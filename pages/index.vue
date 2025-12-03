@@ -39,11 +39,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-// TODO: Create reactive data with Composition API
 const greeting = ref('Hello')
 const currentTime = ref(new Date())
 
-// TODO: Create computed properties
 const currentMessage = computed(() => {
   const hour = currentTime.value.getHours()
   if (hour < 12) return 'Good morning! Ready to start your day?'
@@ -51,12 +49,10 @@ const currentMessage = computed(() => {
   return 'Good evening! Emergency services available 24/7!'
 })
 
-// TODO: Create methods
 const updateTime = () => {
   currentTime.value = new Date()
 }
 
-// TODO: Use lifecycle hooks
 onMounted(() => {
   // Update time every minute
   setInterval(updateTime, 60000)
@@ -67,7 +63,6 @@ onMounted(() => {
   }, 10000)
 })
 
-// TODO: Define component data
 const features = ref([
   {
     icon: '🔧',
