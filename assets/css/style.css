@@ -1,50 +1,138 @@
-/* CONCEPT: Use @theme directives instead of separate config file */
+/* FlowPro Design System */
+/* @nuxt/ui handles Tailwind CSS internally */
 
 @import "tailwindcss";
 
 @theme {
-  /* Brand colors - Professional blues */
+  /* All variables that should generate Tailwind utilities must use the correct prefix */
+  --font-family-sans: "Inter", system-ui, sans-serif;
+  --font-family-serif: "Georgia", serif;
+  --font-family-mono: "JetBrains Mono", monospace;
+
+  /* FIX 1: Primary brand colors must use --color- prefix */
+  --color-flowpro: #2563eb;
   --color-flowpro-blue: #2563eb;
   --color-flowpro-dark: #1e40af;
   --color-flowpro-light: #dbeafe;
   --color-flowpro-accent: #3b82f6;
   --color-flowpro-gray: #64748b;
   
-  /* Typography scale */
-  --font-family-sans: "Inter", system-ui, sans-serif;
-  --font-family-display: "Inter", system-ui, sans-serif;
+  /* Semantic colors */
+  --color-success: #22c55e;
+  --color-success-hover: #16a34a;
+  --color-warning: #f59e0b;
+  --color-warning-hover: #d97706;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  
+  /* Neutral colors */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
   
   /* Custom spacing */
   --spacing-18: 4.5rem;
   --spacing-88: 22rem;
-  
-  /* Semantic colors */
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  --spacing-128: 32rem;
 }
-
-/* TODO: Add custom FlowPro styles */
+/* TODO: Apply design tokens with @apply (modern @nuxt/ui approach) */
 @layer base {
+  html {
+    @apply font-sans leading-relaxed text-neutral-800;
+  }
+  
+  /* TODO: Create heading hierarchy optimized for F-pattern using @apply */
   h1 {
-    @apply text-4xl font-bold text-flowpro-blue;
+    @apply text-4xl font-extrabold text-neutral-900 leading-tight mb-4;
   }
   
   h2 {
-    @apply text-3xl font-semibold text-gray-900;
+    @apply text-3xl font-bold text-neutral-900 leading-snug mb-3;
   }
   
   h3 {
-    @apply text-2xl font-medium text-flowpro-dark;
+    @apply text-2xl font-semibold text-neutral-900 leading-normal mb-2;
+  }
+  
+  h4 {
+    @apply text-xl font-semibold text-neutral-900 leading-normal mb-2;
+  }
+  
+  /* TODO: Style body text for readability using @apply */
+  p {
+    @apply text-base text-neutral-600 leading-relaxed mb-4;
+  }
+  
+  /* TODO: Style links for clear interaction using @apply */
+  a {
+    @apply text-flowpro-blue underline transition-colors duration-200;
+  }
+  
+  a:hover {
+    @apply text-flowpro-dark;
+  }
+  
+  /* TODO: Style lists for organization using @apply */
+  ul, ol {
+    @apply mb-4 pl-6;
+  }
+  
+  li {
+    @apply mb-2 text-neutral-600;
   }
 }
 
+/* TODO: Create utility text classes using @apply */
 @layer components {
+  .text-display {
+    @apply text-6xl font-black text-neutral-900 leading-none;
+  }
+  
+  .text-headline {
+    @apply text-4xl font-extrabold text-neutral-900 leading-tight;
+  }
+  
+  .text-subheadline {
+    @apply text-2xl font-semibold text-neutral-800 leading-normal;
+  }
+  
+  .text-body {
+    @apply text-base text-neutral-600 leading-relaxed;
+  }
+  
+  .text-caption {
+    @apply text-sm text-neutral-500 leading-normal;
+  }
+  
+  /* Semantic color classes using design tokens */
+  .text-primary {
+    @apply text-flowpro-blue;
+  }
+  
+  /* Enhanced button styles using @apply */
   .btn-primary {
-    @apply bg-flowpro-blue text-white px-6 py-3 rounded-lg hover:bg-flowpro-dark transition-colors;
+    @apply text-white px-6 py-3 rounded-md font-semibold no-underline inline-block transition-colors duration-200;
+    background-color: var(--color-flowpro-blue);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-flowpro-dark);
   }
   
   .btn-secondary {
-    @apply bg-flowpro-light text-flowpro-dark px-6 py-3 rounded-lg hover:bg-flowpro-accent transition-colors;
+    @apply px-6 py-3 rounded-md font-semibold no-underline inline-block transition-colors duration-200;
+    background-color: var(--color-flowpro-light);
+    color: var(--color-flowpro-dark);
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--color-flowpro-accent);
   }
 }

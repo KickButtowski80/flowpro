@@ -13,5 +13,16 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/hints',
     '@nuxt/eslint'
-  ]
+  ],
+  
+  // 🔥 IMPORTANT: Configure custom fonts for @nuxt/ui
+  ui: {
+    fonts: [
+      {
+        name: 'Inter',
+        provider: 'google',
+        weights: [400, 500, 600, 700, 800, 900]
+      }
+    ]
+  }
 })
