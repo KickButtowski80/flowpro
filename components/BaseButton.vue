@@ -15,19 +15,48 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => [
-      'primary',
-      'secondary', 
-      'success',
-      'warning',
-      'danger',
-      'ghost'
-    ].includes(value)
+    validator: (value) => {
+      const validVariants = ['primary', 'secondary', 'success', 'warning', 'danger', 'ghost']
+      
+      // Trim and split to check for multiple variants
+      const variants = value.trim().split(' ')
+      if (variants.length > 1) {
+        console.warn(`❌ Multiple variants not allowed: "${value}". Use only one: ${validVariants.join(', ')}`)
+        return false
+      }
+      
+      // Check if single variant is valid
+      const singleVariant = variants[0]
+      if (!validVariants.includes(singleVariant)) {
+        console.warn(`❌ Invalid variant: "${value}". Valid options: ${validVariants.join(', ')}`)
+        return false
+      }
+      
+      return true
+    }
   },
   size: {
     type: String,
     default: 'medium',
-    validator: (value) => ['small', 'medium', 'large'].includes(value)
+    validator: (value) => {
+      const validSizes = ['small', 'medium', 'large']
+      
+      // Trim and split to check for multiple sizes
+      const sizes = value.trim().split(' ')
+      if (sizes.length > 1) {
+        console.warn(`❌ Multiple sizes not allowed: "${value}". Use only one: ${validSizes.join(', ')}`)
+        return false
+      }
+      
+      // Check if single size is valid
+      const singleSize = sizes[0]
+      if (!validSizes.includes(singleSize)) {
+        console.warn(`❌ Invalid size: "${value}". Valid options: ${validSizes.join(', ')}`)
+        return false
+      }
+      
+      return true
+    }
   },
   disabled: {
     type: Boolean,
