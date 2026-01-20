@@ -57,7 +57,7 @@ const cardClasses = computed(() => {
 })
 // Dynamic classes for card sections
 const headerClasses = computed(() => {
-  const classes = ['border-b', 'border-gray-200']
+  const classes = ['border-b', 'border-neutral-200']
   
   if (props.padding === 'none') classes.push('px-0', 'py-0')
   else if (props.padding === 'tight') classes.push('px-4', 'py-3')
@@ -79,7 +79,7 @@ const contentClasses = computed(() => {
 })
 
 const footerClasses = computed(() => {
-  const classes = ['border-t', 'border-gray-200', 'bg-gray-50']
+  const classes = ['border-t', 'border-neutral-200', 'bg-neutral-50']
   
   if (props.padding === 'none') classes.push('px-0', 'py-0')
   else if (props.padding === 'tight') classes.push('px-4', 'py-3')
