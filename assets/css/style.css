@@ -3,6 +3,11 @@
 
 @import "tailwindcss";
 
+/* Global smooth scrolling */
+html, body {
+  scroll-behavior: smooth;
+}
+
 @theme {
   /* All variables that should generate Tailwind utilities must use the correct prefix */
   --font-family-sans: "Inter", system-ui, sans-serif;
