@@ -107,6 +107,9 @@
             v-model="formData.name" 
             label="Full Name" 
             placeholder="Enter your name" 
+            name="full-name"           
+            autocomplete="name"        
+            data-testid="name-input"   
             required 
             helper-text="We'll use this to personalize your experience" 
           >
@@ -120,6 +123,9 @@
             label="Email Address" 
             type="email" 
             placeholder="your@email.com" 
+            name="email"              
+            autocomplete="email"      
+            data-testid="email-input" 
             required 
             :error="emailError" 
             helper-text="We'll never share your email" 
@@ -134,7 +140,10 @@
             label="Phone Number" 
             type="tel" 
             placeholder="(555) 123-4567" 
-            helper-text="Optional, for appointment reminders"
+            name="phone"              
+            autocomplete="tel"        
+            data-testid="phone-input" 
+            helper-text="Optional, for appointment reminders" 
           >
             <template #prefix>
               <span class="text-neutral-500">📞</span>
@@ -145,8 +154,11 @@
             v-model="formData.service" 
             label="Service Type" 
             placeholder="What do you need help with?" 
+            name="service"            
+            autocomplete="off"       
+            data-testid="service-input" 
             readonly 
-            helper-text="Select from our services page"
+            helper-text="Select from our services page" 
           >
             <template #prefix>
               <span class="text-neutral-500">🔧</span>
