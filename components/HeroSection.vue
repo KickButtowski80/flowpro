@@ -7,7 +7,7 @@
     <div class="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-flowpro/20 blur-3xl"></div>
     <div class="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl"></div>
     
-    <div class="relative z-10 container mx-auto px-4 text-center">
+    <div class="relative z-10 text-center">
       <div class="max-w-5xl mx-auto">
         <!-- Status Badge -->
         <div class="glass-card mb-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-white shadow-lg">
