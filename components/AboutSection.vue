@@ -1,7 +1,7 @@
 <template>
   <!-- About Section -->
   <section :id="sectionId" class="py-24 lg:py-32 bg-white">
-    <div class="container mx-auto px-4">
+    <div>
       <div class="mb-20 text-center">
         <h2 class="text-4xl font-black tracking-tight text-neutral-900 sm:text-5xl">{{ title }}</h2>
         <div class="mx-auto mt-6 h-1.5 w-32 rounded-full bg-gradient-to-r from-flowpro to-flowpro-accent"></div>
