@@ -37,6 +37,9 @@
       :services="features"
     />
     
+    <!-- About Section -->
+    <AboutSection />
+    
     <!-- Emergency Section -->
     <EmergencySection 
       :phone-number="5551234567"
@@ -58,6 +61,7 @@
 import { ref, computed } from 'vue'
 import HeroSection from '~/components/HeroSection.vue'
 import ServicesSection from '~/components/ServicesSection.vue'
+import AboutSection from '~/components/AboutSection.vue'
 import EmergencySection from '~/components/EmergencySection.vue'
 import ComponentShowcaseSection from '~/components/ComponentShowcaseSection.vue'
 import ContactSection from '~/components/ContactSection.vue'
