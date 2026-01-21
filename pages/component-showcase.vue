@@ -102,14 +102,18 @@
       </template>
       
       <form @submit.prevent="handleFormSubmit" class="space-y-6 max-w-2xl">
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div class="flex flex-col gap-6">
           <BaseInput 
             v-model="formData.name" 
             label="Full Name" 
             placeholder="Enter your name" 
             required 
             helper-text="We'll use this to personalize your experience" 
-          />
+          >
+            <template #prefix>
+              <span class="text-neutral-500">👤</span>
+            </template>
+          </BaseInput>
           
           <BaseInput 
             v-model="formData.email" 
@@ -119,7 +123,11 @@
             required 
             :error="emailError" 
             helper-text="We'll never share your email" 
-          />
+          >
+            <template #prefix>
+              <span class="text-neutral-500">📧</span>
+            </template>
+          </BaseInput>
           
           <BaseInput 
             v-model="formData.phone" 
@@ -140,6 +148,9 @@
             readonly 
             helper-text="Select from our services page"
           >
+            <template #prefix>
+              <span class="text-neutral-500">🔧</span>
+            </template>
             <template #suffix>
               <BaseButton size="small" type="button">Browse</BaseButton>
             </template>
@@ -202,7 +213,7 @@
           <h3 class="text-lg font-semibold mb-4">Readonly State</h3>
           <BaseInput 
             label="Readonly Input" 
-            value="This value cannot be changed" 
+            model-value="This value cannot be changed" 
             readonly 
             helper-text="This field is readonly"
           />
