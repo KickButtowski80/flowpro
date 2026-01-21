@@ -1,0 +1,78 @@
+/* Semantic typography utilities */
+@layer utilities {
+  .text-display {
+    @apply text-6xl font-black text-neutral-900 leading-none;
+  }
+  
+  .text-headline {
+    @apply text-4xl font-extrabold text-neutral-900 leading-tight;
+  }
+  
+  .text-subheadline {
+    @apply text-2xl font-semibold text-neutral-800 leading-normal;
+  }
+  
+  .text-body {
+    @apply text-base text-neutral-600 leading-relaxed;
+  }
+  
+  .text-caption {
+    @apply text-sm text-neutral-500 leading-normal;
+  }
+
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Glassmorphism utility */
+  .glass-card {
+    @apply backdrop-blur-md border border-white/20;
+    background: var(--color-glass-white);
+  }
+
+  .glass-blue {
+    @apply backdrop-blur-md border border-flowpro/20;
+    background: var(--color-glass-blue);
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-md border border-neutral-200/20;
+    background: var(--color-glass-dark);
+  }
+
+  /* Shadow utilities */
+  .shadow-modern {
+    box-shadow: var(--shadow-modern);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-hero {
+    box-shadow: var(--shadow-hero);
+  }
+
+  /* Gradient utilities */
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+
+  /* Semantic color classes using design tokens */
+  .text-primary {
+    @apply text-flowpro-blue;
+  }
+}
