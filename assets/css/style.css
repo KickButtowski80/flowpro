@@ -187,11 +187,17 @@
   .text-caption {
     @apply text-sm text-neutral-500 leading-normal;
   }
-
+ 
   /* Component Styles */
   @layer components {
+    .input-stack > * + * {
+      margin-top: 0.5rem;
+    }
+
     .input-field {
-      @apply space-y-2 w-full px-3 py-2 border-2 border-neutral-300 rounded-lg focus:ring-2 focus:ring-flowpro focus:border-flowpro transition-colors;
+      @apply px-3 py-2 border-2 border-neutral-300 rounded-lg focus:ring-2 focus:ring-flowpro focus:border-flowpro transition-colors;
+      flex: 1 1 0%;
+      min-width: 0;
     }
 
     .input-field.error {
@@ -215,7 +221,7 @@
     }
 
     .input-wrapper {
-      @apply relative flex items-center;
+      @apply relative flex items-center gap-2;
     }
 
     .helper-text {
