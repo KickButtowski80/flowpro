@@ -39,9 +39,12 @@
           </a>
           <a 
             href="#get-quote" 
-            class="btn-primary text-base px-6 py-3"
+            class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-3 font-black text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100"
           >
-            Get Quote
+            <span class="relative z-10 flex items-center gap-2">
+              <span class="text-lg">💰</span>
+              Get Quote
+            </span>
           </a>
         </div>
         
@@ -93,10 +96,13 @@
           </a>
           <a 
             href="#get-quote" 
-            class="btn-primary text-base block text-center px-6 py-3"
+            class="relative overflow-hidden block rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 font-black text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 text-center"
             @click="closeMobileMenu"
           >
-            Get Quote
+            <span class="relative z-10 flex items-center justify-center gap-2">
+              <span class="text-lg">💰</span>
+              Get Quote
+            </span>
           </a>
         </div>
       </div>
