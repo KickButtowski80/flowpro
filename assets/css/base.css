@@ -1,0 +1,57 @@
+/* TODO: Apply design tokens with @apply (modern @nuxt/ui approach) */
+@layer base {
+  html {
+    @apply font-sans leading-relaxed text-neutral-800;
+  }
+  
+  /* TODO: Create heading hierarchy optimized for F-pattern using @apply */
+  h1 {
+    @apply text-4xl font-extrabold text-neutral-900 leading-tight mb-4;
+  }
+  
+  h2 {
+    @apply text-3xl font-bold text-neutral-900 leading-snug mb-3;
+  }
+  
+  h3 {
+    @apply text-2xl font-semibold text-neutral-900 leading-normal mb-2;
+  }
+  
+  h4 {
+    @apply text-xl font-semibold text-neutral-900 leading-normal mb-2;
+  }
+  
+  /* TODO: Style body text for readability using @apply */
+  p {
+    @apply text-base text-neutral-600 leading-relaxed mb-4;
+  }
+  
+  /* TODO: Style links for clear interaction using @apply */
+  /* Glamorous plumbing-themed content links - fixing Tailwind Typography conflicts */
+  .prose a {
+    @apply text-flowpro-blue underline transition-all duration-300 relative inline-block pl-8;
+  }
+  
+  /* Override Tailwind Typography link styles */
+  .prose a::before {
+    content: "⚙️";
+    @apply absolute left-0 top-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300 text-lg z-10 inline-block;
+  }
+  
+  .prose a:hover::before {
+    @apply opacity-100;
+  }
+  
+  .prose a:hover {
+    @apply text-flowpro-dark no-underline pl-10;
+  }
+  
+  /* TODO: Style lists for organization using @apply */
+  ul, ol {
+    @apply mb-4 pl-6;
+  }
+  
+  li {
+    @apply mb-2 text-neutral-600;
+  }
+}
