@@ -199,6 +199,28 @@
         </div>
       </div>
     </section>
+    
+    <!-- Component Showcase Section -->
+    <section class="py-24 lg:py-32 bg-neutral-50">
+      <div class="container mx-auto px-4">
+        <div class="mb-20 text-center">
+          <h2 class="text-4xl font-black tracking-tight text-neutral-900 sm:text-5xl">Component Library</h2>
+          <div class="mx-auto mt-6 h-1.5 w-32 rounded-full bg-gradient-to-r from-flowpro to-flowpro-accent"></div>
+          <p class="text-body mx-auto mt-8 max-w-3xl text-lg">
+            Our reusable Vue components built with Nuxt 3 and Tailwind CSS. Clean, consistent, and ready for production.
+          </p>
+        </div>
+        
+        <div class="text-center">
+          <BaseButton variant="primary" size="large" @click="navigateTo('/component-showcase')">
+            View Component Library
+          </BaseButton>
+          <p class="mt-4 text-neutral-600">
+            See our reusable Vue components in action with interactive demos
+          </p>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 

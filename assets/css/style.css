@@ -167,8 +167,7 @@
   }
 }
 
-/* TODO: Create utility text classes using @apply */
-@layer components {
+  /* Semantic typography utilities */
   .text-display {
     @apply text-6xl font-black text-neutral-900 leading-none;
   }
@@ -187,6 +186,59 @@
   
   .text-caption {
     @apply text-sm text-neutral-500 leading-normal;
+  }
+ 
+  /* Component Styles */
+  @layer components {
+    .input-stack > * + * {
+      margin-top: 0.5rem;
+    }
+
+    .input-field {
+      @apply px-3 py-2 border-2 border-neutral-300 rounded-lg focus:ring-2 focus:ring-flowpro focus:border-flowpro transition-colors;
+      flex: 1 1 0%;
+      min-width: 0;
+    }
+
+    .input-field.error {
+      @apply border-danger focus:ring-danger focus:border-danger;
+    }
+
+    .input-field.disabled {
+      @apply bg-neutral-100 cursor-not-allowed opacity-50;
+    }
+
+    .input-field.readonly {
+      @apply bg-neutral-50 cursor-default;
+    }
+
+    .input-label {
+      @apply block text-sm font-medium text-neutral-700;
+    }
+
+    .required-indicator {
+      @apply text-danger ml-1;
+    }
+
+    .input-wrapper {
+      @apply relative flex items-center gap-2;
+    }
+
+    .helper-text {
+      @apply text-sm text-neutral-500;
+    }
+
+    .error-text {
+      @apply text-sm text-danger font-medium;
+    }
+
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 
   /* Glassmorphism utility */
@@ -229,17 +281,6 @@
 
   .bg-gradient-card {
     background: var(--gradient-card);
-  }
-
-  /* Animations */
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-  }
-
-  .animate-float {
-    animation: float 4s ease-in-out infinite;
   }
 
   /* Semantic color classes using design tokens */
