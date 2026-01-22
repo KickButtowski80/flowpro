@@ -7,6 +7,41 @@
     <div class="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-flowpro/20 blur-3xl"></div>
     <div class="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl"></div>
     
+    <!-- Obvious Parallax Icons -->
+    <div class="pointer-events-none absolute inset-0">
+      <!-- Big Wrench - Slow Background -->
+      <div 
+        class="absolute left-[10%] top-[20%] text-white/40"
+        :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.2}px) rotate(${scrollY * 0.1}deg)` : undefined }"
+      >
+        <span class="block text-8xl will-change-transform">🔧</span>
+      </div>
+      
+      <!-- Faucet - Medium Speed -->
+      <div 
+        class="absolute right-[15%] top-[30%] text-white/35"
+        :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.5}px) rotate(-${scrollY * 0.2}deg)` : undefined }"
+      >
+        <span class="block text-7xl will-change-transform">🚰</span>
+      </div>
+      
+      <!-- Water Drops - Fast Foreground -->
+      <div 
+        class="absolute left-[20%] bottom-[25%] text-blue-200/50"
+        :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.8}px) rotate(${scrollY * 0.3}deg)` : undefined }"
+      >
+        <span class="block text-6xl will-change-transform">💧</span>
+      </div>
+      
+      <!-- Pipe - Extra Fast -->
+      <div 
+        class="absolute right-[25%] bottom-[20%] text-white/30"
+        :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 1.2}px) rotate(-${scrollY * 0.4}deg)` : undefined }"
+      >
+        <span class="block text-7xl will-change-transform">🔩</span>
+      </div>
+    </div>
+    
     <div class="relative z-10 text-center">
       <div class="max-w-5xl mx-auto">
         <!-- Status Badge -->
@@ -20,8 +55,18 @@
         
         <!-- Main Heading -->
         <h1 class="mb-8 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl">
-          {{ mainHeading }}
-          <span class="block text-blue-200">{{ subHeading }}</span>
+          <span 
+            :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.3}px)` : undefined }"
+            class="inline-block will-change-transform"
+          >
+            {{ mainHeading }}
+          </span>
+          <span 
+            :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.5}px)` : undefined }"
+            class="block text-blue-200 will-change-transform"
+          >
+            {{ subHeading }}
+          </span>
         </h1>
         
         <!-- Subheading -->
@@ -98,6 +143,8 @@
  * @property {string} [secondaryCtaSubtext='(555) 123-4567'] - Secondary CTA subtext
  * @property {Array} [trustIndicators] - Array of trust indicator objects
  */
+import { onMounted, onUnmounted, ref } from 'vue'
+
 const props = defineProps({
   statusBadge: {
     type: String,
@@ -147,6 +194,38 @@ const props = defineProps({
       { value: '24/7', label: 'Emergency Service' }
     ]
   }
+})
+
+const heroEl = ref(null)
+const parallaxEnabled = ref(true)
+const scrollY = ref(0)
+
+let onScroll
+
+const updateScroll = () => {
+  // Simple direct scroll calculation
+  scrollY.value = window.scrollY
+  
+  
+}
+
+onMounted(() => {
+  // Disable for reduced motion
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+  if (reduce?.matches) {
+    parallaxEnabled.value = false
+    return
+  }
+  
+  onScroll = () => {
+    updateScroll()
+  }
+  
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  if (onScroll) window.removeEventListener('scroll', onScroll)
 })
 </script>
 
