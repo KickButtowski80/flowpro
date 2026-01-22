@@ -20,7 +20,7 @@
       
       <!-- Emergency Section -->
       <EmergencySection 
-        :phone-number="5551234567"
+        :phone-number="'(555) 123-4567'"
       />
       
       <!-- Component Showcase Section -->
