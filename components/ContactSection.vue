@@ -232,7 +232,7 @@ const props = defineProps({
   },
   emergencyPhone: {
     type: String,
-    default: '5551234567'
+    default: '(555) 911-HELP'
   }
 })
 
