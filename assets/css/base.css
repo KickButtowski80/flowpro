@@ -27,23 +27,25 @@
   }
   
   /* TODO: Style links for clear interaction using @apply */
-  /* Glamorous plumbing-themed content links - fixing Tailwind Typography conflicts */
-  .prose a {
-    @apply text-flowpro-blue underline transition-all duration-300 relative inline-block pl-8;
+  /* Glamorous plumbing-themed links - navbar navigation only */
+  
+  /* Navbar navigation links (excluding Get Quote button) */
+  nav a:not([class*="bg-gradient"]) {
+    @apply relative pl-8 transition-transform duration-300 ease-out;
   }
   
-  /* Override Tailwind Typography link styles */
-  .prose a::before {
+  nav a:not([class*="bg-gradient"])::before {
     content: "⚙️";
-    @apply absolute left-0 top-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300 text-lg z-10 inline-block;
+    @apply absolute left-0 top-1/2 -translate-y-1/2 opacity-0 text-lg z-10 
+    transition-opacity duration-300 ease-out;
   }
   
-  .prose a:hover::before {
+  nav a:not([class*="bg-gradient"]):hover::before {
     @apply opacity-100;
   }
   
-  .prose a:hover {
-    @apply text-flowpro-dark no-underline pl-10;
+  nav a:not([class*="bg-gradient"]):hover {
+    @apply translate-x-2;
   }
   
   /* TODO: Style lists for organization using @apply */
