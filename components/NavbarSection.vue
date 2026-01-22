@@ -15,25 +15,25 @@
         <div class="hidden md:flex items-center gap-10">
           <a 
             href="#services" 
-            class="relative pl-6 text-white hover:text-blue-200 transition-colors text-lg font-semibold before:content-['⚙️'] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            class="relative pl-6 text-white hover:text-blue-200 transition-colors text-lg font-semibold"
           >
             Services
           </a>
           <a 
             href="#about" 
-            class="relative pl-6 text-white hover:text-blue-200 transition-colors text-lg font-semibold before:content-['⚙️'] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            class="relative pl-6 text-white hover:text-blue-200 transition-colors text-lg font-semibold"
           >
             About
           </a>
           <a 
             href="#emergency" 
-            class="relative pl-6 text-white hover:text-red-200 transition-colors text-lg font-semibold before:content-['⚙️'] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            class="relative pl-6 text-white hover:text-red-200 transition-colors text-lg font-semibold"
           >
             Emergency
           </a>
           <a 
             href="#contact" 
-            class="relative pl-6 text-white hover:text-green-200 transition-colors text-lg font-semibold before:content-['⚙️'] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            class="relative pl-6 text-white hover:text-green-200 transition-colors text-lg font-semibold"
           >
             Contact
           </a>
@@ -68,28 +68,28 @@
         <div class="px-4 py-6 space-y-4">
           <a 
             href="#services" 
-            class="relative block pl-6 text-white hover:text-blue-200 transition-colors py-3 text-lg font-semibold before:content-['⚙️'] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            class="relative block pl-6 text-white hover:text-blue-200 transition-colors py-3 text-lg font-semibold"
             @click="closeMobileMenu"
           >
             Services
           </a>
           <a 
             href="#about" 
-            class="relative block pl-6 text-white hover:text-blue-200 transition-colors py-3 text-lg font-semibold before:content-['⚙️'] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            class="relative block pl-6 text-white hover:text-blue-200 transition-colors py-3 text-lg font-semibold"
             @click="closeMobileMenu"
           >
             About
           </a>
           <a 
             href="#emergency" 
-            class="relative block pl-6 text-white hover:text-red-200 transition-colors py-3 text-lg font-semibold before:content-['⚙️'] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            class="relative block pl-6 text-white hover:text-red-200 transition-colors py-3 text-lg font-semibold"
             @click="closeMobileMenu"
           >
             Emergency
           </a>
           <a 
             href="#contact" 
-            class="relative block pl-6 text-white hover:text-green-200 transition-colors py-3 text-lg font-semibold before:content-['⚙️'] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            class="relative block pl-6 text-white hover:text-green-200 transition-colors py-3 text-lg font-semibold"
             @click="closeMobileMenu"
           >
             Contact
@@ -121,7 +121,7 @@
  * <NavbarSection />
  */
 
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 // Mobile menu state
 const isMobileMenuOpen = ref(false)
