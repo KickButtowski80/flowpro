@@ -31,13 +31,12 @@
   
   /* Navbar navigation links (excluding Get Quote button) */
   nav a:not([class*="bg-gradient"]) {
-    @apply relative pl-8 transition-transform duration-300 ease-out;
+    @apply relative pl-12 transition-transform duration-300 ease-out;
   }
   
   nav a:not([class*="bg-gradient"])::before {
-    content: "⚙️";
-    @apply absolute left-0 top-1/2 -translate-y-1/2 opacity-0 text-lg z-10 
-    transition-opacity duration-300 ease-out;
+    content: "🔧";
+    @apply absolute -left-4 top-1/2 -translate-y-1/2 opacity-0 text-4xl z-10 transition-opacity duration-300 ease-out bg-transparent;
   }
   
   nav a:not([class*="bg-gradient"]):hover::before {
@@ -45,7 +44,7 @@
   }
   
   nav a:not([class*="bg-gradient"]):hover {
-    @apply translate-x-2;
+    @apply translate-x-2 pl-14;
   }
   
   /* TODO: Style lists for organization using @apply */
