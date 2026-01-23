@@ -1,6 +1,6 @@
 <template>
   <!-- Hero Section -->
-  <section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
+  <section ref="heroEl" class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
     <!-- Background Elements -->
     <div class="absolute inset-0 bg-black/20"></div>
     <div class="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-white/10 blur-3xl"></div>
@@ -53,19 +53,25 @@
           {{ statusBadge }}
         </div>
         
+        <!-- Debug info - always visible -->
+        <div class="fixed top-32 left-4 bg-black/80 text-white p-4 rounded z-[1000]">
+          <div>parallaxEnabled: {{ parallaxEnabled }}</div>
+          <div>scrolledPastHero: {{ scrolledPastHero }}</div>
+          <div>scrollY: {{ scrollY }}px</div>
+          <div>heroHeight: {{ heroHeight }}px</div>
+        </div>
+
         <!-- Main Heading -->
         <h1 class="mb-8 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl">
-          <span 
-            :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.3}px)` : undefined }"
-            class="inline-block will-change-transform"
+          <span
+            :class="headingContainerClass"
           >
-            {{ mainHeading }}
-          </span>
-          <span 
-            :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.5}px)` : undefined }"
-            class="block text-blue-200 will-change-transform"
-          >
-            {{ subHeading }}
+            <span v-if="isSticky" class="text-blue-400 text-2xl animate-pulse">⚙️</span>
+            <span :class="headingTitleClass">
+              <span class="inline-block will-change-transform parallax-slow">{{ mainHeading }}</span>
+              <span :class="subHeadingClass" class="will-change-transform parallax-fast">{{ subHeading }}</span>
+            </span>
+            <span v-if="isSticky" class="text-blue-400 text-2xl animate-pulse">⚙️</span>
           </span>
         </h1>
         
@@ -143,7 +149,7 @@
  * @property {string} [secondaryCtaSubtext='(555) 123-4567'] - Secondary CTA subtext
  * @property {Array} [trustIndicators] - Array of trust indicator objects
  */
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const props = defineProps({
   statusBadge: {
@@ -199,14 +205,65 @@ const props = defineProps({
 const heroEl = ref(null)
 const parallaxEnabled = ref(true)
 const scrollY = ref(0)
+const heroHeight = ref(0)
 
 let onScroll
+let resizeObserver
+
+// ResizeObserver for accurate hero height
+const setupResizeObserver = () => {
+  resizeObserver = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      heroHeight.value = entry.contentRect.height
+      console.log('🔧 Hero height updated:', heroHeight.value, 'px')
+    }
+  })
+  
+  const el = heroEl.value
+  if (el) {
+    resizeObserver.observe(el)
+  }
+}
+
+// Check if scrolled past hero with buffer for smooth transition
+const scrolledPastHero = computed(() => {
+  if (!heroHeight.value) return false
+  return scrollY.value > (heroHeight.value - 100)
+})
+
+const isSticky = computed(() => scrolledPastHero.value)
+
+const headingContainerClass = computed(() => (
+  isSticky.value
+    ? 'fixed top-16 left-0 right-0 z-[999] bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 border-b border-blue-700/50 py-6 px-8 shadow-2xl flex items-center justify-center gap-3'
+    : ''
+))
+
+const headingTitleClass = computed(() => (
+  isSticky.value
+    ? 'text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-200'
+    : ''
+))
+
+const subHeadingClass = computed(() => (
+  isSticky.value ? '' : 'block text-blue-200'
+))
 
 const updateScroll = () => {
   // Simple direct scroll calculation
   scrollY.value = window.scrollY
-  
-  
+
+  const el = heroEl.value
+  if (!el) return
+
+  if (!parallaxEnabled.value) {
+    el.style.setProperty('--parallax-slow-y', '0px')
+    el.style.setProperty('--parallax-fast-y', '0px')
+    return
+  }
+
+  el.style.setProperty('--parallax-slow-y', `${scrollY.value * 0.3}px`)
+  el.style.setProperty('--parallax-fast-y', `${scrollY.value * 0.5}px`)
 }
 
 onMounted(() => {
@@ -217,6 +274,11 @@ onMounted(() => {
     return
   }
   
+  // Setup ResizeObserver for accurate height detection
+  setupResizeObserver()
+
+  updateScroll()
+  
   onScroll = () => {
     updateScroll()
   }
@@ -226,6 +288,12 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (onScroll) window.removeEventListener('scroll', onScroll)
+  if (resizeObserver) resizeObserver.disconnect()
+
+  const el = heroEl.value
+  if (!el) return
+  el.style.removeProperty('--parallax-slow-y')
+  el.style.removeProperty('--parallax-fast-y')
 })
 </script>
 
@@ -249,5 +317,11 @@ onUnmounted(() => {
   background-color: #3b82f6;
 }
 
-/* Animation classes are handled by Tailwind utilities */
+.parallax-slow {
+  transform: translateY(var(--parallax-slow-y, 0px));
+}
+
+.parallax-fast {
+  transform: translateY(var(--parallax-fast-y, 0px));
+}
 </style>

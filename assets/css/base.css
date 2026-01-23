@@ -18,7 +18,15 @@
   }
   
   h4 {
-    @apply text-xl font-semibold text-neutral-900 leading-normal mb-2;
+    @apply text-xl font-medium text-neutral-900 leading-relaxed mb-2;
+  }
+  
+  h5 {
+    @apply text-lg font-medium text-neutral-900 leading-relaxed mb-1;
+  }
+  
+  h6 {
+    @apply text-base font-medium text-neutral-900 leading-relaxed mb-1;
   }
   
   /* TODO: Style body text for readability using @apply */
