@@ -12,27 +12,27 @@
     <!-- Obvious Parallax Icons -->
     <div class="pointer-events-none absolute inset-0">
       <!-- Big Wrench - Slow Background -->
-      <div class="absolute left-[10%] top-[20%] text-white/40"
+      <div class="absolute left-[10%] top-[20%] text-white z-50"
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.2}px) rotate(${scrollY * 0.1}deg)` : undefined }">
-        <span class="block text-8xl will-change-transform">🔧</span>
+        <span class="block text-8xl will-change-transform drop-shadow-2xl">🔧</span>
       </div>
 
       <!-- Faucet - Medium Speed -->
-      <div class="absolute right-[15%] top-[30%] text-white/35"
+      <div class="absolute right-[15%] top-[30%] text-white/90 z-20"
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.5}px) rotate(-${scrollY * 0.2}deg)` : undefined }">
-        <span class="block text-7xl will-change-transform">🚰</span>
+        <span class="block text-7xl will-change-transform drop-shadow-lg">🚰</span>
       </div>
 
       <!-- Water Drops - Fast Foreground -->
-      <div class="absolute left-[20%] bottom-[25%] text-blue-200/50"
+      <div class="absolute left-[20%] bottom-[25%] text-blue-200/90 z-30"
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.8}px) rotate(${scrollY * 0.3}deg)` : undefined }">
-        <span class="block text-6xl will-change-transform">💧</span>
+        <span class="block text-6xl will-change-transform drop-shadow-xl">💧</span>
       </div>
 
       <!-- Pipe - Extra Fast -->
-      <div class="absolute right-[25%] bottom-[20%] text-white/30"
+      <div class="absolute right-[25%] bottom-[20%] text-white/90 z-40"
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 1.2}px) rotate(-${scrollY * 0.4}deg)` : undefined }">
-        <span class="block text-7xl will-change-transform">🔩</span>
+        <span class="block text-7xl will-change-transform drop-shadow-md">🔩</span>
       </div>
     </div>
 
@@ -233,7 +233,6 @@ const subHeadingClass = computed(() => (
 const updateScroll = () => {
   // Simple direct scroll calculation
   scrollY.value = window.scrollY
-  console.log('🔧 updateScroll:', scrollY.value, 'parallaxEnabled:', parallaxEnabled.value)
 }
 
 onMounted(() => {
