@@ -19,8 +19,26 @@
 
       <!-- Faucet - Medium Speed -->
       <div class="absolute right-[15%] top-[30%] text-white/90 z-20"
-        :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.5}px) rotate(-${scrollY * 0.2}deg)` : undefined }">
-        <span class="block text-7xl will-change-transform drop-shadow-lg">🚰</span>
+        :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.5}px)` : undefined }">
+        <div class="relative">
+          <span
+            class="block text-7xl will-change-transform drop-shadow-lg"
+            :style="{ transform: parallaxEnabled ? `rotate(-${scrollY * 0.2}deg)` : undefined }"
+          >🚰</span>
+
+          <div v-if="shouldSplash" class="absolute inset-0 pointer-events-none">
+            <div class="water-drip" :key="splashTrigger" :style="{ '--drip-fall': `${heroHeight}px` }">
+              <div class="droplet droplet-1"></div>
+              <div class="droplet droplet-2"></div>
+              <div class="droplet droplet-3"></div>
+              <div class="droplet droplet-4"></div>
+              <div class="droplet droplet-5"></div>
+              <div class="droplet droplet-6"></div>
+              <div class="droplet droplet-7"></div>
+              <div class="droplet droplet-8"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Water Drops - Fast Foreground -->
@@ -48,7 +66,6 @@
           {{ statusBadge }}
         </div>
 
-        
         <!-- Main Heading -->
         <h1 class="mb-8 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl">
           <span :class="headingContainerClass">
@@ -196,7 +213,6 @@ const setupResizeObserver = () => {
   resizeObserver = new ResizeObserver((entries) => {
     for (let entry of entries) {
       heroHeight.value = entry.contentRect.height
-      console.log('🔧 Hero height updated:', heroHeight.value, 'px')
     }
   })
 
@@ -230,9 +246,23 @@ const subHeadingClass = computed(() => (
   isSticky.value ? '' : 'block text-blue-200'
 ))
 
+const shouldSplash = computed(() => {
+  if (!parallaxEnabled.value) return false
+  // Splash continuously while in hero section, regardless of rotation
+  return scrollY.value > 50 && !scrolledPastHero.value
+})
+
+// Create multiple splash triggers for continuous effect
+const splashTrigger = ref(0)
+
 const updateScroll = () => {
   // Simple direct scroll calculation
   scrollY.value = window.scrollY
+  
+  // Trigger splash every 50px of scroll when in hero section
+  if (shouldSplash.value) {
+    splashTrigger.value = Math.floor(scrollY.value / 50)
+  }
 }
 
 onMounted(() => {
@@ -279,5 +309,129 @@ onUnmounted(() => {
 
 .bg-flowpro {
   background-color: #3b82f6;
+}
+
+/* Water Drip Effect */
+.water-drip {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+}
+
+.droplet {
+  position: absolute;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.95) 0%, rgba(219, 234, 254, 0.9) 30%, rgba(147, 197, 253, 0.85) 60%, rgba(96, 165, 250, 0.75) 100%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: drip-fall var(--duration, 1.4s) var(--ease, cubic-bezier(0.25, 0.46, 0.45, 0.94)) forwards;
+  filter: blur(0.2px);
+  will-change: transform, opacity;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.droplet-1 {
+  left: 42px;
+  top: -6px;
+  width: 8px;
+  height: 10px;
+  --duration: 1.6s;
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-delay: 0s;
+}
+
+.droplet-2 {
+  left: 52px;
+  top: -10px;
+  width: 6px;
+  height: 8px;
+  --duration: 1.8s;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-delay: 0.12s;
+}
+
+.droplet-3 {
+  left: 58px;
+  top: -8px;
+  width: 10px;
+  height: 14px;
+  --duration: 1.5s;
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-delay: 0.24s;
+}
+
+.droplet-4 {
+  left: 46px;
+  top: -12px;
+  width: 7px;
+  height: 9px;
+  --duration: 1.7s;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-delay: 0.08s;
+}
+
+.droplet-5 {
+  left: 62px;
+  top: -14px;
+  width: 9px;
+  height: 7px;
+  --duration: 1.4s;
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-delay: 0.18s;
+}
+
+.droplet-6 {
+  left: 48px;
+  top: -4px;
+  width: 5px;
+  height: 6px;
+  --duration: 1.9s;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-delay: 0.3s;
+}
+
+.droplet-7 {
+  left: 54px;
+  top: -16px;
+  width: 12px;
+  height: 16px;
+  --duration: 1.3s;
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-delay: 0.36s;
+}
+
+.droplet-8 {
+  left: 44px;
+  top: -6px;
+  width: 6px;
+  height: 5px;
+  --duration: 1.6s;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-delay: 0.42s;
+}
+
+@keyframes drip-fall {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+    transform: translateY(1px) scale(1.05);
+  }
+  8% {
+    transform: translateY(3px) scale(0.95);
+  }
+  95% {
+    opacity: 0.7;
+    transform: translateY(calc(var(--drip-fall, 100vh) - 10px)) scale(0.9);
+  }
+  100% {
+    transform: translateY(var(--drip-fall, 100vh)) scale(0.85);
+    opacity: 0;
+  }
 }
 </style>
