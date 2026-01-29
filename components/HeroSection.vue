@@ -336,9 +336,11 @@ onUnmounted(() => {
 .droplet-1 {
   left: 42px;
   top: -6px;
-  width: 8px;
-  height: 10px;
-  --duration: 1.6s;
+  width: 6px;
+  height: 12px;
+  border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+  background: radial-gradient(ellipse at 35% 25%, rgba(255, 255, 255, 0.95) 0%, rgba(219, 234, 254, 0.9) 30%, rgba(147, 197, 253, 0.85) 60%, rgba(96, 165, 250, 0.75) 100%);
+  --duration: 3.0s;
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   animation-delay: 0s;
 }
@@ -346,9 +348,11 @@ onUnmounted(() => {
 .droplet-2 {
   left: 52px;
   top: -10px;
-  width: 6px;
-  height: 8px;
-  --duration: 1.8s;
+  width: 4px;
+  height: 10px;
+  border-radius: 40% 60% 60% 40% / 20% 30% 70% 80%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.92) 0%, rgba(219, 234, 254, 0.88) 25%, rgba(147, 197, 253, 0.82) 55%, rgba(96, 165, 250, 0.72) 100%);
+  --duration: 3.2s;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   animation-delay: 0.12s;
 }
@@ -356,9 +360,11 @@ onUnmounted(() => {
 .droplet-3 {
   left: 58px;
   top: -8px;
-  width: 10px;
-  height: 14px;
-  --duration: 1.5s;
+  width: 8px;
+  height: 16px;
+  border-radius: 50% 50% 50% 50% / 25% 25% 75% 75%;
+  background: radial-gradient(ellipse at 40% 30%, rgba(255, 255, 255, 0.96) 0%, rgba(219, 234, 254, 0.91) 28%, rgba(147, 197, 253, 0.86) 58%, rgba(96, 165, 250, 0.76) 100%);
+  --duration: 2.8s;
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   animation-delay: 0.24s;
 }
@@ -366,9 +372,11 @@ onUnmounted(() => {
 .droplet-4 {
   left: 46px;
   top: -12px;
-  width: 7px;
-  height: 9px;
-  --duration: 1.7s;
+  width: 5px;
+  height: 11px;
+  border-radius: 30% 70% 70% 30% / 15% 25% 75% 85%;
+  background: radial-gradient(ellipse at 25% 20%, rgba(255, 255, 255, 0.94) 0%, rgba(219, 234, 254, 0.89) 32%, rgba(147, 197, 253, 0.84) 62%, rgba(96, 165, 250, 0.74) 100%);
+  --duration: 3.1s;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   animation-delay: 0.08s;
 }
@@ -376,9 +384,11 @@ onUnmounted(() => {
 .droplet-5 {
   left: 62px;
   top: -14px;
-  width: 9px;
-  height: 7px;
-  --duration: 1.4s;
+  width: 7px;
+  height: 9px;
+  border-radius: 60% 40% 40% 60% / 35% 25% 75% 65%;
+  background: radial-gradient(ellipse at 45% 25%, rgba(255, 255, 255, 0.93) 0%, rgba(219, 234, 254, 0.87) 35%, rgba(147, 197, 253, 0.83) 65%, rgba(96, 165, 250, 0.73) 100%);
+  --duration: 2.7s;
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   animation-delay: 0.18s;
 }
@@ -386,9 +396,11 @@ onUnmounted(() => {
 .droplet-6 {
   left: 48px;
   top: -4px;
-  width: 5px;
-  height: 6px;
-  --duration: 1.9s;
+  width: 3px;
+  height: 8px;
+  border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%;
+  background: radial-gradient(ellipse at 35% 15%, rgba(255, 255, 255, 0.91) 0%, rgba(219, 234, 254, 0.85) 40%, rgba(147, 197, 253, 0.80) 70%, rgba(96, 165, 250, 0.70) 100%);
+  --duration: 3.4s;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   animation-delay: 0.3s;
 }
@@ -396,9 +408,11 @@ onUnmounted(() => {
 .droplet-7 {
   left: 54px;
   top: -16px;
-  width: 12px;
-  height: 16px;
-  --duration: 1.3s;
+  width: 10px;
+  height: 18px;
+  border-radius: 50% 50% 50% 50% / 28% 28% 72% 72%;
+  background: radial-gradient(ellipse at 38% 25%, rgba(255, 255, 255, 0.97) 0%, rgba(219, 234, 254, 0.92) 26%, rgba(147, 197, 253, 0.87) 56%, rgba(96, 165, 250, 0.77) 100%);
+  --duration: 2.5s;
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   animation-delay: 0.36s;
 }
@@ -406,9 +420,11 @@ onUnmounted(() => {
 .droplet-8 {
   left: 44px;
   top: -6px;
-  width: 6px;
-  height: 5px;
-  --duration: 1.6s;
+  width: 4px;
+  height: 7px;
+  border-radius: 70% 30% 30% 70% / 25% 15% 85% 75%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.90) 0%, rgba(219, 234, 254, 0.84) 38%, rgba(147, 197, 253, 0.79) 68%, rgba(96, 165, 250, 0.69) 100%);
+  --duration: 3.0s;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   animation-delay: 0.42s;
 }
