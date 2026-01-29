@@ -1,6 +1,6 @@
 <template>
   <!-- Navigation -->
-  <nav class="fixed top-0 z-50 w-full bg-flowpro border-b border-flowpro-dark/20 backdrop-blur-lg shadow-lg">
+  <nav class="fixed top-0 z-50 isolate w-full bg-flowpro border-b border-flowpro-dark/20 backdrop-blur-lg shadow-lg">
     <div class="container mx-auto px-4">
       <div class="flex h-20 items-center justify-between">
         <!-- Logo -->

@@ -12,7 +12,7 @@
     <!-- Obvious Parallax Icons -->
     <div class="pointer-events-none absolute inset-0">
       <!-- Big Wrench - Slow Background -->
-      <div class="absolute left-[10%] top-[20%] text-white z-50"
+      <div class="absolute left-[10%] top-[20%] text-white z-40"
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.2}px) rotate(${scrollY * 0.1}deg)` : undefined }">
         <span class="block text-8xl will-change-transform drop-shadow-2xl">🔧</span>
       </div>
