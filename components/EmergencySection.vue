@@ -1,7 +1,7 @@
 <template>
   <!-- Emergency Section -->
   <section :id="sectionId" class="py-24 lg:py-32">
-    <div class="container mx-auto px-4">
+    <div>
       <div class="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-red-600 to-red-800 p-12 shadow-2xl md:p-20">
         <!-- Background Effects -->
         <div class="absolute inset-0 bg-black/20"></div>

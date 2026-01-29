@@ -1,0 +1,74 @@
+@theme {
+  /* All variables that should generate Tailwind utilities must use the correct prefix */
+  --font-family-sans: "Inter", system-ui, sans-serif;
+  --font-family-serif: "Georgia", serif;
+  --font-family-mono: "JetBrains Mono", monospace;
+
+  /* FIX 1: Primary brand colors must use --color- prefix */
+  --color-flowpro: #2563eb;
+  --color-flowpro-blue: #2563eb;
+  --color-flowpro-dark: #1e40af;
+  --color-flowpro-light: #dbeafe;
+  --color-flowpro-accent: #3b82f6;
+  --color-flowpro-gray: #64748b;
+  
+  /* 🎨 Phase 1: Enhanced Industrial Color Palette */
+  /* Water-specific tones */
+  --color-water-blue: #0ea5e9;
+  --color-pipe-blue: #1e40af;
+  --color-cyan-highlight: #06b6d4;
+  
+  /* Metallic accents */
+  --color-steel-gray: #64748b;
+  --color-chrome-silver: #94a3b8;
+  --color-industrial-gray: #475569;
+  
+  /* Industrial gradients */
+  --gradient-water: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+  --gradient-metallic: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  --gradient-industrial: linear-gradient(135deg, #475569 0%, #1e40af 100%);
+  
+  /* Modern UI additions */
+  --color-glass-white: rgba(255, 255, 255, 0.8);
+  --color-glass-blue: rgba(37, 99, 235, 0.1);
+  --color-glass-dark: rgba(0, 0, 0, 0.05);
+  
+  /* Shadow tokens */
+  --shadow-modern: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.3);
+  --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-hero: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Gradient tokens */
+  --gradient-hero: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  
+  /* Semantic colors */
+  --color-success: #22c55e;
+  --color-success-hover: #16a34a;
+  --color-warning: #f59e0b;
+  --color-warning-hover: #d97706;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  
+  /* High contrast variants for accessibility */
+  --color-blue-100: #dbeafe;  /* High contrast on dark */
+  --color-blue-200: #bfdbfe;  /* Medium contrast on dark */
+  
+  /* Neutral colors */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+  
+  /* Custom spacing */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  --spacing-128: 32rem;
+}

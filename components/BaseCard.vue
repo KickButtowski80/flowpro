@@ -4,9 +4,9 @@
       <slot name="header" />
     </header>
     
-    <main :class="contentClasses">
+    <div class="card-body" :class="contentClasses">
       <slot />
-    </main>
+    </div>
     
     <footer v-if="$slots.footer" :class="footerClasses">
       <slot name="footer" />

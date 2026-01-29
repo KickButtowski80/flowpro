@@ -1,0 +1,64 @@
+/* Component Styles */
+@layer components {
+  .input-stack > * + * {
+    margin-top: 0.5rem;
+  }
+
+  .input-field {
+    @apply px-3 py-2 border-2 border-neutral-300 rounded-lg focus:ring-2 focus:ring-flowpro focus:border-flowpro transition-colors;
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+
+  .input-field.error {
+    @apply border-danger focus:ring-danger focus:border-danger;
+  }
+
+  .input-field.disabled {
+    @apply bg-neutral-100 cursor-not-allowed opacity-50;
+  }
+
+  .input-field.readonly {
+    @apply bg-neutral-50 cursor-default;
+  }
+
+  .input-label {
+    @apply block text-sm font-medium text-neutral-700;
+  }
+
+  .required-indicator {
+    @apply text-danger ml-1;
+  }
+
+  .input-wrapper {
+    @apply relative flex items-center gap-2;
+  }
+
+  .helper-text {
+    @apply text-sm text-neutral-500;
+  }
+
+  .error-text {
+    @apply text-sm text-danger font-medium;
+  }
+
+  /* Enhanced button styles using @apply */
+  .btn-primary {
+    @apply text-white px-6 py-3 rounded-md font-semibold no-underline inline-block transition-colors duration-200;
+    background-color: var(--color-flowpro-blue);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-flowpro-dark);
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-3 rounded-md font-semibold no-underline inline-block transition-colors duration-200;
+    background-color: var(--color-flowpro-light);
+    color: var(--color-flowpro-dark);
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--color-flowpro-accent);
+  }
+}
