@@ -5,8 +5,9 @@
         <h1 class="text-2xl font-bold">FlowPro Plumbing</h1>
       </div>
     </header>
-    <main>
+    <!-- Page Content Area -->
+    <section class="page-content">
       <NuxtPage />
-    </main>
+    </section>
   </div>
 </template>
