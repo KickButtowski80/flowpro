@@ -14,7 +14,7 @@
       <!-- Big Wrench - Slow Background -->
       <div class="absolute left-[10%] top-[20%] text-white z-40"
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.2}px) rotate(${scrollY * 0.1}deg)` : undefined }">
-        <span class="block text-8xl will-change-transform drop-shadow-2xl">🔧</span>
+        <span class="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl will-change-transform drop-shadow-2xl">🔧</span>
       </div>
 
       <!-- Faucet - Medium Speed -->
@@ -22,7 +22,7 @@
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.5}px)` : undefined }">
         <div class="relative">
           <span
-            class="block text-7xl will-change-transform drop-shadow-lg"
+            class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl will-change-transform drop-shadow-lg"
             :style="{ transform: parallaxEnabled ? `rotate(-${scrollY * 0.2}deg)` : undefined }"
           >🚰</span>
 
@@ -44,13 +44,13 @@
       <!-- Water Drops - Fast Foreground -->
       <div class="absolute left-[20%] bottom-[25%] text-blue-200/90 z-30"
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 0.8}px) rotate(${scrollY * 0.3}deg)` : undefined }">
-        <span class="block text-6xl will-change-transform drop-shadow-xl">💧</span>
+        <span class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl will-change-transform drop-shadow-xl">💧</span>
       </div>
 
       <!-- Pipe - Extra Fast -->
       <div class="absolute right-[25%] bottom-[20%] text-white/90 z-40"
         :style="{ transform: parallaxEnabled ? `translateY(${scrollY * 1.2}px) rotate(-${scrollY * 0.4}deg)` : undefined }">
-        <span class="block text-7xl will-change-transform drop-shadow-md">🔩</span>
+        <span class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl will-change-transform drop-shadow-md">🔩</span>
       </div>
     </div>
 
