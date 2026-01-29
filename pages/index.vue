@@ -1,10 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
-    <!-- Navigation -->
-    <NavbarSection />
-    
     <!-- Main Content -->
-    <main class="container mx-auto px-4">
+    <main class="container md:mx-auto px-4">
       <!-- Hero Section -->
       <HeroSection 
         :greeting-message="currentMessage"
@@ -34,21 +30,10 @@
       <!-- Get Quote Section -->
       <GetQuoteSection />
     </main>
-  </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import NavbarSection from '~/components/NavbarSection.vue'
-import HeroSection from '~/components/HeroSection.vue'
-import ServicesSection from '~/components/ServicesSection.vue'
-import AboutSection from '~/components/AboutSection.vue'
-import EmergencySection from '~/components/EmergencySection.vue'
-import ComponentShowcaseSection from '~/components/ComponentShowcaseSection.vue'
-import ContactSection from '~/components/ContactSection.vue'
-import GetQuoteSection from '~/components/GetQuoteSection.vue'
-
-const greeting = ref('Hello')
 
 const currentMessage = computed(() => {
   // Get current hour once - no need for updates
