@@ -1,5 +1,5 @@
 <template>
-  <!-- Main Content -->
+  <!-- Main Content Tagh -->
   <main class="w-full">
     <!-- Hero Section - Full Width -->
     <HeroSection 
