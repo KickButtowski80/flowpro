@@ -15,27 +15,71 @@
         <div class="hidden md:flex items-center gap-10">
           <a 
             href="#services" 
-            class="relative pl-6 text-white hover:text-blue-200 transition-colors text-lg font-semibold"
+            :class="[
+              'relative pl-6 text-lg font-semibold transition-all duration-300',
+              isSectionActive('services') 
+                ? 'text-blue-300 scale-105' 
+                : 'text-white hover:text-blue-200'
+            ]"
           >
-            Services
+            <span class="relative">
+              Services
+              <span 
+                v-if="isSectionActive('services')"
+                class="absolute -top-2 -right-3 text-lg animate-bounce"
+              >🔧</span>
+            </span>
           </a>
           <a 
             href="#about" 
-            class="relative pl-6 text-white hover:text-blue-200 transition-colors text-lg font-semibold"
+            :class="[
+              'relative pl-6 text-lg font-semibold transition-all duration-300',
+              isSectionActive('about') 
+                ? 'text-purple-300 scale-105' 
+                : 'text-white hover:text-blue-200'
+            ]"
           >
-            About
+            <span class="relative">
+              About
+              <span 
+                v-if="isSectionActive('about')"
+                class="absolute -top-2 -right-3 text-lg animate-pulse"
+              >📋</span>
+            </span>
           </a>
           <a 
             href="#emergency" 
-            class="relative pl-6 text-white hover:text-red-200 transition-colors text-lg font-semibold"
+            :class="[
+              'relative pl-6 text-lg font-semibold transition-all duration-300',
+              isSectionActive('emergency') 
+                ? 'text-red-300 scale-105 animate-pulse' 
+                : 'text-white hover:text-red-200'
+            ]"
           >
-            Emergency
+            <span class="relative">
+              Emergency
+              <span 
+                v-if="isSectionActive('emergency')"
+                class="absolute -top-2 -right-3 text-lg animate-spin"
+              >🚨</span>
+            </span>
           </a>
           <a 
             href="#contact" 
-            class="relative pl-6 text-white hover:text-green-200 transition-colors text-lg font-semibold"
+            :class="[
+              'relative pl-6 text-lg font-semibold transition-all duration-300',
+              isSectionActive('contact') 
+                ? 'text-green-300 scale-105' 
+                : 'text-white hover:text-green-200'
+            ]"
           >
-            Contact
+            <span class="relative">
+              Contact
+              <span 
+                v-if="isSectionActive('contact')"
+                class="absolute -top-2 -right-3 text-lg animate-bounce"
+              >📞</span>
+            </span>
           </a>
           <a 
             href="#get-quote" 
@@ -112,29 +156,63 @@
 
 <script setup>
 /**
- * NavbarSection - Main navigation component with mobile menu
+ * NavbarSection - Main navigation component with mobile menu and active states
  * 
  * @component
- * @description A responsive navigation bar with desktop links and mobile hamburger menu
+ * @description A responsive navigation bar with desktop links, mobile hamburger menu, and scroll-based active section highlighting
  * 
  * @example
  * <NavbarSection />
  */
 
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useActiveSection } from '~/composables/useActiveSection'
 
 // Mobile menu state
 const isMobileMenuOpen = ref(false)
 
-// Toggle mobile menu
+// Active section detection
+const { isSectionActive, observeSection } = useActiveSection()
+
+// Mobile menu functions
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
-// Close mobile menu
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
 }
+
+// Close mobile menu on escape key
+const handleEscape = (event) => {
+  if (event.key === 'Escape') {
+    closeMobileMenu()
+  }
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  document.addEventListener('keydown', handleEscape)
+  
+  // Observe sections for active state detection
+  nextTick(() => {
+    const sections = {
+      services: document.querySelector('#services'),
+      about: document.querySelector('#about'),
+      emergency: document.querySelector('#emergency'),
+      contact: document.querySelector('#contact'),
+      'get-quote': document.querySelector('#get-quote')
+    }
+    
+    Object.entries(sections).forEach(([id, element]) => {
+      observeSection(id, element)
+    })
+  })
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscape)
+})
 </script>
 
 <style scoped>
