@@ -1,6 +1,8 @@
 <template>
   <!-- Hero Section -->
-  <section ref="heroEl" class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
+  <section ref="heroEl" class="relative min-h-screen 
+  flex items-center justify-center overflow-hidden
+   bg-gradient-hero px-4 sm:px-6 lg:px-8">
     <!-- Background Elements -->
     <div class="absolute inset-0 bg-black/20"></div>
     <div class="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-white/10 blur-3xl"></div>
