@@ -112,31 +112,75 @@
         <div class="px-4 py-6 space-y-4">
           <a 
             href="#services" 
-            class="relative block pl-6 text-white hover:text-blue-200 transition-colors py-3 text-lg font-semibold"
+            :class="[
+              'relative block pl-6 transition-colors py-3 text-lg font-semibold',
+              isSectionActive('services') 
+                ? 'text-blue-300 scale-105' 
+                : 'text-white hover:text-blue-200'
+            ]"
             @click="closeMobileMenu"
           >
-            Services
+            <span class="relative">
+              Services
+              <span 
+                v-if="isSectionActive('services')"
+                class="absolute -top-2 -right-3 text-lg animate-bounce"
+              >🔧</span>
+            </span>
           </a>
           <a 
             href="#about" 
-            class="relative block pl-6 text-white hover:text-blue-200 transition-colors py-3 text-lg font-semibold"
+            :class="[
+              'relative block pl-6 transition-colors py-3 text-lg font-semibold',
+              isSectionActive('about') 
+                ? 'text-purple-300 scale-105' 
+                : 'text-white hover:text-blue-200'
+            ]"
             @click="closeMobileMenu"
           >
-            About
+            <span class="relative">
+              About
+              <span 
+                v-if="isSectionActive('about')"
+                class="absolute -top-2 -right-3 text-lg animate-pulse"
+              >📋</span>
+            </span>
           </a>
           <a 
             href="#emergency" 
-            class="relative block pl-6 text-white hover:text-red-200 transition-colors py-3 text-lg font-semibold"
+            :class="[
+              'relative block pl-6 transition-colors py-3 text-lg font-semibold',
+              isSectionActive('emergency') 
+                ? 'text-red-300 scale-105 animate-pulse' 
+                : 'text-white hover:text-red-200'
+            ]"
             @click="closeMobileMenu"
           >
-            Emergency
+            <span class="relative">
+              Emergency
+              <span 
+                v-if="isSectionActive('emergency')"
+                class="absolute -top-2 -right-3 text-lg animate-spin"
+              >🚨</span>
+            </span>
           </a>
           <a 
             href="#contact" 
-            class="relative block pl-6 text-white hover:text-green-200 transition-colors py-3 text-lg font-semibold"
+            :class="[
+              'relative block pl-6 transition-colors py-3 text-lg font-semibold',
+              isSectionActive('contact') 
+                ? 'text-green-300 scale-105' 
+                : 'text-white hover:text-green-200'
+            ]"
             @click="closeMobileMenu"
           >
-            Contact
+            <span class="relative">
+              Contact
+              <span 
+                v-if="isSectionActive('contact')"
+                class="absolute -top-2 -right-3 text-lg animate-bounce"
+              >📞</span>
+            </span>
           </a>
           <a 
             href="#get-quote" 
@@ -197,11 +241,11 @@ onMounted(() => {
   // Observe sections for active state detection
   nextTick(() => {
     const sections = {
-      services: document.querySelector('#services'),
-      about: document.querySelector('#about'),
-      emergency: document.querySelector('#emergency'),
-      contact: document.querySelector('#contact'),
-      'get-quote': document.querySelector('#get-quote')
+      services: document.querySelector('section#services'),
+      about: document.querySelector('section#about'),
+      emergency: document.querySelector('section#emergency'),
+      contact: document.querySelector('section#contact'),
+      'get-quote': document.querySelector('section#get-quote')
     }
     
     Object.entries(sections).forEach(([id, element]) => {
