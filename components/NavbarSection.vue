@@ -124,7 +124,7 @@
               Services
               <span 
                 v-if="isSectionActive('services')"
-                class="absolute -top-2 -right-3 text-lg animate-bounce"
+                class="absolute -top-2 -right-3 text-lg animate-bounce transition-all duration-300"
               >🔧</span>
             </span>
           </a>
@@ -142,7 +142,7 @@
               About
               <span 
                 v-if="isSectionActive('about')"
-                class="absolute -top-2 -right-3 text-lg animate-pulse"
+                class="absolute -top-2 -right-3 text-lg animate-pulse transition-all duration-300"
               >📋</span>
             </span>
           </a>
@@ -160,7 +160,7 @@
               Emergency
               <span 
                 v-if="isSectionActive('emergency')"
-                class="absolute -top-2 -right-3 text-lg animate-spin"
+                class="absolute -top-2 -right-3 text-lg animate-spin transition-all duration-300"
               >🚨</span>
             </span>
           </a>
@@ -178,17 +178,26 @@
               Contact
               <span 
                 v-if="isSectionActive('contact')"
-                class="absolute -top-2 -right-3 text-lg animate-bounce"
+                class="absolute -top-2 -right-3 text-lg animate-bounce transition-all duration-300"
               >📞</span>
             </span>
           </a>
           <a 
             href="#get-quote" 
-            class="relative overflow-hidden block rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 font-black text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 text-center"
+            :class="[
+              'relative overflow-hidden block rounded-2xl px-8 py-4 font-black shadow-lg transition-all duration-300 text-center',
+              isSectionActive('get-quote') 
+                ? 'bg-gradient-to-r from-green-600 to-emerald-700 text-white scale-105 shadow-xl' 
+                : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700'
+            ]"
             @click="closeMobileMenu"
           >
             <span class="relative z-10 flex items-center justify-center gap-2">
               <span class="text-lg">💰</span>
+              <span 
+                v-if="isSectionActive('get-quote')"
+                class="absolute -top-2 -right-3 text-lg animate-bounce transition-all duration-300"
+              >🎯</span>
               Get Quote
             </span>
           </a>
