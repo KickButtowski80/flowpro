@@ -13,19 +13,49 @@
     <div class="container mx-auto px-4">
       <div class="flex h-20 items-center justify-between">
         <!-- Logo -->
-        <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-flowpro font-bold text-lg">
+        <NuxtLink
+          to="#hero"
+          aria-label="FlowPro home"
+          :aria-current="isSectionActive('hero') ? 'page' : undefined"
+          :class="[
+            'relative flex items-center gap-3 rounded-xl focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none transition-[transform,box-shadow,color,border,filter] duration-300',
+            isSectionActive('hero')
+              ? 'scale-110 shadow-2xl shadow-blue-500/60 backdrop-blur-sm bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-purple-500/20 border border-blue-400/50'
+              : ''
+          ]"
+        >
+          <div 
+            :class="[
+              'flex h-10 w-10 items-center justify-center rounded-lg font-bold text-lg transition-all duration-500',
+              isSectionActive('hero')
+                ? 'bg-gradient-to-br from-blue-400 to-cyan-400 text-white rotate-12 scale-110 shadow-xl'
+                : 'bg-white text-flowpro'
+            ]"
+          >
             FP
           </div>
-          <span class="text-2xl font-black text-white">FlowPro</span>
-        </div>
+          <span 
+            :class="[
+              'text-2xl font-black transition-all duration-500',
+              isSectionActive('hero')
+                ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-cyan-200 to-purple-200'
+                : 'text-white'
+            ]"
+          >
+            FlowPro
+          </span>
+          <span 
+            v-if="isSectionActive('hero')"
+            class="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 rounded-full shadow-lg shadow-blue-400/50"
+          ></span>
+        </NuxtLink>
         
         <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center gap-10">
-          <a 
-            href="#services" 
+          <NuxtLink 
+            to="#services" 
             :class="[
-              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
+              'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('services') 
                 ? 'text-blue-300 scale-105' 
                 : 'text-white hover:text-blue-200'
@@ -39,11 +69,11 @@
                 class="absolute -top-2 -right-3 text-lg animate-bounce transition-transform duration-300"
               >🔧</span>
             </span>
-          </a>
-          <a 
-            href="#about" 
+          </NuxtLink>
+          <NuxtLink 
+            to="#about" 
             :class="[
-              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
+              'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('about') 
                 ? 'text-purple-300 scale-105' 
                 : 'text-white hover:text-blue-200'
@@ -57,11 +87,11 @@
                 class="absolute -top-1 -right-4 text-lg animate-pulse"
               >📋</span>
             </span>
-          </a>
-          <a 
-            href="#emergency" 
+          </NuxtLink>
+          <NuxtLink 
+            to="#emergency" 
             :class="[
-              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
+              'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('emergency') 
                 ? 'text-red-300 scale-105 animate-pulse' 
                 : 'text-white hover:text-red-200'
@@ -75,11 +105,11 @@
                 class="absolute -top-1 -right-4 text-lg animate-spin"
               >🚨</span>
             </span>
-          </a>
-          <a 
-            href="#contact" 
+          </NuxtLink>
+          <NuxtLink 
+            to="#contact" 
             :class="[
-              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
+              'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('contact') 
                 ? 'text-green-300 scale-105' 
                 : 'text-white hover:text-green-200'
@@ -93,10 +123,10 @@
                 class="absolute -top-1 -right-4 text-lg animate-bounce"
               >📞</span>
             </span>
-          </a>
-          <a 
-            href="#get-quote" 
-            class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-3 font-black text-white shadow-lg transition-transform duration-300 transition-colors duration-300 hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 focus-visible:ring-4 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none"
+          </NuxtLink>
+          <NuxtLink 
+            to="#get-quote" 
+            class="nav-link relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-3 font-black text-white shadow-lg transition-transform duration-300 transition-colors duration-300 hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 focus-visible:ring-4 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none"
             :aria-current="isSectionActive('get-quote') ? 'page' : undefined"
           >
             <span class="relative z-10 flex items-center gap-2">
@@ -107,7 +137,7 @@
                 class="absolute -top-2 -right-5 text-lg animate-pulse transition-transform duration-300"
               >🎯</span>
             </span>
-          </a>
+          </NuxtLink>
         </div>
         
         <!-- Mobile Menu Button -->
@@ -133,10 +163,10 @@
         aria-label="Mobile navigation"
       >
         <div class="px-4 py-6 space-y-2">
-          <a 
-            href="#services" 
+          <NuxtLink 
+            to="#services" 
             :class="[
-              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
+              'nav-link relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('services') 
                 ? 'text-blue-300 scale-105' 
                 : 'text-white hover:text-blue-200'
@@ -151,12 +181,12 @@
                 class="absolute -top-2 -right-3 text-lg animate-bounce transition-all duration-300"
               >🔧</span>
             </span>
-          </a>
+          </NuxtLink>
 
-          <a 
-            href="#about" 
+          <NuxtLink 
+            to="#about" 
             :class="[
-              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
+              'nav-link relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('about') 
                 ? 'text-purple-300 scale-105' 
                 : 'text-white hover:text-blue-200'
@@ -171,11 +201,11 @@
                 class="absolute -top-2 -right-5 text-lg animate-pulse transition-transform duration-300"
               >📋</span>
             </span>
-          </a>
-          <a 
-            href="#emergency" 
+          </NuxtLink>
+          <NuxtLink 
+            to="#emergency" 
             :class="[
-              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
+              'nav-link relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('emergency') 
                 ? 'text-red-300 scale-105 animate-pulse' 
                 : 'text-white hover:text-red-200'
@@ -190,11 +220,11 @@
                 class="absolute -top-1 -right-4 text-lg animate-spin transition-transform duration-300"
               >🚨</span>
             </span>
-          </a>
-          <a 
-            href="#contact" 
+          </NuxtLink>
+          <NuxtLink 
+            to="#contact" 
             :class="[
-              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
+              'nav-link relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('contact') 
                 ? 'text-green-300 scale-105' 
                 : 'text-white hover:text-green-200'
@@ -209,9 +239,9 @@
                 class="absolute -top-1 -right-4 text-lg animate-bounce transition-transform duration-300"
               >📞</span>
             </span>
-          </a>
-          <a 
-            href="#get-quote" 
+          </NuxtLink>
+          <NuxtLink 
+            to="#get-quote" 
             :class="[
               'relative overflow-hidden block rounded-2xl px-8 py-4 font-black shadow-lg text-center transition-transform duration-300 transition-colors duration-300 focus-visible:ring-4 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none min-h-[44px]',
               isSectionActive('get-quote') 
@@ -229,7 +259,7 @@
               >🎯</span>
               Get Quote
             </span>
-          </a>
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -280,6 +310,7 @@ onMounted(() => {
   // Observe sections for active state detection
   nextTick(() => {
     const sections = {
+      hero: document.getElementById('hero'),
       services: document.getElementById('services'),
       about: document.getElementById('about'),
       emergency: document.getElementById('emergency'),
