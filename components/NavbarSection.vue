@@ -88,6 +88,10 @@
             <span class="relative z-10 flex items-center gap-2">
               <span class="text-lg">💰</span>
               Get Quote
+                 <span 
+                v-if="isSectionActive('get-quote')"
+                class="absolute -top-2 -right-5 text-lg animate-pulse"
+              >🎯</span>
             </span>
           </a>
         </div>
