@@ -14,12 +14,12 @@
         <div 
           v-for="service in services" 
           :key="service.title"
-          class="group relative overflow-hidden rounded-3xl bg-gradient-card p-8 shadow-card transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+          class="group relative overflow-hidden rounded-3xl bg-gradient-card p-8 shadow-card transition-[transform,box-shadow] duration-500 hover:-translate-y-2 hover:shadow-2xl"
         >
-          <div class="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gradient-to-br from-flowpro/10 to-flowpro/5 transition-all duration-500 group-hover:scale-150"></div>
+          <div class="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gradient-to-br from-flowpro/10 to-flowpro/5 transition-transform duration-500 group-hover:scale-150"></div>
           
           <div class="relative z-10">
-            <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-flowpro to-flowpro-dark text-4xl shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl">
+            <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-flowpro to-flowpro-dark text-4xl shadow-lg transition-[transform,box-shadow] duration-500 group-hover:scale-110 group-hover:shadow-xl">
               {{ service.icon }}
             </div>
             <h3 class="mb-4 text-2xl font-bold text-neutral-900">{{ service.title }}</h3>
