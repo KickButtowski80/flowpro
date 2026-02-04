@@ -1,6 +1,6 @@
 <template>
   <!-- Hero Section -->
-  <section ref="heroEl" class="relative min-h-screen 
+  <section id="hero" ref="heroEl" class="relative min-h-screen 
   flex items-center justify-center overflow-hidden
    bg-gradient-hero px-4 sm:px-6 lg:px-8">
     <!-- Background Elements -->
@@ -91,14 +91,14 @@
         <!-- CTA Buttons -->
         <div class="flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
           <a :href="primaryCtaLink"
-            class="group relative overflow-hidden rounded-2xl bg-white px-8 py-5 text-lg font-bold text-flowpro shadow-hero transition-all hover:scale-105 hover:shadow-2xl">
+            class="group relative overflow-hidden rounded-2xl bg-white px-8 py-5 text-lg font-bold text-flowpro shadow-hero transition-[transform,box-shadow] hover:scale-105 hover:shadow-2xl">
             <span class="relative z-10 flex items-center gap-3">
               <span>{{ primaryCtaText }}</span>
               <span class="transition-transform duration-300 group-hover:translate-x-2">→</span>
             </span>
           </a>
           <a :href="secondaryCtaLink"
-            class="glass-card flex items-center gap-3 rounded-2xl px-8 py-5 text-lg font-semibold text-white transition-all hover:bg-white/30 hover:scale-105">
+            class="glass-card flex items-center gap-3 rounded-2xl px-8 py-5 text-lg font-semibold text-white transition-[transform,background-color] hover:bg-white/30 hover:scale-105">
             <span>{{ secondaryCtaText }}</span>
             <span class="text-blue-200">{{ secondaryCtaSubtext }}</span>
           </a>
