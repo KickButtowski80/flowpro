@@ -173,7 +173,8 @@
               isSectionActive('get-quote')
                 ? 'bg-gradient-to-r from-green-600 to-emerald-700 text-white scale-105 shadow-xl'
                 : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700'
-            ]" :aria-current="isSectionActive('get-quote') ? 'page' : undefined" @click="closeMobileMenu">
+            ]" :aria-current="isSectionActive('get-quote') ? 'page' : undefined"
+             @click="closeMobileMenu">
               <span class="relative z-10 flex items-center justify-center gap-2">
                 <span class="text-lg">💰</span>
                 <span v-if="isSectionActive('get-quote')"
