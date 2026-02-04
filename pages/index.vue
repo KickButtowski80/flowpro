@@ -2,9 +2,11 @@
   <!-- Main Content-->
   <main id="main-content" class="w-full" tabindex="-1">
     <!-- Hero Section - Full Width -->
-    <HeroSection 
-      :greeting-message="currentMessage"
-    />
+    <section id="hero" class="w-full">
+      <HeroSection 
+        :greeting-message="currentMessage"
+      />
+    </section>
     
     <!-- Services Section - Container Inside -->
     <section id="services" class="py-20 bg-gray-50">
