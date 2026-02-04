@@ -66,7 +66,7 @@
               Services
               <span 
                 v-if="isSectionActive('services')"
-                class="absolute -top-2 -right-3 text-lg animate-bounce transition-transform duration-300"
+                class="absolute -top-3 -right-5 text-lg animate-bounce transition-transform duration-300"
               >🔧</span>
             </span>
           </NuxtLink>
@@ -84,7 +84,7 @@
               About
               <span 
                 v-if="isSectionActive('about')"
-                class="absolute -top-1 -right-4 text-lg animate-pulse"
+                class="absolute -top-3 -right-5 text-lg animate-pulse"
               >📋</span>
             </span>
           </NuxtLink>
@@ -102,7 +102,7 @@
               Emergency
               <span 
                 v-if="isSectionActive('emergency')"
-                class="absolute -top-1 -right-4 text-lg animate-spin"
+                class="absolute -top-3 -right-5 text-lg animate-spin"
               >🚨</span>
             </span>
           </NuxtLink>
@@ -120,7 +120,7 @@
               Contact
               <span 
                 v-if="isSectionActive('contact')"
-                class="absolute -top-1 -right-4 text-lg animate-bounce"
+                class="absolute -top-3 -right-5 text-lg animate-bounce"
               >📞</span>
             </span>
           </NuxtLink>
@@ -134,7 +134,7 @@
               Get Quote
                  <span 
                 v-if="isSectionActive('get-quote')"
-                class="absolute -top-2 -right-5 text-lg animate-pulse transition-transform duration-300"
+                class="absolute -top-3 -right-5 text-lg animate-pulse transition-transform duration-300"
               >🎯</span>
             </span>
           </NuxtLink>
@@ -178,7 +178,7 @@
               Services
               <span 
                 v-if="isSectionActive('services')"
-                class="absolute -top-2 -right-3 text-lg animate-bounce transition-all duration-300"
+                class="absolute -top-3 -right-5 text-lg animate-bounce transition-all duration-300"
               >🔧</span>
             </span>
           </NuxtLink>
@@ -198,7 +198,7 @@
               About
               <span 
                 v-if="isSectionActive('about')"
-                class="absolute -top-2 -right-5 text-lg animate-pulse transition-transform duration-300"
+                class="absolute -top-3 -right-5 text-lg animate-pulse transition-transform duration-300"
               >📋</span>
             </span>
           </NuxtLink>
@@ -217,7 +217,7 @@
               Emergency
               <span 
                 v-if="isSectionActive('emergency')"
-                class="absolute -top-1 -right-4 text-lg animate-spin transition-transform duration-300"
+                class="absolute -top-3 -right-5 text-lg animate-spin transition-transform duration-300"
               >🚨</span>
             </span>
           </NuxtLink>
@@ -236,7 +236,7 @@
               Contact
               <span 
                 v-if="isSectionActive('contact')"
-                class="absolute -top-1 -right-4 text-lg animate-bounce transition-transform duration-300"
+                class="absolute -top-3 -right-5 text-lg animate-bounce transition-transform duration-300"
               >📞</span>
             </span>
           </NuxtLink>
@@ -255,7 +255,7 @@
               <span class="text-lg">💰</span>
               <span 
                 v-if="isSectionActive('get-quote')"
-                class="absolute -top-2 -right-3 text-lg animate-bounce transition-transform duration-300"
+                class="absolute -top-3 -right-5 text-lg animate-bounce transition-transform duration-300"
               >🎯</span>
               Get Quote
             </span>
