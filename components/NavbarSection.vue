@@ -1,14 +1,15 @@
 <template>
-  <!-- Skip Navigation Link -->
-  <a 
-    href="#main-content" 
-    class="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 bg-flowpro text-white px-4 py-2 rounded-md font-semibold z-50"
-  >
-    Skip to main content
-  </a>
-  
-  <!-- Navigation -->
-  <nav class="fixed top-0 z-50 isolate w-full bg-flowpro border-b border-flowpro-dark/20 backdrop-blur-lg shadow-lg">
+  <header>
+    <!-- Skip Navigation Link -->
+    <a 
+      href="#main-content" 
+      class="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 bg-white focus-visible:text-blue-500 focus-visible:px-2 focus-visible:py-2 focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-opacity-50 focus-visible:z-[9999]"
+    >
+      Skip to main content
+    </a>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 z-50 isolate w-full bg-flowpro border-b border-flowpro-dark/20 backdrop-blur-lg shadow-lg">
     <div class="container mx-auto px-4">
       <div class="flex h-20 items-center justify-between">
         <!-- Logo -->
@@ -113,7 +114,6 @@
         <button 
           class="md:hidden text-neutral-600 p-2 rounded-lg hover:bg-neutral-100 focus-visible:ring-2 focus-visible:ring-flowpro focus-visible:ring-offset-2 focus-visible:outline-none"
           @click="toggleMobileMenu"
-          @keydown="handleMobileMenuKeydown"
           :aria-expanded="isMobileMenuOpen"
           aria-controls="mobile-menu"
           :aria-label="isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'"
@@ -164,8 +164,8 @@
             :aria-current="isSectionActive('about') ? 'page' : undefined"
             @click="closeMobileMenu"
           >
-          About
-            <span class="relative">
+          <span class="relative">
+              About
               <span 
                 v-if="isSectionActive('about')"
                 class="absolute -top-2 -right-5 text-lg animate-pulse transition-transform duration-300"
@@ -234,6 +234,7 @@
       </div>
     </div>
   </nav>
+  </header>
 </template>
 
 <script setup>
@@ -265,14 +266,6 @@ const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
 }
 
-// Handle keyboard events for mobile menu button
-const handleMobileMenuKeydown = (event) => {
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault()
-    toggleMobileMenu()
-  }
-}
-
 // Close mobile menu on escape key
 const handleEscape = (event) => {
   if (event.key === 'Escape') {
@@ -287,11 +280,11 @@ onMounted(() => {
   // Observe sections for active state detection
   nextTick(() => {
     const sections = {
-      services: document.querySelector('section#services'),
-      about: document.querySelector('section#about'),
-      emergency: document.querySelector('section#emergency'),
-      contact: document.querySelector('section#contact'),
-      'get-quote': document.querySelector('section#get-quote')
+      services: document.getElementById('services'),
+      about: document.getElementById('about'),
+      emergency: document.getElementById('emergency'),
+      contact: document.getElementById('contact'),
+      'get-quote': document.getElementById('get-quote')
     }
     
     Object.entries(sections).forEach(([id, element]) => {
@@ -302,6 +295,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleEscape)
+  // No cleanup needed - navbar never unmounts
 })
 </script>
 
