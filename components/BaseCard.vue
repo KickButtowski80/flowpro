@@ -45,7 +45,7 @@ const cardClasses = computed(() => {
   else if (props.variant === 'flat') classes.push('border-0', 'shadow-none', 'bg-neutral-50')
   
   // Hover effect
-  if (props.hover) classes.push('hover:shadow-md', 'hover:-translate-y-1', 'transition-all', 'duration-200')
+  if (props.hover) classes.push('hover:shadow-md', 'hover:-translate-y-1', 'transition-[transform,box-shadow]', 'duration-200')
   
   // Padding - apply directly to card
   if (props.padding === 'none') classes.push('p-0')
