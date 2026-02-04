@@ -2,7 +2,7 @@
   <!-- Skip Navigation Link -->
   <a 
     href="#main-content" 
-    class="sr-only focus-within:not-sr-only focus-within:absolute focus-within:top-4 focus-within:left-4 bg-flowpro text-white px-4 py-2 rounded-md font-semibold z-50"
+    class="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 bg-flowpro text-white px-4 py-2 rounded-md font-semibold z-50"
   >
     Skip to main content
   </a>
@@ -24,7 +24,7 @@
           <a 
             href="#services" 
             :class="[
-              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-within:ring-2 focus-within:ring-blue-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro rounded-md',
+              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('services') 
                 ? 'text-blue-300 scale-105' 
                 : 'text-white hover:text-blue-200'
@@ -42,7 +42,7 @@
           <a 
             href="#about" 
             :class="[
-              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-within:ring-2 focus-within:ring-purple-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro rounded-md',
+              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('about') 
                 ? 'text-purple-300 scale-105' 
                 : 'text-white hover:text-blue-200'
@@ -60,7 +60,7 @@
           <a 
             href="#emergency" 
             :class="[
-              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-within:ring-2 focus-within:ring-red-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro rounded-md',
+              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('emergency') 
                 ? 'text-red-300 scale-105 animate-pulse' 
                 : 'text-white hover:text-red-200'
@@ -78,7 +78,7 @@
           <a 
             href="#contact" 
             :class="[
-              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-within:ring-2 focus-within:ring-green-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro rounded-md',
+              'relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('contact') 
                 ? 'text-green-300 scale-105' 
                 : 'text-white hover:text-green-200'
@@ -95,7 +95,7 @@
           </a>
           <a 
             href="#get-quote" 
-            class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-3 font-black text-white shadow-lg transition-transform duration-300 transition-colors duration-300 hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 focus-within:ring-4 focus-within:ring-green-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro"
+            class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-3 font-black text-white shadow-lg transition-transform duration-300 transition-colors duration-300 hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700 before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 focus-visible:ring-4 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none"
             :aria-current="isSectionActive('get-quote') ? 'page' : undefined"
           >
             <span class="relative z-10 flex items-center gap-2">
@@ -111,7 +111,7 @@
         
         <!-- Mobile Menu Button -->
         <button 
-          class="md:hidden text-neutral-600 p-2 rounded-lg hover:bg-neutral-100 focus-within:ring-2 focus-within:ring-flowpro focus-within:ring-offset-2"
+          class="md:hidden text-neutral-600 p-2 rounded-lg hover:bg-neutral-100 focus-visible:ring-2 focus-visible:ring-flowpro focus-visible:ring-offset-2 focus-visible:outline-none"
           @click="toggleMobileMenu"
           @keydown="handleMobileMenuKeydown"
           :aria-expanded="isMobileMenuOpen"
@@ -136,7 +136,7 @@
           <a 
             href="#services" 
             :class="[
-              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-within:ring-2 focus-within:ring-blue-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro rounded-md min-h-[44px]',
+              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('services') 
                 ? 'text-blue-300 scale-105' 
                 : 'text-white hover:text-blue-200'
@@ -156,7 +156,7 @@
           <a 
             href="#about" 
             :class="[
-              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-within:ring-2 focus-within:ring-purple-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro rounded-md min-h-[44px]',
+              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('about') 
                 ? 'text-purple-300 scale-105' 
                 : 'text-white hover:text-blue-200'
@@ -175,7 +175,7 @@
           <a 
             href="#emergency" 
             :class="[
-              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-within:ring-2 focus-within:ring-red-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro rounded-md min-h-[44px]',
+              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('emergency') 
                 ? 'text-red-300 scale-105 animate-pulse' 
                 : 'text-white hover:text-red-200'
@@ -194,7 +194,7 @@
           <a 
             href="#contact" 
             :class="[
-              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-within:ring-2 focus-within:ring-green-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro rounded-md min-h-[44px]',
+              'relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('contact') 
                 ? 'text-green-300 scale-105' 
                 : 'text-white hover:text-green-200'
@@ -213,7 +213,7 @@
           <a 
             href="#get-quote" 
             :class="[
-              'relative overflow-hidden block rounded-2xl px-8 py-4 font-black shadow-lg text-center transition-transform duration-300 transition-colors duration-300 focus-within:ring-4 focus-within:ring-green-300 focus-within:ring-offset-2 focus-within:ring-offset-flowpro min-h-[44px]',
+              'relative overflow-hidden block rounded-2xl px-8 py-4 font-black shadow-lg text-center transition-transform duration-300 transition-colors duration-300 focus-visible:ring-4 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none min-h-[44px]',
               isSectionActive('get-quote') 
                 ? 'bg-gradient-to-r from-green-600 to-emerald-700 text-white scale-105 shadow-xl' 
                 : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700'
