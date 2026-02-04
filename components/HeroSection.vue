@@ -234,7 +234,7 @@ const isSticky = computed(() => scrolledPastHero.value)
 
 const headingContainerClass = computed(() => (
   isSticky.value
-    ? 'fixed top-16 left-0 right-0 z-[999] bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 border-b border-blue-700/50 py-6 px-8 shadow-2xl flex items-center justify-center gap-3'
+    ? 'fixed top-20 left-0 right-0 z-[110] bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 border-b border-blue-700/50 py-6 px-8 shadow-2xl flex items-center justify-center gap-3'
     : ''
 ))
 
