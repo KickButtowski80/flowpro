@@ -9,27 +9,26 @@
           {{ description }}
         </p>
       </div>
-      
+
       <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <div 
-          v-for="service in services" 
-          :key="service.title"
-          class="group relative overflow-hidden rounded-3xl bg-gradient-card p-8 shadow-card transition-[transform,box-shadow] duration-500 hover:-translate-y-2 hover:shadow-2xl"
-        >
-          <div class="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gradient-to-br from-flowpro/10 to-flowpro/5 transition-transform duration-500 group-hover:scale-150"></div>
-          
-          <div class="relative z-10">
-            <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-flowpro to-flowpro-dark text-4xl shadow-lg transition-[transform,box-shadow] duration-500 group-hover:scale-110 group-hover:shadow-xl">
-              {{ service.icon }}
-            </div>
-            <h3 class="mb-4 text-2xl font-bold text-neutral-900">{{ service.title }}</h3>
-            <p class="text-neutral-600 leading-relaxed">{{ service.description }}</p>
-            
-            <div class="mt-8 flex items-center gap-2 font-bold text-flowpro transition-colors group-hover:text-flowpro-dark">
-              <span>{{ ctaText }}</span>
-              <span class="text-lg transition-transform duration-300 group-hover:translate-x-2">→</span>
-            </div>
+        <div v-for="service in services" :key="service.title"
+          class="group relative overflow-hidden rounded-3xl bg-gradient-card p-8 shadow-card transition-[transform,box-shadow] duration-500 hover:-translate-y-2 hover:shadow-2xl">
+          <div
+            class="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gradient-to-br from-flowpro/10 to-flowpro/5 transition-transform duration-500 group-hover:scale-150">
           </div>
+          <div
+            class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-flowpro to-flowpro-dark text-4xl shadow-lg transition-[transform,box-shadow] duration-500 group-hover:scale-110 group-hover:shadow-xl">
+            {{ service.icon }}
+          </div>
+          <h3 class="mb-4 text-2xl font-bold text-neutral-900">{{ service.title }}</h3>
+          <p class="text-neutral-600 leading-relaxed">{{ service.description }}</p>
+
+          <div
+            class="mt-8 flex items-center gap-2 font-bold text-flowpro transition-colors group-hover:text-flowpro-dark">
+            <span>{{ ctaText }}</span>
+            <span class="text-lg transition-transform duration-300 group-hover:translate-x-2">→</span>
+          </div>
+
         </div>
       </div>
     </div>
@@ -66,9 +65,9 @@ const props = defineProps({
     type: Array,
     required: true,
     validator: (value) => {
-      return value.every(service => 
-        service.icon && 
-        service.title && 
+      return value.every(service =>
+        service.icon &&
+        service.title &&
         service.description
       )
     }
