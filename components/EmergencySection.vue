@@ -19,7 +19,7 @@
             </p>
             
             <div class="flex flex-col gap-4 sm:flex-row">
-              <a :href="`tel:${phoneNumber}`" class="group relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-lg font-black text-red-600 shadow-lg transition-all hover:scale-105 hover:shadow-xl">
+              <a :href="`tel:${phoneNumber}`" class="group relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-lg font-black text-red-600 shadow-lg transition-[transform,box-shadow] hover:scale-105 hover:shadow-xl">
                 <span class="relative z-10 flex items-center gap-3">
                   <span>{{ ctaText }}: {{ phoneNumber }}</span>
                 </span>
