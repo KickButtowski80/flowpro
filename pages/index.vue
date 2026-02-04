@@ -1,6 +1,6 @@
 <template>
   <!-- Main Content-->
-  <main class="w-full">
+  <main id="main-content" class="w-full">
     <!-- Hero Section - Full Width -->
     <HeroSection 
       :greeting-message="currentMessage"
