@@ -2,14 +2,14 @@
   <!-- Main Content-->
   <main id="main-content" class="w-full" tabindex="-1">
     <!-- Hero Section - Full Width -->
-    <section id="hero" class="w-full">
+    <section class="w-full">
       <HeroSection 
         :greeting-message="currentMessage"
       />
     </section>
     
     <!-- Services Section - Container Inside -->
-    <section id="services" class="py-20 bg-gray-50">
+    <section class="py-20 bg-gray-50">
       <div class="container mx-auto px-4">
         <ServicesSection 
           :services="features"
@@ -19,14 +19,14 @@
     </section>
     
     <!-- About Section - Container Inside -->
-    <section id="about" class="py-20 bg-white">
+    <section class="py-20 bg-white">
       <div class="container mx-auto px-4">
         <AboutSection section-id="about" />
       </div>
     </section>
     
     <!-- Emergency Section - Container Inside -->
-    <section id="emergency" class="py-20 bg-red-50">
+    <section class="py-20 bg-red-50">
       <div class="container mx-auto px-4">
         <EmergencySection 
           :phone-number="'(555) 123-4567'"
