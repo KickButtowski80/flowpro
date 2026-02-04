@@ -53,7 +53,7 @@
     <!-- Get Quote Section - Container Inside -->
     <section class="py-20 bg-gradient-to-r from-green-600 to-emerald-600">
       <div class="container mx-auto px-4">
-        <GetQuoteSection />
+        <GetQuoteSection section-id="get-quote" />
       </div>
     </section>
   </main>
