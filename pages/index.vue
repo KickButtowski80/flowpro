@@ -1,35 +1,64 @@
 <template>
-    <!-- Main Content -->
-    <main class="container md:mx-auto px-4">
-      <!-- Hero Section -->
+  <!-- Main Content-->
+  <main id="main-content" class="w-full" tabindex="-1">
+    <!-- Hero Section - Full Width -->
+    <section class="w-full">
       <HeroSection 
         :greeting-message="currentMessage"
       />
-      
-      <!-- Services Section -->
-      <ServicesSection 
-        :services="features"
-      />
-      
-      <!-- About Section -->
-      <AboutSection />
-      
-      <!-- Emergency Section -->
-      <EmergencySection 
-        :phone-number="'(555) 123-4567'"
-      />
-      
-      <!-- Component Showcase Section -->
-      <ComponentShowcaseSection 
-        @showcase-click="handleShowcaseClick"
-      />
-      
-      <!-- Contact Section -->
-      <ContactSection />
-      
-      <!-- Get Quote Section -->
-      <GetQuoteSection />
-    </main>
+    </section>
+    
+    <!-- Services Section - Container Inside -->
+    <section class="py-20 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <ServicesSection 
+          :services="features"
+          section-id="services"
+        />
+      </div>
+    </section>
+    
+    <!-- About Section - Container Inside -->
+    <section class="py-20 bg-white">
+      <div class="container mx-auto px-4">
+        <AboutSection section-id="about" />
+      </div>
+    </section>
+    
+    <!-- Emergency Section - Container Inside -->
+    <section class="py-20 bg-red-50">
+      <div class="container mx-auto px-4">
+        <EmergencySection 
+          :phone-number="'(555) 123-4567'"
+          section-id="emergency"
+        />
+      </div>
+    </section>
+    
+    <!-- Component Showcase Section - Container Inside -->
+    <section class="py-20 bg-blue-50">
+      <div class="container mx-auto px-4">
+        <ComponentShowcaseSection 
+          @showcase-click="handleShowcaseClick"
+          section-id="component-showcase"
+        />
+      </div>
+    </section>
+    
+    <!-- Contact Section - Container Inside -->
+    <section class="py-20 bg-green-50">
+      <div class="container mx-auto px-4">
+        <ContactSection section-id="contact" />
+      </div>
+    </section>
+    
+    <!-- Get Quote Section - Container Inside -->
+    <section class="py-20 bg-gradient-to-r from-green-600 to-emerald-600">
+      <div class="container mx-auto px-4">
+        <GetQuoteSection section-id="get-quote" />
+      </div>
+    </section>
+  </main>
 </template>
 
 <script setup>

@@ -1,6 +1,8 @@
 <template>
   <!-- Hero Section -->
-  <section ref="heroEl" class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
+  <section id="hero" ref="heroEl" class="relative min-h-screen 
+  flex items-center justify-center overflow-hidden
+   bg-gradient-hero px-4 sm:px-6 lg:px-8">
     <!-- Background Elements -->
     <div class="absolute inset-0 bg-black/20"></div>
     <div class="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-white/10 blur-3xl"></div>
@@ -89,14 +91,14 @@
         <!-- CTA Buttons -->
         <div class="flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
           <a :href="primaryCtaLink"
-            class="group relative overflow-hidden rounded-2xl bg-white px-8 py-5 text-lg font-bold text-flowpro shadow-hero transition-all hover:scale-105 hover:shadow-2xl">
+            class="group relative overflow-hidden rounded-2xl bg-white px-8 py-5 text-lg font-bold text-flowpro shadow-hero transition-[transform,box-shadow] hover:scale-105 hover:shadow-2xl">
             <span class="relative z-10 flex items-center gap-3">
               <span>{{ primaryCtaText }}</span>
               <span class="transition-transform duration-300 group-hover:translate-x-2">→</span>
             </span>
           </a>
           <a :href="secondaryCtaLink"
-            class="glass-card flex items-center gap-3 rounded-2xl px-8 py-5 text-lg font-semibold text-white transition-all hover:bg-white/30 hover:scale-105">
+            class="glass-card flex items-center gap-3 rounded-2xl px-8 py-5 text-lg font-semibold text-white transition-[transform,background-color] hover:bg-white/30 hover:scale-105">
             <span>{{ secondaryCtaText }}</span>
             <span class="text-blue-200">{{ secondaryCtaSubtext }}</span>
           </a>
@@ -232,7 +234,7 @@ const isSticky = computed(() => scrolledPastHero.value)
 
 const headingContainerClass = computed(() => (
   isSticky.value
-    ? 'fixed top-16 left-0 right-0 z-[999] bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 border-b border-blue-700/50 py-6 px-8 shadow-2xl flex items-center justify-center gap-3'
+    ? 'fixed top-20 left-0 right-0 z-[110] bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 border-b border-blue-700/50 py-6 px-8 shadow-2xl flex items-center justify-center gap-3'
     : ''
 ))
 

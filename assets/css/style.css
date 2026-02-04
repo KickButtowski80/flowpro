@@ -7,7 +7,13 @@
 @import "./components.css";
 @import "./utilities.css";
 
+:root {
+  --navbar-height: 5rem; /* matches h-20 (80px) */
+  --sticky-offset: 5rem; /* matches top-20 (80px) */
+}
+
 /* Global smooth scrolling */
 html, body {
   scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--navbar-height) + 1rem );
 }

@@ -82,7 +82,7 @@ const buttonClasses = computed(() => {
   const classes = [
     'font-medium',
     'rounded-lg',
-    'transition-all',
+    'transition-colors',
     'duration-200',
     'focus:outline-none',
     'focus:ring-2',

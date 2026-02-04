@@ -71,7 +71,7 @@
               <p class="mb-6 text-white/90">Don't wait! Call us now for immediate assistance.</p>
               <a 
                 :href="`tel:${emergencyPhone}`" 
-                class="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 font-black text-red-600 transition-all hover:scale-105"
+                class="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 font-black text-red-600 transition-transform hover:scale-105"
               >
                 <span>📞 Call Now: {{ emergencyPhone }}</span>
               </a>
@@ -125,7 +125,7 @@
               <div class="space-y-4">
                 <a 
                   href="#get-quote" 
-                  class="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition-all hover:shadow-md hover:scale-105"
+                  class="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition-[transform,box-shadow] hover:shadow-md hover:scale-105"
                 >
                   <div class="flex h-12 w-12 items-center justify-center rounded-full bg-flowpro text-white">
                     <span class="text-xl">💰</span>
@@ -143,7 +143,7 @@
                 
                 <a 
                   href="#emergency" 
-                  class="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition-all hover:shadow-md hover:scale-105"
+                  class="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition-[transform,box-shadow] hover:shadow-md hover:scale-105"
                 >
                   <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white">
                     <span class="text-xl">🚨</span>
@@ -161,7 +161,7 @@
                 
                 <a 
                   href="mailto:info@flowpro.com" 
-                  class="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition-all hover:shadow-md hover:scale-105"
+                  class="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition-[transform,box-shadow] hover:shadow-md hover:scale-105"
                 >
                   <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white">
                     <span class="text-xl">📧</span>
