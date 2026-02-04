@@ -114,10 +114,11 @@
         </div>
 
         <!-- Mobile Menu -->
-        <div v-if="isMobileMenuOpen" id="mobile-menu"
-          class="md:hidden border-t border-flowpro-dark/20 bg-flowpro/95 backdrop-blur-lg" role="navigation"
-          aria-label="Mobile navigation">
-          <div class="px-4 py-6 space-y-2">
+        <Transition name="slide-down">
+          <div v-if="isMobileMenuOpen" id="mobile-menu"
+            class="md:hidden border-t border-flowpro-dark/20 bg-flowpro/95 backdrop-blur-lg" role="navigation"
+            aria-label="Mobile navigation">
+            <div class="px-4 py-6 space-y-2">
             <NuxtLink to="#services" :class="[
               'nav-link relative block pl-6 py-4 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md min-h-[44px]',
               isSectionActive('services')
@@ -168,7 +169,7 @@
               </span>
             </NuxtLink>
             <NuxtLink to="#get-quote" :class="[
-              'relative overflow-hidden block rounded-2xl px-8 py-4 font-black shadow-lg text-center transition-transform duration-300 transition-colors duration-300 focus-visible:ring-4 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none min-h-[44px]',
+              'relative overflow-hidden block rounded-2xl px-8 py-4 font-black shadow-lg text-center transition-[transform,box-shadow,color] duration-300 focus-visible:ring-4 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none min-h-[44px]',
               isSectionActive('get-quote')
                 ? 'bg-gradient-to-r from-green-600 to-emerald-700 text-white scale-105 shadow-xl'
                 : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 hover:shadow-xl hover:from-green-600 hover:to-emerald-700'
@@ -181,7 +182,8 @@
               </span>
             </NuxtLink>
           </div>
-        </div>
+          </div>
+        </Transition>
       </div>
     </nav>
   </header>
@@ -259,10 +261,12 @@ onUnmounted(() => {
   /* 
    * Respect user's motion preferences
    * 
-   * :scope pseudo-class:
-   * - Represents the root element of this CSS scope (the <nav> element)
-   * - Provides higher specificity than regular class selectors
-   * - Allows us to override Tailwind utilities without !important
+   * When user prefers reduced motion, disable animations
+   * This is an accessibility feature
+   * 
+   * @media (prefers-reduced-motion: reduce)
+   * 
+   * Scope selector ensures these styles only apply to this component
    * - Example: :scope .animate-bounce targets .animate-bounce within this component only
    */
   @media (prefers-reduced-motion: reduce) {
@@ -278,5 +282,27 @@ onUnmounted(() => {
       transition: none;
     }
   }
+}
+
+/* Slide down transition for mobile menu */
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: opacity 500ms ease-out, transform 500ms ease-out;
+}
+
+.slide-down-enter-from {
+  transform: translateY(-8px);
+  opacity: 0;
+}
+
+.slide-down-leave-to {
+  transform: translateY(-8px);
+  opacity: 0;
+}
+
+.slide-down-enter-to,
+.slide-down-leave-from {
+  transform: translateY(0);
+  opacity: 1;
 }
 </style>
