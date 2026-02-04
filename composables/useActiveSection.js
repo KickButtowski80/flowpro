@@ -4,8 +4,8 @@ import { useIntersectionObserver } from '@vueuse/core'
 /**
  * Active Section Detection Composable
  * 
- * Uses IntersectionObserver to detect which section is currently visible
- * and provides plumbing-themed active state management
+ * Uses IntersectionObserver to detect which section is currently visible.
+ * No cleanup needed - navbar never unmounts.
  */
 export function useActiveSection() {
   const activeSection = ref('')
@@ -13,7 +13,7 @@ export function useActiveSection() {
   /**
    * Observe a section for intersection
    * @param {string} sectionId - The section identifier
-   * @param {Ref<HTMLElement>} element - The section element to observe
+   * @param {HTMLElement} element - DOM element to observe
    */
   const observeSection = (sectionId, element) => {
     if (!element) return
@@ -21,8 +21,7 @@ export function useActiveSection() {
     useIntersectionObserver(
       element,
       ([entry]) => {
-        const intersecting = Boolean(entry?.isIntersecting)
-        if (intersecting) {
+        if (entry?.isIntersecting) {
           activeSection.value = sectionId
         }
       },
@@ -33,18 +32,7 @@ export function useActiveSection() {
     )
   }
   
-  /**
-   * Check if a section is currently active
-   * @param {string} sectionId - The section to check
-   * @returns {boolean} - Whether the section is active
-   */
-  const isSectionActive = (sectionId) => {
-    return activeSection.value === sectionId
-  }
+  const isSectionActive = (sectionId) => activeSection.value === sectionId
   
-  return {
-    activeSection,
-    observeSection,
-    isSectionActive
-  }
+  return { activeSection, observeSection, isSectionActive }
 }
