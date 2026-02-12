@@ -1,33 +1,33 @@
 <template>
   <div class="booking-calendar" @click="handleContainerClick">
     <!-- Calendar Header -->
-    <div class="text-center mb-6">
-      <h3 class="text-xl font-semibold mb-2">📅 Select Your Service Date</h3>
-      <p class="text-gray-600">Choose when you'd like our plumbing service</p>
+    <div class="text-center mb-4 sm:mb-6">
+      <h3 class="text-lg sm:text-xl font-semibold mb-2">📅 Select Your Service Date</h3>
+      <p class="text-sm sm:text-base text-gray-600">Choose when you'd like our plumbing service</p>
     </div>
 
     <!-- Month Navigation -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-4 sm:mb-6">
       <button @click="previousMonth" 
               data-nav="prev"
-              class="group relative p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-x-1">
-        <div class="flex items-center space-x-2">
-          <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="group relative p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-x-1">
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
           </svg>
-          <span class="hidden sm:inline font-medium">Previous</span>
+          <span class="hidden sm:inline font-medium text-sm">Previous</span>
         </div>
         <div class="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
       </button>
       
-      <h4 class="text-xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ currentMonthDisplay }}</h4>
+      <h4 class="text-lg sm:text-xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ currentMonthDisplay }}</h4>
       
       <button @click="nextMonth" 
               data-nav="next"
-              class="group relative p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:translate-x-1">
-        <div class="flex items-center space-x-2">
-          <span class="hidden sm:inline font-medium">Next</span>
-          <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="group relative p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:translate-x-1">
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <span class="hidden sm:inline font-medium text-sm">Next</span>
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
         </div>
@@ -72,9 +72,141 @@
     </div>
 
     <!-- Selected Date Display -->
-    <div class="mb-6 p-4 bg-gray-50 rounded">
-      <h4 class="font-medium mb-2">📍 You Selected:</h4>
-      <p class="text-lg">{{ formattedDate }}</p>
+    <div v-if="selectedDateRange.length > 0" class="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+      <h4 class="font-semibold text-blue-800 mb-2 flex items-center text-sm sm:text-base">
+        📅 You Selected:
+      </h4>
+      <p class="text-base sm:text-lg text-blue-700 font-medium">
+        {{ formatDateRange(selectedDateRange) }}
+      </p>
+      <p class="text-xs sm:text-sm text-blue-600 mt-1">
+        {{ selectedDateRange.length }} day{{ selectedDateRange.length > 1 ? 's' : '' }} selected
+      </p>
+    </div>
+
+    <!-- 🆕 Resource Selection Section -->
+    <div v-if="selectedDateRange.length > 0" class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border-2 border-green-200 resource-ui">
+      <h4 class="font-semibold text-green-800 mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
+        👥 Available Plumbers:
+      </h4>
+      
+      <!-- No resources available message -->
+      <div v-if="availableResources.length === 0" class="text-center py-3 sm:py-4">
+        <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for these dates</p>
+        <p class="text-xs sm:text-sm text-gray-600 mt-1">Try different dates or check existing bookings</p>
+      </div>
+      
+      <!-- Resource list -->
+      <div v-else class="space-y-2 sm:space-y-3">
+        <label v-for="resource in availableResources" 
+               :key="resource.id"
+               class="flex items-center p-2 sm:p-3 bg-white rounded-lg cursor-pointer hover:bg-green-100 transition-all duration-200 border-2 border-transparent hover:border-green-300">
+          <input type="checkbox" 
+                 :value="resource.id" 
+                 v-model="selectedResources"
+                 class="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 text-green-600 rounded focus:ring-green-500">
+          
+          <div class="flex-1">
+            <div class="flex items-center">
+              <span class="text-xl sm:text-2xl mr-2">{{ resource.avatar }}</span>
+              <div>
+                <span class="font-medium text-gray-800 text-sm sm:text-base">{{ resource.displayName }}</span>
+                <div class="text-xs sm:text-sm text-gray-500">
+                  {{ resource.level.charAt(0).toUpperCase() + resource.level.slice(1) }} • ${{ resource.rate }}/hr
+                </div>
+                <div class="text-xs text-gray-400 mt-1 hidden sm:block">
+                  {{ resource.specialties.join(' • ') }}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-right">
+            <div class="text-xs sm:text-sm font-medium text-green-600">
+              Available ✅
+            </div>
+          </div>
+        </label>
+      </div>
+      
+      <!-- Selected resources summary -->
+      <div v-if="selectedResources.length > 0" class="mt-3 sm:mt-4 p-2 sm:p-3 bg-green-100 rounded-lg">
+        <p class="text-xs sm:text-sm text-green-800">
+          <strong>{{ selectedResources.length }}</strong> plumber{{ selectedResources.length > 1 ? 's' : '' }} selected
+        </p>
+        <p class="text-xs text-green-600 mt-1">
+          Total: ${{ totalCost.toLocaleString() }} ({{ selectedDateRange.length }} days)
+        </p>
+      </div>
+    </div>
+
+    <!-- 🆕 Booking Actions -->
+    <div v-if="selectedDateRange.length > 0" class="space-y-2 sm:space-y-3 resource-ui">
+      <!-- Add to Booking Button -->
+      <button @click="addBooking" 
+              :disabled="!canAddBooking"
+              :class="[
+                'w-full py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base',
+                canAddBooking 
+                  ? 'bg-green-500 text-white hover:bg-green-600 transform hover:scale-105 shadow-lg' 
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ]">
+        📋 Add to Booking
+        <span v-if="canAddBooking" class="ml-2 text-xs sm:text-sm">
+          ({{ selectedResources.length }} plumber{{ selectedResources.length > 1 ? 's' : '' }}, ${{ totalCost.toLocaleString() }})
+        </span>
+      </button>
+      
+      <!-- Clear Selection Button -->
+      <button @click="clearSelection" 
+              v-if="selectedDateRange.length > 0 || selectedResources.length > 0"
+              class="w-full py-2 sm:py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm sm:text-base">
+        🔄 Clear Selection
+      </button>
+    </div>
+
+    <!-- 🆕 Current Bookings Summary -->
+    <div v-if="currentBookings.length > 0" class="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200 booking-ui">
+      <h4 class="font-semibold text-yellow-800 mb-2 sm:mb-3 flex items-center justify-between text-sm sm:text-base">
+        <span>📋 Current Bookings ({{ currentBookings.length }})</span>
+        <button @click="clearAllBookings" 
+                class="text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium">
+          Clear All
+        </button>
+      </h4>
+      
+      <div class="space-y-2">
+        <div v-for="(booking, index) in currentBookings" :key="booking.id" 
+             class="p-2 sm:p-3 bg-white rounded-lg border border-yellow-200">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <p class="font-medium text-gray-800 text-sm sm:text-base">
+                {{ formatDateRange(booking.dates) }}
+              </p>
+              <p class="text-xs sm:text-sm text-gray-600">
+                {{ booking.resourceDetails.map(r => r.displayName).join(', ') }}
+              </p>
+            </div>
+            <div class="text-right ml-2">
+              <p class="font-medium text-green-600 text-sm sm:text-base">${{ booking.totalCost.toLocaleString() }}</p>
+              <button @click="removeBooking(booking.id)" 
+                      class="text-xs text-red-600 hover:text-red-800 mt-1">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Checkout Button -->
+      <button @click="proceedToCheckout" 
+              class="w-full mt-3 sm:mt-4 py-2 sm:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm sm:text-base">
+        💳 Proceed to Checkout 
+        <span class="ml-1 sm:ml-2 text-xs sm:text-sm">
+          ({{ currentBookings.length }} booking{{ currentBookings.length > 1 ? 's' : '' }}, 
+          ${{ currentBookings.reduce((sum, b) => sum + b.totalCost, 0).toLocaleString() }})
+        </span>
+      </button>
     </div>
 
     <!-- Time slots will go here -->
@@ -485,6 +617,13 @@ const isInDragRange = (date) => {
   )
 }
 
+// Clear current selection (dates and resources)
+const clearSelection = () => {
+  selectedDateRange.value = []
+  selectedResources.value = []
+  selectedDate.value = null
+}
+
 // 🎯 Clear selection when clicking outside grid
 const handleContainerClick = (event) => {
   // Don't clear if we just finished a drag (click fires after mouseup)
@@ -492,13 +631,15 @@ const handleContainerClick = (event) => {
   
   // Don't clear if clicking on navigation buttons
   const isNavigationClick = event.target.closest('[data-nav]') !== null
-  console.log('handleContainerClick:', { isNavigationClick, target: event.target.tagName })
   if (isNavigationClick) return
 
+  // 🆕 Don't clear if clicking on resource selection or booking UI
+  const isResourceUI = event.target.closest('.resource-ui') !== null
+  const isBookingUI = event.target.closest('.booking-ui') !== null
+  if (isResourceUI || isBookingUI) return
+
   const isInsideGrid = event.target.closest('[data-date]') !== null
-  console.log('isInsideGrid:', isInsideGrid)
   if (!isInsideGrid) {
-    console.log('CLEARING selection!')
     selectedDateRange.value = []
     selectedDate.value = null
     // 🆕 Clear resource selection when clearing dates
