@@ -57,11 +57,10 @@
       <!-- Calendar days will go here -->
       <div v-for="day in calendarDays" :key="day.date" 
            class="text-center p-3 sm:p-2 min-h-[44px] sm:min-h-0 
-           text-sm sm:text-base border-2 rounded-xl transition-all duration-300 relative
-           transform hover:scale-105 shadow-sm hover:shadow-md"
+           text-sm sm:text-base border-2 rounded-xl transition-transform duration-300 relative"
            :data-date="day.date ? day.date.toISOString() : ''"
            :class="{
-             'cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-teal-50 hover:border-emerald-300': !isDateBusy(day.date),
+             'cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-teal-50 hover:border-emerald-300 transform hover:scale-105 shadow-sm hover:shadow-md': !isDateBusy(day.date),
              'cursor-not-allowed': isDateBusy(day.date),
              'bg-gradient-to-br from-blue-400 to-indigo-500 text-white border-blue-500 shadow-lg ring-2 ring-blue-300': isSelected(day.date),
              'text-gray-400 opacity-50': !isCurrentMonth(day.date),
