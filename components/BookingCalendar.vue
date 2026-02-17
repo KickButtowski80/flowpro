@@ -1,5 +1,5 @@
 <template>
-  <div class="booking-calendar" @click="handleContainerClick">
+  <div class="booking-calendar">
     <!-- Calendar Header -->
     <div class="text-center mb-4 sm:mb-6">
       <h3 class="text-lg sm:text-xl font-semibold mb-2">📅 Select Your Service Date</h3>
@@ -73,10 +73,17 @@
 
     <!-- Selected Date Display -->
     <div v-if="selectedDateRange.length > 0" class="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-      <h4 class="font-semibold text-blue-800 mb-2 flex items-center text-sm sm:text-base">
-        📅 You Selected:
-      </h4>
-      <p class="text-base sm:text-lg text-blue-700 font-medium">
+      <div class="flex justify-between items-start mb-2">
+        <h4 class="font-semibold text-blue-800 flex items-center text-sm sm:text-base">
+          📅 You Selected:
+        </h4>
+        <button @click="clearSelection" 
+                class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
+                title="Clear selection">
+          ❌
+        </button>
+      </div>
+      <p class="text-sm sm:text-base text-blue-700 font-medium">
         {{ formatDateRange(selectedDateRange) }}
       </p>
       <p class="text-xs sm:text-sm text-blue-600 mt-1">
@@ -90,10 +97,122 @@
         👥 Available Plumbers:
       </h4>
       
-      <!-- No resources available message -->
-      <div v-if="availableResources.length === 0" class="text-center py-3 sm:py-4">
-        <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for these dates</p>
-        <p class="text-xs sm:text-sm text-gray-600 mt-1">Try different dates or check existing bookings</p>
+      <!-- Availability notice -->
+      <div class="text-xs sm:text-sm text-blue-600 mb-3 p-2 bg-blue-50 rounded border border-blue-200">
+        ℹ️ <strong>All-or-Nothing Availability:</strong> Plumbers shown here are available for ALL selected dates
+      </div>
+      
+      <!-- No Plumbers Available Dialog -->
+      <dialog 
+        v-if="availableResources.length === 0" 
+        ref="noPlumbersDialog"
+        class="p-0 rounded-2xl shadow-2xl backdrop:bg-black/50 border-0 max-w-md w-full
+               fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
+               max-h-[90vh] overflow-y-auto">
+        
+        <!-- Dialog Header -->
+        <div class="bg-gradient-to-r from-yellow-400 to-orange-400 p-4 sm:p-6 rounded-t-2xl text-center">
+          <div class="text-3xl sm:text-4xl mb-2">😔</div>
+          <h3 class="text-lg sm:text-xl font-bold text-white mb-1">No Plumbers Available</h3>
+          <p class="text-yellow-100 text-xs sm:text-sm">Availability Conflict Detected</p>
+        </div>
+        
+        <!-- Dialog Body -->
+        <div class="p-4 sm:p-6 bg-white">
+          <div class="space-y-3 sm:space-y-4">
+            <!-- Problem Explanation -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+              <div class="flex items-start space-x-2 sm:space-x-3">
+                <span class="text-yellow-600 text-lg sm:text-xl">⚠️</span>
+                <div>
+                  <h4 class="font-semibold text-yellow-800 mb-1 text-sm sm:text-base">What's Happening?</h4>
+                  <p class="text-xs sm:text-sm text-yellow-700">
+                    All our plumbers are already booked on some of your selected dates. 
+                    Each plumber can only handle one job at a time!
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Solutions -->
+            <div class="space-y-2 sm:space-y-3">
+              <h4 class="font-semibold text-gray-800 flex items-center text-sm sm:text-base">
+                <span class="text-blue-600 mr-2 text-sm sm:text-base">💡</span>
+                Try These Solutions:
+              </h4>
+              
+              <div class="space-y-2">
+                <div class="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-blue-50 rounded-lg">
+                  <span class="text-blue-600 text-sm sm:text-base">📅</span>
+                  <div>
+                    <p class="font-medium text-blue-800 text-xs sm:text-sm">Adjust Your Dates</p>
+                    <p class="text-xs text-blue-600">Try different date ranges</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-green-50 rounded-lg">
+                  <span class="text-green-600 text-sm sm:text-base">📋</span>
+                  <div>
+                    <p class="font-medium text-green-800 text-xs sm:text-sm">Check Existing Bookings</p>
+                    <p class="text-xs text-green-600">See what dates are already taken</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Current Bookings Preview -->
+            <div v-if="currentBookings.length > 0" class="bg-gray-50 rounded-lg p-3 sm:p-4">
+              <h4 class="font-medium text-gray-700 mb-2 text-xs sm:text-sm">Your Current Bookings:</h4>
+              <div class="space-y-1">
+                <div v-for="(booking, index) in currentBookings.slice(0, 2)" :key="booking.id" 
+                     class="text-xs text-gray-600 flex items-center justify-between">
+                  <span class="truncate">{{ formatDateRange(booking.dates) }}</span>
+                  <span class="font-medium flex-shrink-0">{{ booking.resourceDetails.length }} plumber{{ booking.resourceDetails.length > 1 ? 's' : '' }}</span>
+                </div>
+                <div v-if="currentBookings.length > 2" class="text-xs text-gray-500 italic">
+                  ...and {{ currentBookings.length - 2 }} more
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Dialog Footer -->
+        <div class="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-2xl border-t border-gray-200">
+          <div class="flex space-x-2 sm:space-x-3">
+            <button 
+              @click="clearSelectionAndClose"
+              class="flex-1 bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium text-xs sm:text-sm">
+              🔄 Clear Selection
+            </button>
+            <button 
+              @click="closeNoPlumbersDialog"
+              class="flex-1 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm">
+              ✅ Got it
+            </button>
+          </div>
+        </div>
+      </dialog>
+      
+      <!-- Fallback for non-dialog browsers -->
+      <div v-else-if="availableResources.length === 0" class="text-center py-3 sm:py-4">
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <div class="flex items-center justify-center mb-2">
+            <span class="text-yellow-600 text-xl mr-2">⚠️</span>
+            <h4 class="font-medium text-yellow-800">Availability Conflict</h4>
+          </div>
+          <p class="text-sm text-yellow-700 mb-2">
+            All plumbers are busy on some of your selected dates
+          </p>
+          <p class="text-xs text-yellow-600">
+            💡 Try adjusting your date range or selecting different dates
+          </p>
+        </div>
+        
+        <div class="text-gray-600">
+          <p class="font-medium text-sm mb-1">😔 No plumbers available for these dates</p>
+          <p class="text-xs text-gray-500">Try different dates or check existing bookings</p>
+        </div>
       </div>
       
       <!-- Resource list -->
@@ -145,23 +264,11 @@
       <!-- Add to Booking Button -->
       <button @click="addBooking" 
               :disabled="!canAddBooking"
-              :class="[
-                'w-full py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base',
-                canAddBooking 
-                  ? 'bg-green-500 text-white hover:bg-green-600 transform hover:scale-105 shadow-lg' 
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              ]">
-        📋 Add to Booking
+              class="w-full py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm sm:text-base disabled:bg-gray-300 disabled:cursor-not-allowed">
+        � Add to Booking
         <span v-if="canAddBooking" class="ml-2 text-xs sm:text-sm">
           ({{ selectedResources.length }} plumber{{ selectedResources.length > 1 ? 's' : '' }}, ${{ totalCost.toLocaleString() }})
         </span>
-      </button>
-      
-      <!-- Clear Selection Button -->
-      <button @click="clearSelection" 
-              v-if="selectedDateRange.length > 0 || selectedResources.length > 0"
-              class="w-full py-2 sm:py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm sm:text-base">
-        🔄 Clear Selection
       </button>
     </div>
 
@@ -215,7 +322,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 // 🎯 STEP 1: Define Component Interface
@@ -315,6 +422,9 @@ const resourceBookings = ref([
   // Example: { resourceId: 'A', dates: [date1, date2], bookingId: 'booking1' }
 ])
 
+// 🎯 DIALOG STATE
+const noPlumbersDialog = ref(null)
+
 // � URL SYNC: Read URL on component load
 onMounted(() => {
   readUrlParams()
@@ -390,17 +500,17 @@ const availableResources = computed(() => {
   if (selectedDateRange.value.length === 0) return []
   
   return resources.value.filter(resource => {
-    // Check if this resource is available for ALL selected dates
-    return isResourceAvailableForDates(resource.id, selectedDateRange.value)
+    // Check if this plumber can work on ALL selected dates
+    return canPlumberWorkOnDates(resource.id, selectedDateRange.value)
   })
 })
 
-// Helper: Check if a specific resource is available for given dates
-const isResourceAvailableForDates = (resourceId, dates) => {
+// Helper: Check if a specific plumber can work on given dates
+const canPlumberWorkOnDates = (plumberId, dates) => {
   // Look for any existing booking that conflicts
   const hasConflictingBooking = resourceBookings.value.some(booking => {
-    // Same resource?
-    if (booking.resourceId !== resourceId) return false
+    // Same plumber?
+    if (booking.resourceId !== plumberId) return false
     
     // Any date overlap?
     return dates.some(selectedDate => {
@@ -410,7 +520,7 @@ const isResourceAvailableForDates = (resourceId, dates) => {
     })
   })
   
-  // Resource is available if there are NO conflicting bookings
+  // Plumber can work if there are NO conflicting bookings
   return !hasConflictingBooking
 }
 
@@ -454,7 +564,8 @@ const currentMonthDisplay = computed(() => {
 const calendarDays = computed(() => {
   const year = currentMonth.value.getFullYear()
   const month = currentMonth.value.getMonth()
-  
+  // [to do use interestional api ]
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal
   // Get first day of month and number of days
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
@@ -545,18 +656,18 @@ const endDrag = () => {
   if (isDragging.value) {
     isDragging.value = false
     justFinishedDrag.value = true
-    setTimeout(() => justFinishedDrag.value = false, 50)
+    setTimeout(() => justFinishedDrag.value = false, 300)
 
     if (selectedDateRange.value.length > 0) {
       const start = selectedDateRange.value[0].toISOString().split('T')[0]
       const end = selectedDateRange.value[selectedDateRange.value.length - 1].toISOString().split('T')[0]
-
+      
       // Update URL
       router.push({
         query: { start, end }
       })
     }
-
+    
     emit('date-range-selected', selectedDateRange.value)
   }
 }
@@ -599,7 +710,6 @@ const updateDateRange = () => {
     // Only add if not already in the array (avoid duplicates during drag)
     const dateStr = currentDate.toDateString()
     const alreadyExists = selectedDateRange.value.some(d => {
-      console.log('comparing:', d.toDateString(), dateStr)
       return d.toDateString() === dateStr
     })
     if (!alreadyExists) {
@@ -607,7 +717,6 @@ const updateDateRange = () => {
     }
     currentDate.setDate(currentDate.getDate() + 1)
   }
-  console.log('updateDateRange done, length:', selectedDateRange.value.length)
 }
 
 const isInDragRange = (date) => {
@@ -624,30 +733,35 @@ const clearSelection = () => {
   selectedDate.value = null
 }
 
-// 🎯 Clear selection when clicking outside grid
-const handleContainerClick = (event) => {
-  // Don't clear if we just finished a drag (click fires after mouseup)
-  if (justFinishedDrag.value) return
-  
-  // Don't clear if clicking on navigation buttons
-  const isNavigationClick = event.target.closest('[data-nav]') !== null
-  if (isNavigationClick) return
+// 🎯 DIALOG METHODS
+// Watch for when no plumbers are available and show dialog
+watch(availableResources, (newVal) => {
+  if (newVal.length === 0 && selectedDateRange.value.length > 0) {
+    showNoPlumbersDialog()
+  }
+})
 
-  // 🆕 Don't clear if clicking on resource selection or booking UI
-  const isResourceUI = event.target.closest('.resource-ui') !== null
-  const isBookingUI = event.target.closest('.booking-ui') !== null
-  if (isResourceUI || isBookingUI) return
-
-  const isInsideGrid = event.target.closest('[data-date]') !== null
-  if (!isInsideGrid) {
-    selectedDateRange.value = []
-    selectedDate.value = null
-    // 🆕 Clear resource selection when clearing dates
-    selectedResources.value = []
+// Show the no plumbers dialog
+const showNoPlumbersDialog = () => {
+  if (noPlumbersDialog.value) {
+    noPlumbersDialog.value.showModal()
   }
 }
 
-// 🆕 MULTI-RESOURCE BOOKING METHODS
+// Close the no plumbers dialog
+const closeNoPlumbersDialog = () => {
+  if (noPlumbersDialog.value) {
+    noPlumbersDialog.value.close()
+  }
+}
+
+// Clear selection and close dialog
+const clearSelectionAndClose = () => {
+  clearSelection()
+  closeNoPlumbersDialog()
+}
+
+//  MULTI-RESOURCE BOOKING METHODS
 // Add current selection to accumulated bookings
 const addBooking = () => {
   if (!canAddBooking.value) return
