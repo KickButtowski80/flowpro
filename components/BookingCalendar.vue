@@ -36,7 +36,7 @@
     </div>
 
     <!-- Calendar Grid -->
-    <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-6 select-none touch-none"
+    <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-4 sm:mb-6 select-none touch-none"
          @mousedown="startDrag"
          @mousemove="updateDrag"
          @mouseup="endDrag"
@@ -57,17 +57,53 @@
       <!-- Calendar days will go here -->
       <div v-for="day in calendarDays" :key="day.date" 
            class="text-center p-3 sm:p-2 min-h-[44px] sm:min-h-0 
-           text-sm sm:text-base border rounded cursor-pointer 
-           hover:bg-blue-50 active:bg-blue-100 transition-colors"
+           text-sm sm:text-base border-2 rounded-xl transition-all duration-300 relative
+           transform hover:scale-105 shadow-sm hover:shadow-md"
            :data-date="day.date ? day.date.toISOString() : ''"
            :class="{
-             'bg-blue-100': isSelected(day.date),
-             'text-gray-400': !isCurrentMonth(day.date),
-             'bg-green-100': isAvailable(day.date),
-             'bg-purple-200': isInDragRange(day.date)
+             'cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-teal-50 hover:border-emerald-300': !isDateBusy(day.date),
+             'cursor-not-allowed': isDateBusy(day.date),
+             'bg-gradient-to-br from-blue-400 to-indigo-500 text-white border-blue-500 shadow-lg ring-2 ring-blue-300': isSelected(day.date),
+             'text-gray-400 opacity-50': !isCurrentMonth(day.date),
+             'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-200 hover:from-emerald-200 hover:to-teal-200': isAvailable(day.date) && !isDateBusy(day.date),
+             'bg-gradient-to-br from-red-200 to-red-400 border-red-500 opacity-70 cursor-not-allowed': isDateBusy(day.date),
+             'bg-gradient-to-br from-purple-200 to-pink-200 border-purple-300 animate-pulse': isInDragRange(day.date)
            }"
-           @click="selectDate(day.date)">
+           @click="!isDateBusy(day.date) && selectDate(day.date)">
         {{ day.day }}
+        <span v-if="isDateBusy(day.date)" class="absolute top-0.5 right-0.5 text-xs animate-pulse">🔒</span>
+        <span v-if="isSelected(day.date)" class="absolute top-0.5 left-0.5 text-xs">✨</span>
+        <span v-if="isInDragRange(day.date)" class="absolute top-0.5 left-0.5 text-xs">🎯</span>
+      </div>
+    </div>
+
+    <!-- 🎨 Color Legend -->
+    <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <h4 class="font-semibold text-gray-800 mb-3 text-sm sm:text-base">🎨 Calendar Legend:</h4>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        <!-- Available -->
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-gradient-to-br from-emerald-100 to-teal-100 border-2 border-emerald-200 rounded"></div>
+          <span class="text-xs text-gray-700">Available</span>
+        </div>
+        
+        <!-- Selected -->
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 border-2 border-blue-500 rounded"></div>
+          <span class="text-xs text-gray-700">Selected</span>
+        </div>
+        
+        <!-- Busy -->
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-gradient-to-br from-red-200 to-red-400 border-2 border-red-500 rounded opacity-70"></div>
+          <span class="text-xs text-gray-700">Busy 🔒</span>
+        </div>
+        
+        <!-- Dragging -->
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-gradient-to-br from-purple-200 to-pink-200 border-2 border-purple-300 rounded"></div>
+          <span class="text-xs text-gray-700">Dragging 🎯</span>
+        </div>
       </div>
     </div>
 
@@ -515,7 +551,7 @@ const isDisabled = (date) => {
 }
 
 const selectDate = (date) => {
-  if (!date) return
+  if (!date || isDateBusy(date)) return
   selectedDate.value = date
   emit('date-selected', date)
 }
@@ -524,7 +560,7 @@ const selectDate = (date) => {
 const startDrag = (event) => {
   event.preventDefault()
   const startDate = getDateFromPointerEvent(event)
-  if (!startDate) return
+  if (!startDate || isDateBusy(startDate)) return
 
   isDragging.value = true
   dragStart.value = startDate
@@ -535,7 +571,7 @@ const startDrag = (event) => {
 const updateDrag = (event) => {
   if (!isDragging.value) return
   const endDate = getDateFromPointerEvent(event)
-  if (!endDate) return
+  if (!endDate || isDateBusy(endDate)) return
 
   dragEnd.value = endDate
   updateDateRange()
@@ -593,17 +629,20 @@ const updateDateRange = () => {
   const rangeStart = dragStart.value < dragEnd.value ? dragStart.value : dragEnd.value
   const rangeEnd = dragStart.value > dragEnd.value ? dragStart.value : dragEnd.value
 
-  // Add all dates between rangeStart and rangeEnd
+  // Add all dates between rangeStart and rangeEnd (skip busy dates)
   const currentDate = new Date(rangeStart)
   const tempDateRange = []
   while (currentDate <= rangeEnd) {
-    // Only add if not already in the array (avoid duplicates during drag)
-    const dateStr = currentDate.toDateString()
-    const alreadyExists = tempDateRange.some(d => {
-      return d.toDateString() === dateStr
-    })
-    if (!alreadyExists) {
-      tempDateRange.push(new Date(currentDate))
+    // Skip busy dates
+    if (!isDateBusy(currentDate)) {
+      // Only add if not already in the array (avoid duplicates during drag)
+      const dateStr = currentDate.toDateString()
+      const alreadyExists = tempDateRange.some(d => {
+        return d.toDateString() === dateStr
+      })
+      if (!alreadyExists) {
+        tempDateRange.push(new Date(currentDate))
+      }
     }
     currentDate.setDate(currentDate.getDate() + 1)
   }
@@ -619,8 +658,20 @@ const isInDragRange = (date) => {
   )
 }
 
+// 🆕 Check if a date has any bookings (busy)
+const isDateBusy = (date) => {
+  if (!date) return false
+  
+  return resourceBookings.value.some(booking => {
+    return booking.dates.some(bookedDate => 
+      bookedDate.toDateString() === date.toDateString()
+    )
+  })
+}
+
 // Clear current selection (dates and resources)
 const clearSelection = () => {
+  debugger;
   selectedDateRange.value = []
   selectedResources.value = []
   selectedDate.value = null
