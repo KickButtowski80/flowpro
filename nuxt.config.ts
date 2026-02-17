@@ -17,12 +17,6 @@ export default defineNuxtConfig({
   
   // 🔥 IMPORTANT: Configure custom fonts for @nuxt/ui
   ui: {
-    fonts: [
-      {
-        name: 'Inter',
-        provider: 'google',
-        weights: [400, 500, 600, 700, 800, 900]
-      }
-    ]
+    fonts: true
   }
 })
