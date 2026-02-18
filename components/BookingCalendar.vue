@@ -38,38 +38,15 @@
     </div>
 
     <!-- Calendar Grid -->
-    <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-4 sm:mb-6 select-none touch-none" @mousedown="startDrag"
-      @mousemove="updateDrag" @mouseup="endDrag" @mouseleave="endDrag" @touchstart="startDrag" @touchmove="updateDrag"
-      @touchend="endDrag" @touchcancel="endDrag">
-      <!-- Weekday headers -->
-      <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Sun</div>
-      <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Mon</div>
-      <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Tue</div>
-      <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Wed</div>
-      <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Thu</div>
-      <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Fri</div>
-      <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Sat</div>
-
-      <!-- Calendar days will go here -->
-      <div v-for="day in calendarDays" :key="day.date" class="text-center p-3 sm:p-2 min-h-[44px] sm:min-h-0 
-           text-sm sm:text-base border-2 rounded-xl transition-transform duration-300 relative"
-        :data-date="day.date ? day.date.toISOString() : ''" :class="{
-          'cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-teal-50 hover:border-emerald-300 transform hover:scale-105 shadow-sm hover:shadow-md': !isDateBusy(day.date) && !isDateSemiBusy(day.date),
-          'cursor-not-allowed': isDateBusy(day.date),
-          'bg-gradient-to-br from-blue-400 to-indigo-500 text-white border-blue-500 shadow-lg ring-2 ring-blue-300': isSelected(day.date),
-          'text-gray-400 opacity-50': !isCurrentMonth(day.date),
-          'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-200 hover:from-emerald-200 hover:to-teal-200': isAvailable(day.date) && !isDateBusy(day.date) && !isDateSemiBusy(day.date),
-          'bg-gradient-to-br from-amber-300 to-amber-500 border-amber-600 opacity-90 cursor-pointer': isDateSemiBusy(day.date),
-          'bg-gradient-to-br from-red-200 to-red-400 border-red-500 opacity-70 cursor-not-allowed': isDateBusy(day.date),
-          'bg-gradient-to-br from-purple-200 to-pink-200 border-purple-300 animate-pulse': isInDragRange(day.date)
-        }" @click="!isDateBusy(day.date) && selectDate(day.date)">
-        {{ day.day }}
-        <span v-if="isDateBusy(day.date)" class="absolute top-0.5 right-0.5 text-xs animate-pulse">🔒</span>
-        <span v-if="isDateSemiBusy(day.date)" class="absolute top-0.5 right-0.5 text-xs">⚠️</span>
-        <span v-if="isSelected(day.date)" class="absolute top-0.5 left-0.5 text-xs">✨</span>
-        <span v-if="isInDragRange(day.date)" class="absolute top-0.5 left-0.5 text-xs">🎯</span>
-      </div>
-    </div>
+    <CalendarGrid 
+      :calendar-days="calendarDays"
+      :selected-dates="selectedDateRange"
+      :resource-bookings="resourceBookings"
+      :resources="resources"
+      :current-month="currentMonth"
+      :selected-date="selectedDate"
+      @date-selected="handleDateSelection"
+    />
 
     <!-- 🎨 Calendar Legend Component -->
     <CalendarLegend />
@@ -223,6 +200,7 @@
 import { chatPromptSubmit } from '#build/ui'
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import CalendarGrid from './CalendarGrid.vue'
 
 // 🎯 STEP 1: Define Component Interface
 // Props flow DOWN from parent to child
@@ -608,20 +586,7 @@ const previousMonth = () => {
 
 const nextMonth = () => {
   currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + 1)
-}
-
-const isSelected = (date) => {
-  return selectedDate.value &&
-    date &&
-    selectedDate.value.toDateString() === date.toDateString()
-}
-
-const isCurrentMonth = (date) => {
-  return date && date.getMonth() === currentMonth.value.getMonth()
-}
-
-const isAvailable = (date) => {
-  return !!date
+  clearSelection()
 }
 
 const isDisabled = (date) => {
@@ -640,16 +605,34 @@ const selectDate = (date) => {
 const startDrag = (event) => {
   event.preventDefault()
   const startDate = getDateFromPointerEvent(event)
-
+  
   // Only block dragging on fully busy dates (all plumbers booked)
   // Allow dragging on limited/semi-busy dates (some plumbers still available)
   if (!startDate) return
-  if (isDateBusy(startDate)) return
+  if  (isDateBusy(startDate)) return
 
   isDragging.value = true
   dragStart.value = startDate
   dragEnd.value = startDate
   updateDateRange()
+}
+
+// 🆕 Simple date selection handler from CalendarGrid
+const handleDateSelection = (dateRange) => {
+  // CalendarGrid now handles all the logic and just gives us the final date range
+  selectedDateRange.value = dateRange
+  
+  // Update URL if we have dates selected
+  if (dateRange.length > 0) {
+    const start = dateRange[0].toISOString().split('T')[0]
+    const end = dateRange[dateRange.length - 1].toISOString().split('T')[0]
+    
+    router.push({
+      query: { start, end }
+    })
+  }
+  
+  emit('date-range-selected', dateRange)
 }
 
 const updateDrag = (event) => {
@@ -738,51 +721,9 @@ const updateDateRange = () => {
 }
 
 const isInDragRange = (date) => {
-
   return selectedDateRange.value.some(rangeDate =>
     rangeDate.toDateString() === date?.toDateString()
   )
-}
-// 🆕 Helper: Get count of plumbers booked on a specific date
-const getBookedPlumbersCount = (date) => {
-  if (!date) return 0
-
-  const bookedPlumbers = new Set()
-  resourceBookings.value.forEach(booking => {
-    booking.dates.forEach(bookedDate => {
-      if (bookedDate.toDateString() === date.toDateString()) {
-        bookedPlumbers.add(booking.resourceId)
-      }
-    })
-  })
-
-  return bookedPlumbers.size
-}
-// 🆕 Check if a date has any bookings (busy)
-const isDateBusy = (date) => {
-  if (!date) return false
-  const totalPlumbers = resources.value.length
-  if (totalPlumbers === 0) return false
-
-  const bookedCount = getBookedPlumbersCount(date)
-
-  // Fully busy only when all plumbers are booked on this date
-  return bookedCount === totalPlumbers
-}
-
-
-
-// 🆕 Check if a date has partial bookings (some plumbers busy, others available)
-const isDateSemiBusy = (date) => {
-  if (!date) return false
-
-  const totalPlumbers = resources.value.length
-  if (totalPlumbers === 0) return false
-
-  const bookedCount = getBookedPlumbersCount(date)
-
-  // Semi-busy if some plumbers are booked but not all
-  return bookedCount > 0 && bookedCount < totalPlumbers
 }
 
 // Clear current selection (dates and resources)
