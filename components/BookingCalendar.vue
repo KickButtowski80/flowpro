@@ -8,26 +8,28 @@
 
     <!-- Month Navigation -->
     <div class="flex justify-between items-center mb-4 sm:mb-6">
-      <button @click="previousMonth" 
-              data-nav="prev"
-              class="group relative p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-x-1">
+      <button @click="previousMonth" data-nav="prev"
+        class="group relative p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-x-1">
         <div class="flex items-center space-x-1 sm:space-x-2">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:-translate-x-1" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
           </svg>
           <span class="hidden sm:inline font-medium text-sm">Previous</span>
         </div>
         <div class="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
       </button>
-      
-      <h4 class="text-lg sm:text-xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ currentMonthDisplay }}</h4>
-      
-      <button @click="nextMonth" 
-              data-nav="next"
-              class="group relative p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:translate-x-1">
+
+      <h4
+        class="text-lg sm:text-xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        {{ currentMonthDisplay }}</h4>
+
+      <button @click="nextMonth" data-nav="next"
+        class="group relative p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:translate-x-1">
         <div class="flex items-center space-x-1 sm:space-x-2">
           <span class="hidden sm:inline font-medium text-sm">Next</span>
-          <svg class="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
         </div>
@@ -36,15 +38,9 @@
     </div>
 
     <!-- Calendar Grid -->
-    <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-4 sm:mb-6 select-none touch-none"
-         @mousedown="startDrag"
-         @mousemove="updateDrag"
-         @mouseup="endDrag"
-         @mouseleave="endDrag"
-         @touchstart="startDrag"
-         @touchmove="updateDrag"
-         @touchend="endDrag"
-         @touchcancel="endDrag">
+    <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-4 sm:mb-6 select-none touch-none" @mousedown="startDrag"
+      @mousemove="updateDrag" @mouseup="endDrag" @mouseleave="endDrag" @touchstart="startDrag" @touchmove="updateDrag"
+      @touchend="endDrag" @touchcancel="endDrag">
       <!-- Weekday headers -->
       <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Sun</div>
       <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Mon</div>
@@ -53,68 +49,40 @@
       <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Thu</div>
       <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Fri</div>
       <div class="text-center text-xs sm:text-sm font-medium p-1 sm:p-2">Sat</div>
-      
+
       <!-- Calendar days will go here -->
-      <div v-for="day in calendarDays" :key="day.date" 
-           class="text-center p-3 sm:p-2 min-h-[44px] sm:min-h-0 
+      <div v-for="day in calendarDays" :key="day.date" class="text-center p-3 sm:p-2 min-h-[44px] sm:min-h-0 
            text-sm sm:text-base border-2 rounded-xl transition-transform duration-300 relative"
-           :data-date="day.date ? day.date.toISOString() : ''"
-           :class="{
-             'cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-teal-50 hover:border-emerald-300 transform hover:scale-105 shadow-sm hover:shadow-md': !isDateBusy(day.date),
-             'cursor-not-allowed': isDateBusy(day.date),
-             'bg-gradient-to-br from-blue-400 to-indigo-500 text-white border-blue-500 shadow-lg ring-2 ring-blue-300': isSelected(day.date),
-             'text-gray-400 opacity-50': !isCurrentMonth(day.date),
-             'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-200 hover:from-emerald-200 hover:to-teal-200': isAvailable(day.date) && !isDateBusy(day.date),
-             'bg-gradient-to-br from-red-200 to-red-400 border-red-500 opacity-70 cursor-not-allowed': isDateBusy(day.date),
-             'bg-gradient-to-br from-purple-200 to-pink-200 border-purple-300 animate-pulse': isInDragRange(day.date)
-           }"
-           @click="!isDateBusy(day.date) && selectDate(day.date)">
+        :data-date="day.date ? day.date.toISOString() : ''" :class="{
+          'cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-teal-50 hover:border-emerald-300 transform hover:scale-105 shadow-sm hover:shadow-md': !isDateBusy(day.date) && !isDateSemiBusy(day.date),
+          'cursor-not-allowed': isDateBusy(day.date),
+          'bg-gradient-to-br from-blue-400 to-indigo-500 text-white border-blue-500 shadow-lg ring-2 ring-blue-300': isSelected(day.date),
+          'text-gray-400 opacity-50': !isCurrentMonth(day.date),
+          'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-200 hover:from-emerald-200 hover:to-teal-200': isAvailable(day.date) && !isDateBusy(day.date) && !isDateSemiBusy(day.date),
+          'bg-gradient-to-br from-amber-300 to-amber-500 border-amber-600 opacity-90 cursor-pointer': isDateSemiBusy(day.date),
+          'bg-gradient-to-br from-red-200 to-red-400 border-red-500 opacity-70 cursor-not-allowed': isDateBusy(day.date),
+          'bg-gradient-to-br from-purple-200 to-pink-200 border-purple-300 animate-pulse': isInDragRange(day.date)
+        }" @click="!isDateBusy(day.date) && selectDate(day.date)">
         {{ day.day }}
         <span v-if="isDateBusy(day.date)" class="absolute top-0.5 right-0.5 text-xs animate-pulse">🔒</span>
+        <span v-if="isDateSemiBusy(day.date)" class="absolute top-0.5 right-0.5 text-xs">⚠️</span>
         <span v-if="isSelected(day.date)" class="absolute top-0.5 left-0.5 text-xs">✨</span>
         <span v-if="isInDragRange(day.date)" class="absolute top-0.5 left-0.5 text-xs">🎯</span>
       </div>
     </div>
 
-    <!-- 🎨 Color Legend -->
-    <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
-      <h4 class="font-semibold text-gray-800 mb-3 text-sm sm:text-base">🎨 Calendar Legend:</h4>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-        <!-- Available -->
-        <div class="flex items-center space-x-2">
-          <div class="w-6 h-6 bg-gradient-to-br from-emerald-100 to-teal-100 border-2 border-emerald-200 rounded"></div>
-          <span class="text-xs text-gray-700">Available</span>
-        </div>
-        
-        <!-- Selected -->
-        <div class="flex items-center space-x-2">
-          <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 border-2 border-blue-500 rounded"></div>
-          <span class="text-xs text-gray-700">Selected</span>
-        </div>
-        
-        <!-- Busy -->
-        <div class="flex items-center space-x-2">
-          <div class="w-6 h-6 bg-gradient-to-br from-red-200 to-red-400 border-2 border-red-500 rounded opacity-70"></div>
-          <span class="text-xs text-gray-700">Busy 🔒</span>
-        </div>
-        
-        <!-- Dragging -->
-        <div class="flex items-center space-x-2">
-          <div class="w-6 h-6 bg-gradient-to-br from-purple-200 to-pink-200 border-2 border-purple-300 rounded"></div>
-          <span class="text-xs text-gray-700">Dragging 🎯</span>
-        </div>
-      </div>
-    </div>
+    <!-- 🎨 Calendar Legend Component -->
+    <CalendarLegend />
 
     <!-- Selected Date Display -->
-    <div v-if="selectedDateRange.length > 0" class="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+    <div v-if="selectedDateRange.length > 0"
+      class="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
       <div class="flex justify-between items-start mb-2">
         <h4 class="font-semibold text-blue-800 flex items-center text-sm sm:text-base">
           📅 You Selected:
         </h4>
-        <button @click="clearSelection" 
-                class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
-                title="Clear selection">
+        <button @click="clearSelection"
+          class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors" title="Clear selection">
           ❌
         </button>
       </div>
@@ -127,32 +95,34 @@
     </div>
 
     <!-- 🆕 Resource Selection Section -->
-    <div v-if="selectedDateRange.length > 0" class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border-2 border-green-200 resource-ui">
+    <div v-if="selectedDateRange.length > 0"
+      class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border-2 border-green-200 resource-ui">
       <h4 class="font-semibold text-green-800 mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
         👥 Available Plumbers:
       </h4>
-      
+
       <!-- Availability notice -->
-      <div class="text-xs sm:text-sm text-blue-600 mb-3 p-2 bg-blue-50 rounded border border-blue-200">
+      <!-- <div class="text-xs sm:text-sm text-blue-600 mb-3 p-2 bg-blue-50 rounded border border-blue-200">
         ℹ️ <strong>All-or-Nothing Availability:</strong> Plumbers shown here are available for ALL selected dates
-      </div>
-      
+      </div> -->
+
       <!-- No resources available message -->
       <div v-if="availableResources.length === 0" class="text-center py-3 sm:py-4">
         <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for these dates</p>
-        <p class="text-xs sm:text-sm text-gray-600 mt-1">Try different dates or check existing bookings</p>
+        <p class="text-xs sm:text-sm text-gray-600 mt-1">
+          <span v-if="selectedDateRange.length === 1">Try a different date</span>
+          <span v-else>Try different dates or shorter booking period</span>
+        </p>
       </div>
-      
+
       <!-- Resource list -->
       <div v-else class="space-y-2 sm:space-y-3">
-        <label v-for="resource in availableResources" 
-               :key="resource.id"
-               class="flex items-center p-2 sm:p-3 bg-white rounded-lg cursor-pointer hover:bg-green-100 transition-all duration-200 border-2 border-transparent hover:border-green-300">
-          <input type="checkbox" 
-                 :value="resource.id" 
-                 v-model="selectedResources"
-                 class="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 text-green-600 rounded focus:ring-green-500">
-          
+
+        <label v-for="resource in availableResources" :key="resource.id"
+          class="flex items-center p-2 sm:p-3 bg-white rounded-lg cursor-pointer hover:bg-green-100 transition-all duration-200 border-2 border-transparent hover:border-green-300">
+          <input type="checkbox" :value="resource.id" v-model="selectedResources"
+            class="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 text-green-600 rounded focus:ring-green-500">
+
           <div class="flex-1">
             <div class="flex items-center">
               <span class="text-xl sm:text-2xl mr-2">{{ resource.avatar }}</span>
@@ -164,18 +134,19 @@
                 <div class="text-xs text-gray-400 mt-1 hidden sm:block">
                   {{ resource.specialties.join(' • ') }}
                 </div>
+
               </div>
             </div>
           </div>
-          
+
           <div class="text-right">
-            <div class="text-xs sm:text-sm font-medium text-green-600">
-              Available ✅
+            <div class="text-xs sm:text-sm font-medium text-green-600" :class="plumberStatusColor(resource)">
+              {{ plumberStatusIcon(resource) }} {{ plumberStatusText(resource) }}
             </div>
           </div>
         </label>
       </div>
-      
+
       <!-- Selected resources summary -->
       <div v-if="selectedResources.length > 0" class="mt-3 sm:mt-4 p-2 sm:p-3 bg-green-100 rounded-lg">
         <p class="text-xs sm:text-sm text-green-800">
@@ -190,56 +161,55 @@
     <!-- 🆕 Booking Actions -->
     <div v-if="selectedDateRange.length > 0" class="space-y-2 sm:space-y-3 resource-ui">
       <!-- Add to Booking Button -->
-      <button @click="addBooking" 
-              :disabled="!canAddBooking"
-              class="w-full py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm sm:text-base disabled:bg-gray-300 disabled:cursor-not-allowed">
+      <button @click="addBooking" :disabled="!canAddBooking"
+        class="w-full py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm sm:text-base disabled:bg-gray-300 disabled:cursor-not-allowed">
         � Add to Booking
         <span v-if="canAddBooking" class="ml-2 text-xs sm:text-sm">
-          ({{ selectedResources.length }} plumber{{ selectedResources.length > 1 ? 's' : '' }}, ${{ totalCost.toLocaleString() }})
+          ({{ selectedResources.length }} plumber{{ selectedResources.length > 1 ? 's' : '' }}, ${{
+            totalCost.toLocaleString() }})
         </span>
       </button>
     </div>
 
     <!-- 🆕 Current Bookings Summary -->
-    <div v-if="currentBookings.length > 0" class="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200 booking-ui">
+    <div v-if="currentBookings.length > 0"
+      class="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200 booking-ui">
       <h4 class="font-semibold text-yellow-800 mb-2 sm:mb-3 flex items-center justify-between text-sm sm:text-base">
         <span>📋 Current Bookings ({{ currentBookings.length }})</span>
-        <button @click="clearAllBookings" 
-                class="text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium">
+        <button @click="clearAllBookings" class="text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium">
           Clear All
         </button>
       </h4>
-      
+
       <div class="space-y-2">
-        <div v-for="(booking, index) in currentBookings" :key="booking.id" 
-             class="p-2 sm:p-3 bg-white rounded-lg border border-yellow-200">
+        <div v-for="(booking, index) in currentBookings" :key="booking.id"
+          class="p-2 sm:p-3 bg-white rounded-lg border border-yellow-200">
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <p class="font-medium text-gray-800 text-sm sm:text-base">
                 {{ formatDateRange(booking.dates) }}
               </p>
               <p class="text-xs sm:text-sm text-gray-600">
-                {{ booking.resourceDetails.map(r => r.displayName).join(', ') }}
+                {{booking.resourceDetails.map(r => r.displayName).join(', ')}}
               </p>
             </div>
             <div class="text-right ml-2">
               <p class="font-medium text-green-600 text-sm sm:text-base">${{ booking.totalCost.toLocaleString() }}</p>
-              <button @click="removeBooking(booking.id)" 
-                      class="text-xs text-red-600 hover:text-red-800 mt-1">
+              <button @click="removeBooking(booking.id)" class="text-xs text-red-600 hover:text-red-800 mt-1">
                 Remove
               </button>
             </div>
           </div>
         </div>
       </div>
-      
+
       <!-- Checkout Button -->
-      <button @click="proceedToCheckout" 
-              class="w-full mt-3 sm:mt-4 py-2 sm:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm sm:text-base">
-        💳 Proceed to Checkout 
+      <button @click="proceedToCheckout"
+        class="w-full mt-3 sm:mt-4 py-2 sm:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm sm:text-base">
+        💳 Proceed to Checkout
         <span class="ml-1 sm:ml-2 text-xs sm:text-sm">
-          ({{ currentBookings.length }} booking{{ currentBookings.length > 1 ? 's' : '' }}, 
-          ${{ currentBookings.reduce((sum, b) => sum + b.totalCost, 0).toLocaleString() }})
+          ({{ currentBookings.length }} booking{{ currentBookings.length > 1 ? 's' : '' }},
+          ${{currentBookings.reduce((sum, b) => sum + b.totalCost, 0).toLocaleString()}})
         </span>
       </button>
     </div>
@@ -250,6 +220,7 @@
 </template>
 
 <script setup>
+import { chatPromptSubmit } from '#build/ui'
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -261,7 +232,7 @@ const props = defineProps({
     default: () => [] // Array of available Date objects
   },
   bookedSlots: {
-    type: Array, 
+    type: Array,
     default: () => [] // Array of already booked time slots
   },
   minDate: {
@@ -307,38 +278,94 @@ const justFinishedDrag = ref(false)
 // � MULTI-RESOURCE BOOKING STATE
 // Available plumbers/resources
 const resources = ref([
-  { 
-    id: 'A', 
-    name: 'John Smith', 
+  {
+    id: 'A',
+    name: 'John Smith',
     displayName: 'John (Master Plumber)',
-    rate: 150, 
+    rate: 150,
     level: 'master',
     avatar: '👨‍🔧',
     specialties: ['Emergency', 'Repiping', 'Water Heaters'],
-    available: true
+    availableDates: []
   },
-  { 
-    id: 'B', 
-    name: 'Mike Johnson', 
+  {
+    id: 'B',
+    name: 'Mike Johnson',
     displayName: 'Mike (Journeyman)',
-    rate: 120, 
+    rate: 120,
     level: 'journeyman',
     avatar: '👨‍🔧',
     specialties: ['Installations', 'Maintenance', 'Repairs'],
-    available: true
+    availableDates: []
   },
-  { 
-    id: 'C', 
-    name: 'Tom Wilson', 
+  {
+    id: 'C',
+    name: 'Tom Wilson',
     displayName: 'Tom (Apprentice)',
-    rate: 80, 
+    rate: 80,
     level: 'apprentice',
     avatar: '👨‍🔧',
     specialties: ['Assistance', 'Basic Repairs', 'Learning'],
-    available: true
+    availableDates: []
   }
 ])
+const availabilityStatuses = {
+  FULL: {
+    text: 'All dates',
+    icon: '✅',
+    color: 'green'
+  },
+  PARTIAL: {
+    text: 'Limited',
+    icon: '⚠️',
+    color: 'yellow'
+  },
+  NONE: {
+    text: 'Unavailable',
+    icon: '❌',
+    color: 'red'
+  }
+}
 
+// 📝 FUTURE ENHANCEMENT: Show unavailable plumbers for better transparency
+// TODO: Consider showing ALL plumbers (available + unavailable) with their status
+// Benefits:
+// - Users see why certain plumbers aren't available
+// - Shows demand/busy periods
+// - Helps with planning around unavailable dates
+// Implementation: Change v-for from "availableResources" to "resources"
+// Add separate "unavailableResources" computed property
+
+// Helper: count how many of the selected dates this plumber is actually available for
+const getAvailableCountForResource = (resourceId) => {
+  if (selectedDateRange.value.length === 0) return 0
+  // Get existing bookings for this plumber
+  const plumberBookings = resourceBookings.value.filter(b => b.resourceId === resourceId)
+  // Count dates where this plumber is NOT booked
+  let availableCount = 0
+  for (const selectedDate of selectedDateRange.value) {
+    const isBookedOnDate = plumberBookings.some(booking =>
+      booking.dates.some(bookedDate => bookedDate.toDateString() === selectedDate.toDateString())
+    )
+    const isAvailableOnDate = !isBookedOnDate  // Clearer: true if plumber is free
+    if (isAvailableOnDate) availableCount++   // Much easier to understand!
+  }
+  return availableCount
+}
+
+// Derive status: FULL (all dates), PARTIAL (some dates), NONE (no dates)
+const getPlumberStatus = (resource) => {
+  const totalSelected = selectedDateRange.value.length
+  if (totalSelected === 0) return 'NONE'  // No dates selected = unavailable
+  const availableCount = getAvailableCountForResource(resource.id)
+  if (availableCount === 0) return 'NONE'
+  if (availableCount < totalSelected) return 'PARTIAL'
+  return 'FULL'
+}
+
+const plumberStatusIcon = (resource) => availabilityStatuses[getPlumberStatus(resource)].icon
+const plumberStatusText = (resource) => availabilityStatuses[getPlumberStatus(resource)].text
+const plumberStatusColor = (resource) => `text-${availabilityStatuses[getPlumberStatus(resource)].color}-600`
 // Selected resources for current booking
 const selectedResources = ref([])
 
@@ -359,7 +386,7 @@ onMounted(() => {
 // 🎯 URL SYNC: Read URL parameters
 const readUrlParams = () => {
   const { start, end } = route.query
-  
+
   if (start && end) {
     // Parse dates from URL
     const startDate = new Date(start)
@@ -367,9 +394,9 @@ const readUrlParams = () => {
 
     // Validate dates
     if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-     
+
       selectedDateRange.value = []
-      
+
       // Build date range
       const currentDate = new Date(startDate)
       while (currentDate <= endDate) {
@@ -391,7 +418,7 @@ const formattedDate = computed(() => {
   if (!selectedDate.value) return 'No date selected'
   return selectedDate.value.toLocaleDateString('en-US', {
     weekday: 'long',
-    year: 'numeric', 
+    year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
@@ -404,14 +431,14 @@ const availableTimeSlots = computed(() => {
     "9:00 AM", "10:00 AM", "11:00 AM",
     "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"
   ]
-  
+
   return businessHours.map(time => {
     // Check if this time slot is already booked
-    const isBooked = props.bookedSlots.some(slot => 
-      slot.date === selectedDate.value?.toDateString() && 
+    const isBooked = props.bookedSlots.some(slot =>
+      slot.date === selectedDate.value?.toDateString() &&
       slot.time === time
     )
-    
+
     return {
       time: time,
       status: isBooked ? 'booked' : 'available'
@@ -420,34 +447,65 @@ const availableTimeSlots = computed(() => {
 })
 
 // 🆕 MULTI-RESOURCE COMPUTED PROPERTIES
-// Available resources for selected date range
+// Available resources for selected date range - show even with partial availability
 const availableResources = computed(() => {
   // If no dates selected, no resources available
   if (selectedDateRange.value.length === 0) return []
-  
-  return resources.value.filter(resource => {
-    // Check if this plumber can work on ALL selected dates
-    return canPlumberWorkOnDates(resource.id, selectedDateRange.value)
+
+  // Show all plumbers who are available on ANY selected date
+  const availableResources = resources.value.filter(resource => {
+    // Get existing bookings for this plumber
+    const plumberBookings = resourceBookings.value.filter(booking =>
+      booking.resourceId === resource.id
+    )
+
+    // Check if plumber is available on at least one selected date
+    const hasSomeAvailability = selectedDateRange.value.some(selectedDate => {
+      const isBookedOnDate = plumberBookings.some(booking =>
+        booking.dates.some(bookedDate =>
+          bookedDate.toDateString() === selectedDate.toDateString()
+        )
+      )
+      return !isBookedOnDate  // Available on this date
+    })
+
+    return hasSomeAvailability
   })
+
+  return availableResources
 })
 
 // Helper: Check if a specific plumber can work on given dates
 const canPlumberWorkOnDates = (plumberId, dates) => {
-  // Look for any existing booking that conflicts
-  const hasConflictingBooking = resourceBookings.value.some(booking => {
-    // Same plumber?
-    if (booking.resourceId !== plumberId) return false
-    
-    // Any date overlap?
-    return dates.some(selectedDate => {
-      return booking.dates.some(bookedDate => {
-        return bookedDate.toDateString() === selectedDate.toDateString()
-      })
-    })
-  })
-  
-  // Plumber can work if there are NO conflicting bookings
-  return !hasConflictingBooking
+  // Get all bookings for this specific plumber
+  const plumberBookings = resourceBookings.value.filter(booking =>
+    booking.resourceId === plumberId
+  )
+
+  // If no bookings for this plumber, they can work
+  if (plumberBookings.length === 0) {
+    return true
+  }
+
+  // Check for conflicts on each selected date
+  let hasConflicts = false
+
+  for (const selectedDate of dates) {
+    // Find if this plumber is booked on this specific date
+    const conflictsOnDate = plumberBookings.some(booking =>
+      booking.dates.some(bookedDate =>
+        bookedDate.toDateString() === selectedDate.toDateString()
+      )
+    )
+
+    if (conflictsOnDate) {
+      hasConflicts = true
+      break // Found a conflict, no need to check further
+    }
+  }
+
+  // Plumber can work if there are NO conflicts
+  return !hasConflicts
 }
 
 // Selected resources details
@@ -462,16 +520,37 @@ const totalCost = computed(() => {
   if (selectedResourcesDetails.value.length === 0 || selectedDateRange.value.length === 0) {
     return 0
   }
-  
+
   const days = selectedDateRange.value.length
   const dailyRate = selectedResourcesDetails.value.reduce((sum, resource) => sum + resource.rate, 0)
-  
+
   return days * dailyRate
 })
 
-// Can proceed with booking
+// Can proceed with booking - more sophisticated for limited availability
 const canAddBooking = computed(() => {
-  return selectedDateRange.value.length > 0 && selectedResources.value.length > 0
+  // Basic requirements
+  if (selectedDateRange.value.length === 0 || selectedResources.value.length === 0) {
+    return false
+  }
+
+  // Check if at least one plumber is available for at least one date
+  const hasAnyAvailability = selectedResources.value.some(resourceId => {
+    const plumberBookings = resourceBookings.value.filter(booking =>
+      booking.resourceId === resourceId
+    )
+
+    return selectedDateRange.value.some(selectedDate => {
+      const isBookedOnDate = plumberBookings.some(booking =>
+        booking.dates.some(bookedDate =>
+          bookedDate.toDateString() === selectedDate.toDateString()
+        )
+      )
+      return !isBookedOnDate  // Available on this date
+    })
+  })
+
+  return hasAnyAvailability
 })
 
 // Has accumulated bookings ready for checkout
@@ -481,9 +560,9 @@ const canCheckout = computed(() => {
 
 // 🎯 STEP 4: Add Calendar Logic
 const currentMonthDisplay = computed(() => {
-  return currentMonth.value.toLocaleDateString('en-US', { 
-    month: 'long', 
-    year: 'numeric' 
+  return currentMonth.value.toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric'
   })
 })
 
@@ -496,13 +575,13 @@ const calendarDays = computed(() => {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
   const daysInMonth = lastDay.getDate()
-  
+
   // Get starting weekday (0 = Sunday)
   const startDay = firstDay.getDay()
-  
+
   // Create array of calendar days
   const days = []
-  
+
   // Add empty cells for days before month starts
   for (let i = 0; i < startDay; i++) {
     days.push({
@@ -510,7 +589,7 @@ const calendarDays = computed(() => {
       date: null
     })
   }
-  
+
   // Add all days of the month
   for (let day = 1; day <= daysInMonth; day++) {
     days.push({
@@ -518,7 +597,7 @@ const calendarDays = computed(() => {
       date: new Date(year, month, day)
     })
   }
-  
+
   return days
 })
 
@@ -532,9 +611,9 @@ const nextMonth = () => {
 }
 
 const isSelected = (date) => {
-  return selectedDate.value && 
-         date && 
-         selectedDate.value.toDateString() === date.toDateString()
+  return selectedDate.value &&
+    date &&
+    selectedDate.value.toDateString() === date.toDateString()
 }
 
 const isCurrentMonth = (date) => {
@@ -550,6 +629,8 @@ const isDisabled = (date) => {
 }
 
 const selectDate = (date) => {
+  // Only block clicking on fully busy dates (all plumbers booked)
+  // Allow clicking on limited/semi-busy dates (some plumbers still available)
   if (!date || isDateBusy(date)) return
   selectedDate.value = date
   emit('date-selected', date)
@@ -559,7 +640,11 @@ const selectDate = (date) => {
 const startDrag = (event) => {
   event.preventDefault()
   const startDate = getDateFromPointerEvent(event)
-  if (!startDate || isDateBusy(startDate)) return
+
+  // Only block dragging on fully busy dates (all plumbers booked)
+  // Allow dragging on limited/semi-busy dates (some plumbers still available)
+  if (!startDate) return
+  if (isDateBusy(startDate)) return
 
   isDragging.value = true
   dragStart.value = startDate
@@ -570,13 +655,15 @@ const startDrag = (event) => {
 const updateDrag = (event) => {
   if (!isDragging.value) return
   const endDate = getDateFromPointerEvent(event)
+  // Only block dragging on fully busy dates (all plumbers booked)
+  // Allow dragging over limited/semi-busy dates (some plumbers still available)
   if (!endDate || isDateBusy(endDate)) return
 
   dragEnd.value = endDate
   updateDateRange()
 }
 
- 
+
 
 const endDrag = () => {
   if (isDragging.value) {
@@ -587,13 +674,13 @@ const endDrag = () => {
     if (selectedDateRange.value.length > 0) {
       const start = selectedDateRange.value[0].toISOString().split('T')[0]
       const end = selectedDateRange.value[selectedDateRange.value.length - 1].toISOString().split('T')[0]
-      
+
       // Update URL
       router.push({
         query: { start, end }
       })
     }
-    
+
     emit('date-range-selected', selectedDateRange.value)
   }
 }
@@ -604,7 +691,7 @@ const getDateFromPointerEvent = (event) => {
   let el = null
 
   if (event.touches && event.touches[0]) {
-    
+
     const { clientX, clientY } = event.touches[0]
     el = document.elementFromPoint(clientX, clientY)
   } else if (typeof event.clientX === 'number' && typeof event.clientY === 'number') {
@@ -645,32 +732,61 @@ const updateDateRange = () => {
     }
     currentDate.setDate(currentDate.getDate() + 1)
   }
-  
+
   // Update the selected date range
   selectedDateRange.value = tempDateRange
 }
 
 const isInDragRange = (date) => {
-  
-  return selectedDateRange.value.some(rangeDate => 
+
+  return selectedDateRange.value.some(rangeDate =>
     rangeDate.toDateString() === date?.toDateString()
   )
 }
+// 🆕 Helper: Get count of plumbers booked on a specific date
+const getBookedPlumbersCount = (date) => {
+  if (!date) return 0
 
+  const bookedPlumbers = new Set()
+  resourceBookings.value.forEach(booking => {
+    booking.dates.forEach(bookedDate => {
+      if (bookedDate.toDateString() === date.toDateString()) {
+        bookedPlumbers.add(booking.resourceId)
+      }
+    })
+  })
+
+  return bookedPlumbers.size
+}
 // 🆕 Check if a date has any bookings (busy)
 const isDateBusy = (date) => {
   if (!date) return false
-  
-  return resourceBookings.value.some(booking => {
-    return booking.dates.some(bookedDate => 
-      bookedDate.toDateString() === date.toDateString()
-    )
-  })
+  const totalPlumbers = resources.value.length
+  if (totalPlumbers === 0) return false
+
+  const bookedCount = getBookedPlumbersCount(date)
+
+  // Fully busy only when all plumbers are booked on this date
+  return bookedCount === totalPlumbers
+}
+
+
+
+// 🆕 Check if a date has partial bookings (some plumbers busy, others available)
+const isDateSemiBusy = (date) => {
+  if (!date) return false
+
+  const totalPlumbers = resources.value.length
+  if (totalPlumbers === 0) return false
+
+  const bookedCount = getBookedPlumbersCount(date)
+
+  // Semi-busy if some plumbers are booked but not all
+  return bookedCount > 0 && bookedCount < totalPlumbers
 }
 
 // Clear current selection (dates and resources)
 const clearSelection = () => {
-  debugger;
   selectedDateRange.value = []
   selectedResources.value = []
   selectedDate.value = null
@@ -680,7 +796,7 @@ const clearSelection = () => {
 // Add current selection to accumulated bookings
 const addBooking = () => {
   if (!canAddBooking.value) return
-  
+
   const booking = {
     id: `booking_${Date.now()}`,
     dates: [...selectedDateRange.value],
@@ -689,23 +805,41 @@ const addBooking = () => {
     totalCost: totalCost.value,
     createdAt: new Date()
   }
-  
+
   currentBookings.value.push(booking)
-  
-  // Update resource availability tracking
+
+  // Update resource availability tracking - only book available dates
   selectedResources.value.forEach(resourceId => {
-    resourceBookings.value.push({
-      resourceId: resourceId,
-      dates: [...selectedDateRange.value],
-      bookingId: booking.id
+    // Get existing bookings for this plumber
+    const plumberBookings = resourceBookings.value.filter(booking =>
+      booking.resourceId === resourceId
+    )
+
+    // Find which dates are actually available for this plumber
+    const availableDates = selectedDateRange.value.filter(selectedDate => {
+      const isBookedOnDate = plumberBookings.some(booking =>
+        booking.dates.some(bookedDate =>
+          bookedDate.toDateString() === selectedDate.toDateString()
+        )
+      )
+      return !isBookedOnDate  // Only keep available dates
     })
+
+    // Only book if there are available dates
+    if (availableDates.length > 0) {
+      resourceBookings.value.push({
+        resourceId: resourceId,
+        dates: [...availableDates],  // Book only available dates
+        bookingId: booking.id
+      })
+    }
   })
-  
+
   // Clear current selection for next booking
   selectedDateRange.value = []
   selectedResources.value = []
   selectedDate.value = null
-  
+
   // Emit booking added event
   emit('booking-added', booking)
 }
@@ -714,17 +848,17 @@ const addBooking = () => {
 const removeBooking = (bookingId) => {
   const bookingIndex = currentBookings.value.findIndex(b => b.id === bookingId)
   if (bookingIndex === -1) return
-  
+
   const booking = currentBookings.value[bookingIndex]
-  
+
   // Remove from resource availability tracking
   resourceBookings.value = resourceBookings.value.filter(
     rb => rb.bookingId !== bookingId
   )
-  
+
   // Remove from accumulated bookings
   currentBookings.value.splice(bookingIndex, 1)
-  
+
   // Emit booking removed event
   emit('booking-removed', bookingId)
 }
@@ -739,35 +873,35 @@ const clearAllBookings = () => {
 // Proceed to checkout with accumulated bookings
 const proceedToCheckout = () => {
   if (!canCheckout.value) return
-  
+
   const checkoutData = {
     bookings: [...currentBookings.value],
     totalCost: currentBookings.value.reduce((sum, booking) => sum + booking.totalCost, 0),
     checkoutDate: new Date()
   }
-  
+
   emit('proceed-to-checkout', checkoutData)
 }
 
 // Format date range for display
 const formatDateRange = (dates) => {
   if (!dates || dates.length === 0) return 'No dates selected'
-  
-  const start = dates[0].toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric' 
+
+  const start = dates[0].toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
   })
-  
-  const end = dates[dates.length - 1].toLocaleDateString('en-US', { 
-    month: 'short', 
+
+  const end = dates[dates.length - 1].toLocaleDateString('en-US', {
+    month: 'short',
     day: 'numeric',
     year: 'numeric'
   })
-  
+
   if (dates.length === 1) {
     return start
   }
-  
+
   return `${start} - ${end} (${dates.length} days)`
 }
 
