@@ -22,16 +22,18 @@
            text-sm sm:text-base border-2 rounded-xl transition-transform duration-300 relative"
         :data-date="day.date ? day.date.toISOString() : ''" :class="{
           'cursor-pointer bg-gradient-to-br from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 border-emerald-200 transform hover:scale-105 shadow-sm hover:shadow-md': isAvailableAndNotSelected(day.date),
-          'cursor-not-allowed': isDateBusy(day.date),
-          'bg-gradient-to-br from-blue-300/80 to-indigo-400/80 dark:from-blue-600/80 dark:to-indigo-700/80 text-gray-800 dark:text-white border-blue-400 dark:border-blue-500 shadow-lg ring-2 ring-blue-300/50 dark:ring-blue-400/50': isDateSelected(day.date) && !isDateBusy(day.date),
+          'cursor-not-allowed opacity-60': isDateBusy(day.date) || isDateInPast(day.date),
+          'bg-gradient-to-br from-blue-300/80 to-indigo-400/80 dark:from-blue-600/80 dark:to-indigo-700/80 text-gray-800 dark:text-white border-blue-400 dark:border-blue-500 shadow-lg ring-2 ring-blue-300/50 dark:ring-blue-400/50': isDateSelected(day.date) && !isDateBusy(day.date) && !isDateInPast(day.date),
           'text-gray-400 opacity-50': !isCurrentMonth(day.date),
           'bg-gradient-to-br from-amber-300 to-amber-500 border-amber-600 opacity-90 cursor-pointer': isSemiBusyAndNotSelected(day.date),
           'bg-gradient-to-br from-red-200 to-red-400 border-red-500 opacity-70 cursor-not-allowed': isDateBusy(day.date),
+          'bg-gradient-to-br from-gray-200 to-gray-400 border-gray-500 opacity-50 cursor-not-allowed': isDateInPast(day.date),
           'bg-gradient-to-br from-purple-200 to-pink-200 border-purple-300 animate-pulse': isInDragRange(day.date)
         }" @click="selectDate(day)">
         {{ day.day }}
         <span v-if="isDateBusy(day.date)" class="absolute top-0.5 right-0.5 text-xs animate-pulse">🔒</span>
         <span v-if="isDateSemiBusy(day.date)" class="absolute top-0.5 right-0.5 text-xs">⚠️</span>
+        <span v-if="isDateInPast(day.date)" class="absolute top-0.5 right-0.5 text-xs">📅</span>
         <span v-if="isDateSelected(day.date)" class="absolute top-0.5 left-0.5 text-xs">✨</span>
         <span v-if="isInDragRange(day.date)" class="absolute top-0.5 left-0.5 text-xs">🎯</span>
       </div>
@@ -151,6 +153,16 @@ const isValidDate = (date) => {
   return !!date  // Check if date is valid (not null/undefined)
 }
 
+// 🆕 Check if date is in the past (before today)
+const isDateInPast = (date) => {
+  if (!date) return false
+  const today = new Date()
+  today.setHours(0, 0, 0, 0) // Set to start of day for fair comparison
+  const compareDate = new Date(date)
+  compareDate.setHours(0, 0, 0, 0) // Set to start of day for fair comparison
+  return compareDate < today
+}
+
 // 🆕 Computed property for optimized drag range lookup
 // Convert currentDragRange array to Set for O(1) lookup instead of O(N)
 const dragRangeSet = computed(() => {
@@ -163,13 +175,13 @@ const isInDragRange = (date) => {
 }
 
 // 🆕 Computed properties for cleaner template logic
-// Available = valid date + not fully booked (semi-busy is still available!) + not selected
+// Available = valid date + not in past + not fully booked (semi-busy is still available!) + not selected
 const isAvailableAndNotSelected = (date) => {
-  return isValidDate(date) && !isDateBusy(date) && !isDateSelected(date)
+  return isValidDate(date) && !isDateInPast(date) && !isDateBusy(date) && !isDateSelected(date)
 }
 
 const isSemiBusyAndNotSelected = (date) => {
-  return isDateSemiBusy(date) && !isDateSelected(date)
+  return isDateSemiBusy(date) && !isDateSelected(date) && !isDateInPast(date)
 }
 
 // 🆕 Drag state (managed locally in CalendarGrid)
@@ -207,10 +219,10 @@ const startTouch = (event) => {
   event.preventDefault()
   const startDate = getDateFromTouchEvent(event)
   
-  // Only block touching on fully busy dates (all plumbers booked)
+  // Only block touching on fully busy dates or past dates
   // Allow touching on limited/semi-busy dates (some plumbers still available)
   if (!startDate) return
-  if (isDateBusy(startDate)) return
+  if (isDateBusy(startDate) || isDateInPast(startDate)) return
 
   isDragging.value = true
   dragStart.value = startDate
@@ -220,9 +232,9 @@ const startTouch = (event) => {
 const updateTouch = (event) => {
   if (!isDragging.value) return
   const endDate = getDateFromTouchEvent(event)
-  // Only block touching on fully busy dates (all plumbers booked)
+  // Only block touching on fully busy dates or past dates
   // Allow touching over limited/semi-busy dates (some plumbers still available)
-  if (!endDate || isDateBusy(endDate)) return
+  if (!endDate || isDateBusy(endDate) || isDateInPast(endDate)) return
 
   dragEnd.value = endDate
   
@@ -252,10 +264,10 @@ const startDrag = (event) => {
   event.preventDefault()
   const startDate = getDateFromPointerEvent(event)
   
-  // Only block dragging on fully busy dates (all plumbers booked)
+  // Only block dragging on fully busy dates or past dates
   // Allow dragging on limited/semi-busy dates (some plumbers still available)
   if (!startDate) return
-  if (isDateBusy(startDate)) return
+  if (isDateBusy(startDate) || isDateInPast(startDate)) return
 
   isDragging.value = true
   dragStart.value = startDate
@@ -265,9 +277,9 @@ const startDrag = (event) => {
 const updateDrag = (event) => {
   if (!isDragging.value) return
   const endDate = getDateFromPointerEvent(event)
-  // Only block dragging on fully busy dates (all plumbers booked)
+  // Only block dragging on fully busy dates or past dates
   // Allow dragging over limited/semi-busy dates (some plumbers still available)
-  if (!endDate || isDateBusy(endDate)) return
+  if (!endDate || isDateBusy(endDate) || isDateInPast(endDate)) return
 
   dragEnd.value = endDate
   
@@ -341,7 +353,7 @@ const handleTouchCancel = () => {
 
 // Date selection handler
 const selectDate = (day) => {
-  if (day.date && !isDateBusy(day.date)) {
+  if (day.date && !isDateBusy(day.date) && !isDateInPast(day.date)) {
     emit('selected-date', [day.date]) // Emit as array for consistency
   }
 }
