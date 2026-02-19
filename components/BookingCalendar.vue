@@ -38,14 +38,16 @@
     </div>
 
     <!-- Calendar Grid -->
+    <!-- TODO: FUTURE USE - Time slot selection in calendar grid -->
+    <!-- Uncomment when implementing time slots directly in calendar -->
+    <!-- :selected-date="selectedDate" -->
     <CalendarGrid 
       :calendar-days="calendarDays"
       :selected-dates="selectedDateRange"
       :resource-bookings="resourceBookings"
       :resources="resources"
       :current-month="currentMonth"
-      :selected-date="selectedDate"
-      @date-selected="handleDateSelection"
+      @selected-date="handleDateSelection"
     />
 
     <!-- 🎨 Calendar Legend Component -->
@@ -246,12 +248,8 @@ const currentMonth = ref(new Date())
 const route = useRoute()
 const router = useRouter()
 
-// 🎯 DRAG SELECTION STATE
-const isDragging = ref(false)
-const dragStart = ref(null)
-const dragEnd = ref(null)
+// 🎯 SELECTION STATE
 const selectedDateRange = ref([])
-const justFinishedDrag = ref(false)
 
 // � MULTI-RESOURCE BOOKING STATE
 // Available plumbers/resources
@@ -589,38 +587,12 @@ const nextMonth = () => {
   clearSelection()
 }
 
-const isDisabled = (date) => {
-  return false
-}
-
-const selectDate = (date) => {
-  // Only block clicking on fully busy dates (all plumbers booked)
-  // Allow clicking on limited/semi-busy dates (some plumbers still available)
-  if (!date || isDateBusy(date)) return
-  selectedDate.value = date
-  emit('date-selected', date)
-}
-
-// 🎯 DRAG SELECTION METHODS
-const startDrag = (event) => {
-  event.preventDefault()
-  const startDate = getDateFromPointerEvent(event)
-  
-  // Only block dragging on fully busy dates (all plumbers booked)
-  // Allow dragging on limited/semi-busy dates (some plumbers still available)
-  if (!startDate) return
-  if  (isDateBusy(startDate)) return
-
-  isDragging.value = true
-  dragStart.value = startDate
-  dragEnd.value = startDate
-  updateDateRange()
-}
-
-// 🆕 Simple date selection handler from CalendarGrid
+//  Simple date selection handler from CalendarGrid
 const handleDateSelection = (dateRange) => {
   // CalendarGrid now handles all the logic and just gives us the final date range
   selectedDateRange.value = dateRange
+  // Keep single-day highlight and any dependent UIs in sync
+  selectedDate.value = dateRange[0] || null
   
   // Update URL if we have dates selected
   if (dateRange.length > 0) {
@@ -633,97 +605,6 @@ const handleDateSelection = (dateRange) => {
   }
   
   emit('date-range-selected', dateRange)
-}
-
-const updateDrag = (event) => {
-  if (!isDragging.value) return
-  const endDate = getDateFromPointerEvent(event)
-  // Only block dragging on fully busy dates (all plumbers booked)
-  // Allow dragging over limited/semi-busy dates (some plumbers still available)
-  if (!endDate || isDateBusy(endDate)) return
-
-  dragEnd.value = endDate
-  updateDateRange()
-}
-
-
-
-const endDrag = () => {
-  if (isDragging.value) {
-    isDragging.value = false
-    justFinishedDrag.value = true
-    setTimeout(() => justFinishedDrag.value = false, 300)
-
-    if (selectedDateRange.value.length > 0) {
-      const start = selectedDateRange.value[0].toISOString().split('T')[0]
-      const end = selectedDateRange.value[selectedDateRange.value.length - 1].toISOString().split('T')[0]
-
-      // Update URL
-      router.push({
-        query: { start, end }
-      })
-    }
-
-    emit('date-range-selected', selectedDateRange.value)
-  }
-}
-
-const getDateFromPointerEvent = (event) => {
-  if (!event) return null
-
-  let el = null
-
-  if (event.touches && event.touches[0]) {
-
-    const { clientX, clientY } = event.touches[0]
-    el = document.elementFromPoint(clientX, clientY)
-  } else if (typeof event.clientX === 'number' && typeof event.clientY === 'number') {
-    el = document.elementFromPoint(event.clientX, event.clientY)
-  } else {
-    el = event.target
-  }
-
-  const dateEl = el?.closest?.('[data-date]')
-  const iso = dateEl?.getAttribute?.('data-date')
-  if (!iso) return null
-
-  const d = new Date(iso)
-  return isNaN(d.getTime()) ? null : d
-}
-
-const updateDateRange = () => {
-  if (!dragStart.value || !dragEnd.value) return
-
-  // Create date range (dragging can go forward or backward)
-  const rangeStart = dragStart.value < dragEnd.value ? dragStart.value : dragEnd.value
-  const rangeEnd = dragStart.value > dragEnd.value ? dragStart.value : dragEnd.value
-
-  // Add all dates between rangeStart and rangeEnd (skip busy dates)
-  const currentDate = new Date(rangeStart)
-  const tempDateRange = []
-  while (currentDate <= rangeEnd) {
-    // Skip busy dates
-    if (!isDateBusy(currentDate)) {
-      // Only add if not already in the array (avoid duplicates during drag)
-      const dateStr = currentDate.toDateString()
-      const alreadyExists = tempDateRange.some(d => {
-        return d.toDateString() === dateStr
-      })
-      if (!alreadyExists) {
-        tempDateRange.push(new Date(currentDate))
-      }
-    }
-    currentDate.setDate(currentDate.getDate() + 1)
-  }
-
-  // Update the selected date range
-  selectedDateRange.value = tempDateRange
-}
-
-const isInDragRange = (date) => {
-  return selectedDateRange.value.some(rangeDate =>
-    rangeDate.toDateString() === date?.toDateString()
-  )
 }
 
 // Clear current selection (dates and resources)
