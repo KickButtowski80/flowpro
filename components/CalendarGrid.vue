@@ -178,7 +178,7 @@ const dragStart = ref(null)
 const dragEnd = ref(null)
 const currentDragRange = ref([])
 
-// 🆕 Helper to get date from pointer event
+// 🆕 Helper to get date from pointer event (mouse or touch)
 const getDateFromPointerEvent = (event) => {
   const target = event.target
   const dateElement = target.closest('[data-date]')
@@ -188,7 +188,66 @@ const getDateFromPointerEvent = (event) => {
   return dateString ? new Date(dateString) : null
 }
 
-// 🆕 Drag selection methods (now in CalendarGrid)
+// 🆕 Helper to get date from touch event (mobile-specific)
+const getDateFromTouchEvent = (event) => {
+  // Touch events use touches array, not direct target
+  const touch = event.touches[0] || event.changedTouches[0]
+  if (!touch) return null
+  
+  const target = document.elementFromPoint(touch.clientX, touch.clientY)
+  const dateElement = target?.closest('[data-date]')
+  if (!dateElement) return null
+  
+  const dateString = dateElement.getAttribute('data-date')
+  return dateString ? new Date(dateString) : null
+}
+
+// 🆕 Touch selection methods (mobile-specific)
+const startTouch = (event) => {
+  event.preventDefault()
+  const startDate = getDateFromTouchEvent(event)
+  
+  // Only block touching on fully busy dates (all plumbers booked)
+  // Allow touching on limited/semi-busy dates (some plumbers still available)
+  if (!startDate) return
+  if (isDateBusy(startDate)) return
+
+  isDragging.value = true
+  dragStart.value = startDate
+  dragEnd.value = startDate
+}
+
+const updateTouch = (event) => {
+  if (!isDragging.value) return
+  const endDate = getDateFromTouchEvent(event)
+  // Only block touching on fully busy dates (all plumbers booked)
+  // Allow touching over limited/semi-busy dates (some plumbers still available)
+  if (!endDate || isDateBusy(endDate)) return
+
+  dragEnd.value = endDate
+  
+  // 🚀 Update visual range immediately during touch!
+  currentDragRange.value = getDateRange(dragStart.value, dragEnd.value)
+}
+
+const endTouch = () => {
+  if (isDragging.value) {
+    isDragging.value = false
+    
+    // Emit the selected date range to parent
+    if (dragStart.value && dragEnd.value) {
+      const dateRange = getDateRange(dragStart.value, dragEnd.value)
+      emit('selected-date', dateRange)
+    }
+    
+    // Clear local drag state
+    currentDragRange.value = []
+    dragStart.value = null
+    dragEnd.value = null
+  }
+}
+
+// 🆕 Drag selection methods (desktop-specific)
 const startDrag = (event) => {
   event.preventDefault()
   const startDate = getDateFromPointerEvent(event)
@@ -265,19 +324,19 @@ const handleMouseLeave = () => {
 }
 
 const handleTouchStart = (event) => {
-  startDrag(event)
+  startTouch(event)
 }
 
 const handleTouchMove = (event) => {
-  updateDrag(event)
+  updateTouch(event)
 }
 
 const handleTouchEnd = () => {
-  endDrag()
+  endTouch()
 }
 
 const handleTouchCancel = () => {
-  endDrag()
+  endTouch()
 }
 
 // Date selection handler
