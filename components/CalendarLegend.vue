@@ -10,8 +10,10 @@
       
       <!-- Selected -->
       <div class="flex items-center space-x-2">
-        <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 border-2 border-blue-500 rounded"></div>
-        <span class="text-xs text-gray-700">Selected</span>
+        <div class="w-6 h-6 bg-gradient-to-br from-blue-300/80 to-indigo-400/80 dark:from-blue-600/80 dark:to-indigo-700/80 border-2 border-blue-400 dark:border-blue-500 rounded relative">
+          <span class="absolute top-0 left-0 text-xs text-gray-800 dark:text-white">✨</span>
+        </div>
+        <span class="text-xs text-gray-700 dark:text-gray-300">Selected</span>
       </div>
       
       <!-- Limited -->
