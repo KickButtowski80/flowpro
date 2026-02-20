@@ -52,7 +52,7 @@ const handleDateRangeSelected = (dateRange) => {
 // Handle booking added to accumulation
 const handleBookingAdded = (booking) => {
   console.log('Booking added:', booking)
-  bookingResult.value = `Booking added: ${booking.dates.length} day${booking.dates.length > 1 ? 's' : ''} with ${booking.resources.length} plumber${booking.resources.length > 1 ? 's' : ''} - $${booking.totalCost}`
+  bookingResult.value = `Booking added: ${booking.dates.length} day${booking.dates.length > 1 ? 's' : ''} with ${booking.plumbers.length} plumber${booking.plumbers.length > 1 ? 's' : ''} - $${booking.totalCost.toLocaleString()}`
 }
 
 // Handle all bookings cleared
