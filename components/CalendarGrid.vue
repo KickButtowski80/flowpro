@@ -173,9 +173,14 @@ const isInDragRange = (date) => {
 }
 
 // 🆕 Computed properties for cleaner template logic
-// Available = valid date + not in past + not fully booked (semi-busy is still available!) + not selected
+// Available (green) = valid date + not in past + not fully booked + not semi-busy + not selected
+// Excluding semi-busy here ensures LIMITED (amber) styling does not get overridden by generic available styling
 const isAvailableAndNotSelected = (date) => {
-  return isValidDate(date) && !isDateInPast(date) && !isDateBusy(date) && !isDateSelected(date)
+  return isValidDate(date)
+    && !isDateInPast(date)
+    && !isDateBusy(date)
+    && !isDateSemiBusy(date)
+    && !isDateSelected(date)
 }
 
 const isSemiBusyAndNotSelected = (date) => {
