@@ -45,14 +45,16 @@
       :calendar-days="calendarDays"
       :selected-dates="selectedDateRange"
       :resource-bookings="resourceBookings"
-      :resources="resources"
+      :plumbers="plumbers"
       :current-month="currentMonth"
       @selected-date="handleDateSelection"
     />
 
     <!-- 🎨 Calendar Legend Component -->
     <CalendarLegend />
-
+    
+    <!-- 🆕 Job Type Selection -->
+    <JobTypeSelector @job-type-selected="handleJobTypeSelection" />
     <!-- Selected Date Display -->
     <div v-if="selectedDateRange.length > 0"
       class="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
@@ -85,8 +87,8 @@
         ℹ️ <strong>All-or-Nothing Availability:</strong> Plumbers shown here are available for ALL selected dates
       </div> -->
 
-      <!-- No resources available message -->
-      <div v-if="availableResources.length === 0" class="text-center py-3 sm:py-4">
+      <!-- No plumbers available message -->
+      <div v-if="availablePlumbers.length === 0" class="text-center py-3 sm:py-4">
         <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for these dates</p>
         <p class="text-xs sm:text-sm text-gray-600 mt-1">
           <span v-if="selectedDateRange.length === 1">Try a different date</span>
@@ -94,24 +96,24 @@
         </p>
       </div>
 
-      <!-- Resource list -->
+      <!-- Plumber list -->
       <div v-else class="space-y-2 sm:space-y-3">
 
-        <label v-for="resource in availableResources" :key="resource.id"
+        <label v-for="plumber in availablePlumbers" :key="plumber.id"
           class="flex items-center p-2 sm:p-3 bg-white rounded-lg cursor-pointer hover:bg-green-100 transition-all duration-200 border-2 border-transparent hover:border-green-300">
-          <input type="checkbox" :value="resource.id" v-model="selectedResources"
+          <input type="checkbox" :value="plumber.id" v-model="selectedPlumbers"
             class="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 text-green-600 rounded focus:ring-green-500">
 
           <div class="flex-1">
             <div class="flex items-center">
-              <span class="text-xl sm:text-2xl mr-2">{{ resource.avatar }}</span>
+              <span class="text-xl sm:text-2xl mr-2">{{ plumber.avatar }}</span>
               <div>
-                <span class="font-medium text-gray-800 text-sm sm:text-base">{{ resource.displayName }}</span>
+                <span class="font-medium text-gray-800 text-sm sm:text-base">{{ plumber.displayName }}</span>
                 <div class="text-xs sm:text-sm text-gray-500">
-                  {{ resource.level.charAt(0).toUpperCase() + resource.level.slice(1) }} • ${{ resource.rate }}/hr
+                  {{ plumber.level.charAt(0).toUpperCase() + plumber.level.slice(1) }} • ${{ plumber.rate }}/hr
                 </div>
                 <div class="text-xs text-gray-400 mt-1 hidden sm:block">
-                  {{ resource.specialties.join(' • ') }}
+                  {{ plumber.specialties.join(' • ') }}
                 </div>
 
               </div>
@@ -119,17 +121,17 @@
           </div>
 
           <div class="text-right">
-            <div class="text-xs sm:text-sm font-medium text-green-600" :class="plumberStatusColor(resource)">
-              {{ plumberStatusIcon(resource) }} {{ plumberStatusText(resource) }}
+            <div class="text-xs sm:text-sm font-medium text-green-600" :class="plumberStatusColor(plumber)">
+              {{ plumberStatusIcon(plumber) }} {{ plumberStatusText(plumber) }}
             </div>
           </div>
         </label>
       </div>
 
-      <!-- Selected resources summary -->
-      <div v-if="selectedResources.length > 0" class="mt-3 sm:mt-4 p-2 sm:p-3 bg-green-100 rounded-lg">
+      <!-- Selected plumbers summary -->
+      <div v-if="selectedPlumbers.length > 0" class="mt-3 sm:mt-4 p-2 sm:p-3 bg-green-100 rounded-lg">
         <p class="text-xs sm:text-sm text-green-800">
-          <strong>{{ selectedResources.length }}</strong> plumber{{ selectedResources.length > 1 ? 's' : '' }} selected
+          <strong>{{ selectedPlumbers.length }}</strong> plumber{{ selectedPlumbers.length > 1 ? 's' : '' }} selected
         </p>
         <p class="text-xs text-green-600 mt-1">
           Total: ${{ totalCost.toLocaleString() }} ({{ selectedDateRange.length }} days)
@@ -144,8 +146,7 @@
         class="w-full py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm sm:text-base disabled:bg-gray-300 disabled:cursor-not-allowed">
         � Add to Booking
         <span v-if="canAddBooking" class="ml-2 text-xs sm:text-sm">
-          ({{ selectedResources.length }} plumber{{ selectedResources.length > 1 ? 's' : '' }}, ${{
-            totalCost.toLocaleString() }})
+          ({{ selectedPlumbers.length }} plumber{{ selectedPlumbers.length > 1 ? 's' : '' }}, ${{ totalCost.toLocaleString() }})
         </span>
       </button>
     </div>
@@ -169,7 +170,7 @@
                 {{ formatDateRange(booking.dates) }}
               </p>
               <p class="text-xs sm:text-sm text-gray-600">
-                {{booking.resourceDetails.map(r => r.displayName).join(', ')}}
+                {{booking.plumberDetails.map(p => p.displayName).join(', ')}}
               </p>
             </div>
             <div class="text-right ml-2">
@@ -200,9 +201,6 @@
 
 <script setup>
 import { chatPromptSubmit } from '#build/ui'
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import CalendarGrid from './CalendarGrid.vue'
 
 // 🎯 STEP 1: Define Component Interface
 // Props flow DOWN from parent to child
@@ -250,10 +248,11 @@ const router = useRouter()
 
 // 🎯 SELECTION STATE
 const selectedDateRange = ref([])
+const selectedJobType = ref('') // 🆕 Track selected job type
 
 // � MULTI-RESOURCE BOOKING STATE
 // Available plumbers/resources
-const resources = ref([
+const plumbers = ref([
   {
     id: 'A',
     name: 'John Smith',
@@ -313,10 +312,10 @@ const availabilityStatuses = {
 // Add separate "unavailableResources" computed property
 
 // Helper: count how many of the selected dates this plumber is actually available for
-const getAvailableCountForResource = (resourceId) => {
+const getAvailableCountForPlumber = (plumberId) => {
   if (selectedDateRange.value.length === 0) return 0
   // Get existing bookings for this plumber
-  const plumberBookings = resourceBookings.value.filter(b => b.resourceId === resourceId)
+  const plumberBookings = resourceBookings.value.filter(b => b.plumberId === plumberId)
   // Count dates where this plumber is NOT booked
   let availableCount = 0
   for (const selectedDate of selectedDateRange.value) {
@@ -330,27 +329,27 @@ const getAvailableCountForResource = (resourceId) => {
 }
 
 // Derive status: FULL (all dates), PARTIAL (some dates), NONE (no dates)
-const getPlumberStatus = (resource) => {
+const getPlumberStatus = (plumber) => {
   const totalSelected = selectedDateRange.value.length
   if (totalSelected === 0) return 'NONE'  // No dates selected = unavailable
-  const availableCount = getAvailableCountForResource(resource.id)
+  const availableCount = getAvailableCountForPlumber(plumber.id)
   if (availableCount === 0) return 'NONE'
   if (availableCount < totalSelected) return 'PARTIAL'
   return 'FULL'
 }
 
-const plumberStatusIcon = (resource) => availabilityStatuses[getPlumberStatus(resource)].icon
-const plumberStatusText = (resource) => availabilityStatuses[getPlumberStatus(resource)].text
-const plumberStatusColor = (resource) => `text-${availabilityStatuses[getPlumberStatus(resource)].color}-600`
+const plumberStatusIcon = (plumber) => availabilityStatuses[getPlumberStatus(plumber)].icon
+const plumberStatusText = (plumber) => availabilityStatuses[getPlumberStatus(plumber)].text
+const plumberStatusColor = (plumber) => `text-${availabilityStatuses[getPlumberStatus(plumber)].color}-600`
 // Selected resources for current booking
-const selectedResources = ref([])
+const selectedPlumbers = ref([])
 
 // Accumulated bookings in current session
 const currentBookings = ref([])
 
 // Resource availability tracking (who's booked when)
 const resourceBookings = ref([
-  // Example: { resourceId: 'A', dates: [date1, date2], bookingId: 'booking1' }
+  // Example: { plumberId: 'A', dates: [date1, date2], bookingId: 'booking1' }
 ])
 
 
@@ -424,15 +423,15 @@ const availableTimeSlots = computed(() => {
 
 // 🆕 MULTI-RESOURCE COMPUTED PROPERTIES
 // Available resources for selected date range - show even with partial availability
-const availableResources = computed(() => {
-  // If no dates selected, no resources available
+const availablePlumbers = computed(() => {
+  // If no dates selected, no plumbers available
   if (selectedDateRange.value.length === 0) return []
 
   // Show all plumbers who are available on ANY selected date
-  const availableResources = resources.value.filter(resource => {
+  const availablePlumbers = plumbers.value.filter(plumber => {
     // Get existing bookings for this plumber
     const plumberBookings = resourceBookings.value.filter(booking =>
-      booking.resourceId === resource.id
+      booking.plumberId === plumber.id
     )
 
     // Check if plumber is available on at least one selected date
@@ -448,14 +447,14 @@ const availableResources = computed(() => {
     return hasSomeAvailability
   })
 
-  return availableResources
+  return availablePlumbers
 })
 
 // Helper: Check if a specific plumber can work on given dates
 const canPlumberWorkOnDates = (plumberId, dates) => {
   // Get all bookings for this specific plumber
   const plumberBookings = resourceBookings.value.filter(booking =>
-    booking.resourceId === plumberId
+    booking.plumberId === plumberId
   )
 
   // If no bookings for this plumber, they can work
@@ -485,20 +484,20 @@ const canPlumberWorkOnDates = (plumberId, dates) => {
 }
 
 // Selected resources details
-const selectedResourcesDetails = computed(() => {
-  return selectedResources.value.map(resourceId => {
-    return resources.value.find(r => r.id === resourceId)
+const selectedPlumbersDetails = computed(() => {
+  return selectedPlumbers.value.map(plumberId => {
+    return plumbers.value.find(p => p.id === plumberId)
   }).filter(Boolean)
 })
 
 // Total cost for selected resources and dates
 const totalCost = computed(() => {
-  if (selectedResourcesDetails.value.length === 0 || selectedDateRange.value.length === 0) {
+  if (selectedPlumbersDetails.value.length === 0 || selectedDateRange.value.length === 0) {
     return 0
   }
 
   const days = selectedDateRange.value.length
-  const dailyRate = selectedResourcesDetails.value.reduce((sum, resource) => sum + resource.rate, 0)
+  const dailyRate = selectedPlumbersDetails.value.reduce((sum, plumber) => sum + plumber.rate, 0)
 
   return days * dailyRate
 })
@@ -506,14 +505,14 @@ const totalCost = computed(() => {
 // Can proceed with booking - more sophisticated for limited availability
 const canAddBooking = computed(() => {
   // Basic requirements
-  if (selectedDateRange.value.length === 0 || selectedResources.value.length === 0) {
+  if (selectedDateRange.value.length === 0 || selectedPlumbers.value.length === 0) {
     return false
   }
 
   // Check if at least one plumber is available for at least one date
-  const hasAnyAvailability = selectedResources.value.some(resourceId => {
+  const hasAnyAvailability = selectedPlumbers.value.some(plumberId => {
     const plumberBookings = resourceBookings.value.filter(booking =>
-      booking.resourceId === resourceId
+      booking.plumberId === plumberId
     )
 
     return selectedDateRange.value.some(selectedDate => {
@@ -607,10 +606,17 @@ const handleDateSelection = (dateRange) => {
   emit('date-range-selected', dateRange)
 }
 
+// 🆕 Handle job type selection from JobTypeSelector
+const handleJobTypeSelection = (jobTypeId) => {
+  console.log('🎯 Job type selected in BookingCalendar:', jobTypeId)
+  selectedJobType.value = jobTypeId
+  // TODO: Later we can use this for team validation or AI suggestions
+}
+
 // Clear current selection (dates and resources)
 const clearSelection = () => {
   selectedDateRange.value = []
-  selectedResources.value = []
+  selectedPlumbers.value = []
   selectedDate.value = null
 }
 
@@ -622,8 +628,8 @@ const addBooking = () => {
   const booking = {
     id: `booking_${Date.now()}`,
     dates: [...selectedDateRange.value],
-    resources: [...selectedResources.value],
-    resourceDetails: [...selectedResourcesDetails.value],
+    plumbers: [...selectedPlumbers.value],
+    plumberDetails: [...selectedPlumbersDetails.value],
     totalCost: totalCost.value,
     createdAt: new Date()
   }
@@ -631,10 +637,10 @@ const addBooking = () => {
   currentBookings.value.push(booking)
 
   // Update resource availability tracking - only book available dates
-  selectedResources.value.forEach(resourceId => {
+  selectedPlumbers.value.forEach(plumberId => {
     // Get existing bookings for this plumber
     const plumberBookings = resourceBookings.value.filter(booking =>
-      booking.resourceId === resourceId
+      booking.plumberId === plumberId
     )
 
     // Find which dates are actually available for this plumber
@@ -650,7 +656,7 @@ const addBooking = () => {
     // Only book if there are available dates
     if (availableDates.length > 0) {
       resourceBookings.value.push({
-        resourceId: resourceId,
+        plumberId: plumberId,
         dates: [...availableDates],  // Book only available dates
         bookingId: booking.id
       })
@@ -659,7 +665,7 @@ const addBooking = () => {
 
   // Clear current selection for next booking
   selectedDateRange.value = []
-  selectedResources.value = []
+  selectedPlumbers.value = []
   selectedDate.value = null
 
   // Emit booking added event
