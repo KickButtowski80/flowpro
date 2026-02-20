@@ -41,8 +41,6 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-
 // Props received from parent
 const props = defineProps({
   calendarDays: {
@@ -65,7 +63,7 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  resources: {
+  plumbers: {
     type: Array,
     default: () => []
   },
@@ -91,7 +89,7 @@ const bookedPlumbersByDate = computed(() => {
       if (!plumbersByDateMap.has(dateKey)) {
         plumbersByDateMap.set(dateKey, new Set())
       }
-      plumbersByDateMap.get(dateKey).add(booking.resourceId)
+      plumbersByDateMap.get(dateKey).add(booking.plumberId)
     })
   })
   
@@ -109,7 +107,7 @@ const getBookedPlumberIds = (date) => {
 // 🆕 Check if a date has any bookings (busy)
 const isDateBusy = (date) => {
   if (!date) return false
-  const totalPlumbers = props.resources.length
+  const totalPlumbers = props.plumbers.length
   if (totalPlumbers === 0) return false
 
   const bookedPlumberIds = getBookedPlumberIds(date)
@@ -123,7 +121,7 @@ const isDateBusy = (date) => {
 const isDateSemiBusy = (date) => {
   if (!date) return false
 
-  const totalPlumbers = props.resources.length
+  const totalPlumbers = props.plumbers.length
   if (totalPlumbers === 0) return false
 
   const bookedPlumberIds = getBookedPlumberIds(date)
