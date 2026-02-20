@@ -5,7 +5,7 @@
       class="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 bg-white focus-visible:text-blue-500 focus-visible:px-2 focus-visible:py-2 focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-opacity-50 focus-visible:z-[9999]">
       Skip to main content
     </a>
-
+   
     <!-- Navigation -->
     <nav class="fixed top-0 z-50 isolate w-full bg-flowpro border-b border-flowpro-dark/20 backdrop-blur-lg shadow-lg">
       <div class="container mx-auto px-4">
@@ -40,6 +40,7 @@
 
           <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center gap-10">
+            <NuxtLink to="/calendar">test</NuxtLink> 
             <NuxtLink to="#services" :class="[
               'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('services')
