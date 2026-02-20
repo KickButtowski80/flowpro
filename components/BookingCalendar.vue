@@ -261,7 +261,13 @@ const plumbers = ref([
     level: 'master',
     avatar: '👨‍🔧',
     specialties: ['Emergency', 'Repiping', 'Water Heaters'],
-    availableDates: []
+    
+    // 🆕 Enhanced real-world data
+    experience: 15, // years of experience
+    license: 'Master License #PLM12345',
+    certifications: ['Gas Certified', 'EPA Certified', 'Tankless Certified'],
+    emergencyAvailable: true,
+    totalJobs: 1247
   },
   {
     id: 'B',
@@ -271,7 +277,13 @@ const plumbers = ref([
     level: 'journeyman',
     avatar: '👨‍🔧',
     specialties: ['Installations', 'Maintenance', 'Repairs'],
-    availableDates: []
+    
+    // 🆕 Enhanced real-world data
+    experience: 7, // years of experience
+    license: 'Journeyman License #PLJ456',
+    certifications: ['Gas Certified', 'EPA Certified'],
+    emergencyAvailable: true,
+    totalJobs: 892
   },
   {
     id: 'C',
@@ -281,7 +293,13 @@ const plumbers = ref([
     level: 'apprentice',
     avatar: '👨‍🔧',
     specialties: ['Assistance', 'Basic Repairs', 'Learning'],
-    availableDates: []
+    
+    // 🆕 Enhanced real-world data
+    experience: 2, // years of experience
+    license: 'Apprentice License #PLA789',
+    certifications: ['EPA Certified'],
+    emergencyAvailable: false, // Apprentices don't do emergencies
+    totalJobs: 234
   }
 ])
 const availabilityStatuses = {
@@ -316,12 +334,18 @@ const getAvailableCountForPlumber = (plumberId) => {
   if (selectedDateRange.value.length === 0) return 0
   // Get existing bookings for this plumber
   const plumberBookings = resourceBookings.value.filter(b => b.plumberId === plumberId)
+  // 🚀 OPTIMIZATION: Use Set for O(1) date lookups instead of nested some() loops
+  const plumberBookedDates = new Set(
+    plumberBookings.flatMap(booking => 
+      booking.dates.map(date => date.toDateString())
+    )
+  )
+  
   // Count dates where this plumber is NOT booked
   let availableCount = 0
   for (const selectedDate of selectedDateRange.value) {
-    const isBookedOnDate = plumberBookings.some(booking =>
-      booking.dates.some(bookedDate => bookedDate.toDateString() === selectedDate.toDateString())
-    )
+    // ✅ O(1) lookup instead of O(n × m) nested loops
+    const isBookedOnDate = plumberBookedDates.has(selectedDate.toDateString())
     const isAvailableOnDate = !isBookedOnDate  // Clearer: true if plumber is free
     if (isAvailableOnDate) availableCount++   // Much easier to understand!
   }
@@ -434,54 +458,42 @@ const availablePlumbers = computed(() => {
       booking.plumberId === plumber.id
     )
 
+    // 🚀 OPTIMIZATION: Use Set for O(1) date lookups instead of nested some() loops
+    const plumberBookedDates = new Set(
+      plumberBookings.flatMap(booking => 
+        booking.dates.map(date => date.toDateString())
+      )
+    )
+    
+    // 🆕 DEBUG: Log plumber availability analysis
+    console.log(`🔍 Plumber ${plumber.name} (${plumber.id}) Availability Analysis:`)
+    console.log(`   📅 Selected dates:`, selectedDateRange.value.map(d => d.toDateString()))
+    console.log(`   📋 Booked dates:`, Array.from(plumberBookedDates))
+    console.log(`   ✅ Available dates:`, selectedDateRange.value.filter(d => !plumberBookedDates.has(d.toDateString())).map(d => d.toDateString()))
+    
     // Check if plumber is available on at least one selected date
     const hasSomeAvailability = selectedDateRange.value.some(selectedDate => {
-      const isBookedOnDate = plumberBookings.some(booking =>
-        booking.dates.some(bookedDate =>
-          bookedDate.toDateString() === selectedDate.toDateString()
-        )
-      )
+      // ✅ O(1) lookup instead of O(n × m) nested loops
+      const isBookedOnDate = plumberBookedDates.has(selectedDate.toDateString())
       return !isBookedOnDate  // Available on this date
     })
+    
+    console.log(`   🎯 Has some availability: ${hasSomeAvailability}`)
+    console.log(`   📊 Availability status: ${hasSomeAvailability ? 'AVAILABLE' : 'UNAVAILABLE'}`)
+    console.log('---')
 
     return hasSomeAvailability
   })
 
+  // 🆕 DEBUG: Log final available plumbers result
+  console.log(`🎯 FINAL AVAILABLE PLUMBERS (${availablePlumbers.length}):`)
+  availablePlumbers.forEach(plumber => {
+    console.log(`   ✅ ${plumber.displayName} - ${plumber.level} - $${plumber.rate}/hr`)
+  })
+  console.log('---')
+
   return availablePlumbers
 })
-
-// Helper: Check if a specific plumber can work on given dates
-const canPlumberWorkOnDates = (plumberId, dates) => {
-  // Get all bookings for this specific plumber
-  const plumberBookings = resourceBookings.value.filter(booking =>
-    booking.plumberId === plumberId
-  )
-
-  // If no bookings for this plumber, they can work
-  if (plumberBookings.length === 0) {
-    return true
-  }
-
-  // Check for conflicts on each selected date
-  let hasConflicts = false
-
-  for (const selectedDate of dates) {
-    // Find if this plumber is booked on this specific date
-    const conflictsOnDate = plumberBookings.some(booking =>
-      booking.dates.some(bookedDate =>
-        bookedDate.toDateString() === selectedDate.toDateString()
-      )
-    )
-
-    if (conflictsOnDate) {
-      hasConflicts = true
-      break // Found a conflict, no need to check further
-    }
-  }
-
-  // Plumber can work if there are NO conflicts
-  return !hasConflicts
-}
 
 // Selected resources details
 const selectedPlumbersDetails = computed(() => {
@@ -515,12 +527,16 @@ const canAddBooking = computed(() => {
       booking.plumberId === plumberId
     )
 
-    return selectedDateRange.value.some(selectedDate => {
-      const isBookedOnDate = plumberBookings.some(booking =>
-        booking.dates.some(bookedDate =>
-          bookedDate.toDateString() === selectedDate.toDateString()
-        )
+    // 🚀 OPTIMIZATION: Use Set for O(1) date lookups instead of nested some() loops
+    const plumberBookedDates = new Set(
+      plumberBookings.flatMap(booking => 
+        booking.dates.map(date => date.toDateString())
       )
+    )
+    
+    return selectedDateRange.value.some(selectedDate => {
+      // ✅ O(1) lookup instead of O(n × m) nested loops
+      const isBookedOnDate = plumberBookedDates.has(selectedDate.toDateString())
       return !isBookedOnDate  // Available on this date
     })
   })
@@ -643,15 +659,27 @@ const addBooking = () => {
       booking.plumberId === plumberId
     )
 
+    // 🚀 OPTIMIZATION: Use Set for O(1) date lookups instead of nested some() loops
+    const plumberBookedDates = new Set(
+      plumberBookings.flatMap(booking => 
+        booking.dates.map(date => date.toDateString())
+      )
+    )
+
     // Find which dates are actually available for this plumber
     const availableDates = selectedDateRange.value.filter(selectedDate => {
-      const isBookedOnDate = plumberBookings.some(booking =>
-        booking.dates.some(bookedDate =>
-          bookedDate.toDateString() === selectedDate.toDateString()
-        )
-      )
-      return !isBookedOnDate  // Only keep available dates
+      // ✅ O(1) lookup instead of O(n × m) nested loops
+      const isBookedOnDate = plumberBookedDates.has(selectedDate.toDateString())
+      return !isBookedOnDate  // Available if not booked
     })
+    
+    // 🆕 DEBUG: Log booking creation analysis
+    console.log(`🔧 Creating Booking for Plumber ${plumberId}:`)
+    console.log(`   📅 Requested dates:`, selectedDateRange.value.map(d => d.toDateString()))
+    console.log(`   📋 Booked dates:`, Array.from(plumberBookedDates))
+    console.log(`   ✅ Available dates:`, availableDates.map(d => d.toDateString()))
+    console.log(`   💰 Will book ${availableDates.length} out of ${selectedDateRange.value.length} days`)
+    console.log('---')
 
     // Only book if there are available dates
     if (availableDates.length > 0) {
