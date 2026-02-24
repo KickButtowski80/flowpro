@@ -82,14 +82,16 @@
         👥 Available Plumbers:
       </h4>
 
-      <!-- Availability notice -->
-      <!-- <div class="text-xs sm:text-sm text-blue-600 mb-3 p-2 bg-blue-50 rounded border border-blue-200">
-        ℹ️ <strong>All-or-Nothing Availability:</strong> Plumbers shown here are available for ALL selected dates
-      </div> -->
+
+      <!-- 🆕 Team Status Message -->
+      <div v-if="selectedJobType && teamStatusMessage" class="mb-3 p-2 rounded-lg border text-sm" 
+           :class="canFormRequiredTeam ? 'bg-green-50 border-green-200 text-green-800' : 'bg-amber-50 border-amber-200 text-amber-800'">
+        <p class="font-medium">{{ teamStatusMessage }}</p>
+      </div>
 
       <!-- No plumbers available message -->
       <div v-if="plumbersMatchingJobRequirements.length === 0" class="text-center py-3 sm:py-4">
-        <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for this job type</p>
+        <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for {{selectedJobType.name}} at this moment </p>
         <p class="text-xs sm:text-sm text-gray-600 mt-1">
           <span v-if="!selectedJobType">Select a job type first</span>
           <span v-else-if="availablePlumbers.length === 0">No plumbers available for these dates</span>
@@ -156,7 +158,7 @@
     <div v-if="currentBookings.length > 0"
       class="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200 booking-ui">
       <h4 class="font-semibold text-yellow-800 mb-2 sm:mb-3 flex items-center justify-between text-sm sm:text-base">
-        <span>📋 Current Bookings ({{ currentBookings.length }})</span>
+        <span>📋 Current Bookings : ({{ currentBookings.length }}) </span>
         <button @click="clearAllBookings" class="text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium">
           Clear All
         </button>
@@ -193,6 +195,31 @@
           ${{currentBookings.reduce((sum, b) => sum + b.totalCost, 0).toLocaleString()}})
         </span>
       </button>
+    </div>
+
+    <!-- 🆕 Recent Activity Feed -->
+    <div v-if="bookingResult" class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm">
+      <div class="flex items-start space-x-3">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm font-medium">📋</span>
+          </div>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-sm font-semibold text-gray-800 mb-1">Recent Activity</h3>
+          <p class="text-sm text-gray-700 leading-relaxed">
+            Booking created for {{ formatDateRange(selectedDateRange) }}
+          </p>
+          <p class="text-xs text-gray-500 mt-2">{{ new Date().toLocaleTimeString() }}</p>
+        </div>
+        <button @click="bookingResult = null" 
+          class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+          title="Dismiss">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Time slots will go here -->
@@ -236,6 +263,9 @@ const emit = defineEmits([
 // 🎯 STEP 2: Add Reactive State
 // User's selected date - starts as null (nothing selected)
 const selectedDate = ref(null)
+
+// 🆕 Recent activity state
+const bookingResult = ref(null)
 
 // User's selected time slot - starts as null  
 const selectedTimeSlot = ref(null)
@@ -521,6 +551,31 @@ const plumbersMatchingJobRequirements = computed(() => {
     // Include plumber only if both conditions pass
     return hasRequiredLevel && canHandleEmergency
   })
+})
+
+// 🆕 Step 2: Validate if enough plumbers available for required team size
+const canFormRequiredTeam = computed(() => {
+  // If no job type selected, no team size requirement
+  if (!selectedJobType.value) return true
+  
+  const availableCount = plumbersMatchingJobRequirements.value.length
+  const requiredTeamSize = selectedJobType.value.requiredTeamSize
+  
+  return availableCount >= requiredTeamSize
+})
+
+// 🆕 Step 2: Team status message for UI
+const teamStatusMessage = computed(() => {
+  if (!selectedJobType.value) return ''
+  
+  const availableCount = plumbersMatchingJobRequirements.value.length
+  const requiredTeamSize = selectedJobType.value.requiredTeamSize
+  
+  if (availableCount >= requiredTeamSize) {
+    return `✅ ${availableCount} plumbers available for team of ${requiredTeamSize}`
+  } else {
+    return `⚠️ Only ${availableCount} plumbers available, need ${requiredTeamSize}`
+  }
 })
 
 // Selected resources details
