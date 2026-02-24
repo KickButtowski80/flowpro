@@ -2,14 +2,14 @@
 <template>
   <div class="job-type-selector">
     <h3>🔧 Job Type:</h3>
-    <select v-model="selectedJobType" @change="handleSelection">
+    <select v-model="selectedJobTypeId" @change="handleSelection">
       <option value="">Select Job Type</option>
       <option v-for="jobType in jobTypes" :key="jobType.id" :value="jobType.id">
         {{ jobType.name }} - {{ jobType.requiredTeamSize }} plumbers
       </option>
     </select>
     
-    <div v-if="selectedJobType" class="job-details">
+    <div v-if="selectedJobTypeId" class="job-details">
       <h4>{{ getSelectedJobType().name }}</h4>
       <p>{{ getSelectedJobType().description }}</p>
       <p>⏱️ {{ getSelectedJobType().estimatedDuration }}</p>
@@ -31,8 +31,9 @@ const jobTypes = ref([
     id: 'emergency_repair',
     name: 'Emergency Repair',
     description: 'Urgent plumbing issues that need immediate attention',
-    requiredTeamSize: 1,
-    requiredSkills: ['master'],
+    requiredTeamSize: 2,
+    requiredLevels: ['master', 'journeyman'],
+    emergencyRequired: true,
     estimatedDuration: '2-4 hours',
     basePrice: 200,
     icon: '🚨'
@@ -42,7 +43,8 @@ const jobTypes = ref([
     name: 'Water Heater Installation',
     description: 'Install or replace water heater units',
     requiredTeamSize: 2,
-    requiredSkills: ['master', 'journeyman'],
+    requiredLevels: ['master', 'journeyman'],
+    emergencyRequired: false,
     estimatedDuration: '4-6 hours',
     basePrice: 250,
     icon: '🔥'
@@ -52,7 +54,8 @@ const jobTypes = ref([
     name: 'Repiping Project',
     description: 'Complete pipe replacement for home or business',
     requiredTeamSize: 3,
-    requiredSkills: ['master', 'journeyman', 'apprentice'],
+    requiredLevels: ['master', 'journeyman', 'apprentice'],
+    emergencyRequired: false,
     estimatedDuration: '1-3 days',
     basePrice: 400,
     icon: '🔧'
@@ -62,26 +65,30 @@ const jobTypes = ref([
     name: 'Routine Maintenance',
     description: 'Regular plumbing maintenance and inspections',
     requiredTeamSize: 1,
-    requiredSkills: ['apprentice', 'journeyman'],
+    requiredLevels: ['apprentice', 'journeyman'],
+    emergencyRequired: false,
     estimatedDuration: '1-2 hours',
     basePrice: 100,
     icon: '🔩'
   }
 ])
 
-// 🎯 Selected job type state
-const selectedJobType = ref('')
+// 🎯 Selected job type ID state
+const selectedJobTypeId = ref('')
 
 // 🎯 Get selected job type details
 const getSelectedJobType = () => {
-  if (!selectedJobType.value) return null
-  return jobTypes.value.find(job => job.id === selectedJobType.value)
+  console.log('🎯 Selected job type ID:', selectedJobTypeId.value)
+  if (!selectedJobTypeId.value) return null
+  return jobTypes.value.find(job => job.id === selectedJobTypeId.value)
 }
 
-// 🎯 Handle job type selection
+// 🎯 Handle job type selection - emit full object
 const handleSelection = () => {
-  console.log('🎯 Job type selected:', selectedJobType.value)
-  emit('job-type-selected', selectedJobType.value)
+  const jobType = getSelectedJobType() // Get full object
+  console.log('🎯 Job type selected:', jobType)
+
+  emit('job-type-selected', jobType) // Emit full object
 }
 </script>
 
