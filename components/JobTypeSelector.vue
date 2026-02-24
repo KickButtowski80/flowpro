@@ -1,19 +1,31 @@
 <!-- JobTypeSelector.vue -->
 <template>
   <div class="job-type-selector">
-    <h3>🔧 Job Type:</h3>
-    <select v-model="selectedJobTypeId" @change="handleSelection">
-      <option value="">Select Job Type</option>
+    <div class="flex items-center space-x-2 mb-3">
+      <h3 class="text-base sm:text-lg font-medium text-gray-700">🔧 Job Type:</h3>
+      <span class="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Optional</span>
+    </div>
+    
+    <select v-model="selectedJobTypeId" @change="handleSelection"
+            class="w-full px-3 sm:px-4 py-3 sm:py-4 text-base sm:text-lg border border-gray-300 bg-gray-50 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+      <option value="">Any Job Type (Show All Plumbers)</option>
       <option v-for="jobType in jobTypes" :key="jobType.id" :value="jobType.id">
         {{ jobType.name }} - {{ jobType.requiredTeamSize }} plumbers
       </option>
     </select>
     
-    <div v-if="selectedJobTypeId" class="job-details">
-      <h4>{{ getSelectedJobType().name }}</h4>
-      <p>{{ getSelectedJobType().description }}</p>
-      <p>⏱️ {{ getSelectedJobType().estimatedDuration }}</p>
-      <p>💰 ${{ getSelectedJobType().basePrice }} base price</p>
+    <!-- Helper text -->
+    <p class="text-sm text-gray-500 mt-2">
+      💡 Filter plumbers by specific job requirements, or leave empty to see all available plumbers
+    </p>
+    
+    <div v-if="selectedJobTypeId" class="job-details mt-4 p-4 sm:p-5 bg-blue-50 rounded-lg border border-blue-200">
+      <h4 class="text-lg sm:text-xl font-semibold text-blue-800">{{ getSelectedJobType().name }}</h4>
+      <p class="text-base sm:text-lg text-gray-700 mt-2">{{ getSelectedJobType().description }}</p>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mt-3 text-sm sm:text-base text-gray-600 space-y-1 sm:space-y-0">
+        <span>⏱️ {{ getSelectedJobType().estimatedDuration }}</span>
+        <span>💰 ${{ getSelectedJobType().basePrice }} base price</span>
+      </div>
     </div>
   </div>
 </template>
