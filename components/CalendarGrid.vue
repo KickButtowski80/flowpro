@@ -307,19 +307,13 @@ const endDrag = () => {
   }
 }
 
-// 🆕 Helper to get date range (works both directions!)
+// 🆕 Helper to get date range
 const getDateRange = (start, end) => {
   const dateRange = []
-  
-  // Handle both drag directions: left→right AND right→left
-  const startDate = new Date(start)
+  const currentDate = new Date(start)
   const endDate = new Date(end)
   
-  // Ensure startDate is the earlier date
-  const currentDate = startDate <= endDate ? new Date(startDate) : new Date(endDate)
-  const finalDate = startDate <= endDate ? new Date(endDate) : new Date(startDate)
-  
-  while (currentDate <= finalDate) {
+  while (currentDate <= endDate) {
     dateRange.push(new Date(currentDate))
     currentDate.setDate(currentDate.getDate() + 1)
   }
