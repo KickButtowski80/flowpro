@@ -88,18 +88,19 @@
       </div> -->
 
       <!-- No plumbers available message -->
-      <div v-if="availablePlumbers.length === 0" class="text-center py-3 sm:py-4">
-        <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for these dates</p>
+      <div v-if="plumbersMatchingJobRequirements.length === 0" class="text-center py-3 sm:py-4">
+        <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for this job type</p>
         <p class="text-xs sm:text-sm text-gray-600 mt-1">
-          <span v-if="selectedDateRange.length === 1">Try a different date</span>
-          <span v-else>Try different dates or shorter booking period</span>
+          <span v-if="!selectedJobType">Select a job type first</span>
+          <span v-else-if="availablePlumbers.length === 0">No plumbers available for these dates</span>
+          <span v-else>Try a different job type or dates</span>
         </p>
       </div>
 
       <!-- Plumber list -->
       <div v-else class="space-y-2 sm:space-y-3">
 
-        <label v-for="plumber in availablePlumbers" :key="plumber.id"
+        <label v-for="plumber in plumbersMatchingJobRequirements" :key="plumber.id"
           class="flex items-center p-2 sm:p-3 bg-white rounded-lg cursor-pointer hover:bg-green-100 transition-all duration-200 border-2 border-transparent hover:border-green-300">
           <input type="checkbox" :value="plumber.id" v-model="selectedPlumbers"
             class="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 text-green-600 rounded focus:ring-green-500">
@@ -250,8 +251,31 @@ const router = useRouter()
 const selectedDateRange = ref([])
 const selectedJobType = ref('') // 🆕 Track selected job type
 
-// � MULTI-RESOURCE BOOKING STATE
+// 🎯 Level-to-Skills Mapping (what skills each level has)
+const levelSkills = {
+  master: [
+    'pipe_installation', 'water_heater_installation', 'emergency_repair',
+    'blueprint_reading', 'drainage_maintenance', 'leak_detection',
+    'gas_line_installation', 'commercial_plumbing', 'fixture_installation'
+  ],
+  journeyman: [
+    'pipe_installation', 'water_heater_installation', 'drainage_maintenance',
+    'leak_detection', 'fixture_installation', 'basic_emergency_repair'
+  ],
+  apprentice: [
+    'basic_pipe_installation', 'fixture_installation', 'tool_assistance',
+    'drainage_cleaning', 'basic_leak_detection'
+  ]
+}
+
+// 🎯 Helper function to get plumber's skills based on their level
+const getPlumberSkills = (plumber) => {
+  return levelSkills[plumber.level] || []
+}
+
+// MULTI-RESOURCE BOOKING STATE
 // Available plumbers/resources
+ 
 const plumbers = ref([
   {
     id: 'A',
@@ -465,34 +489,38 @@ const availablePlumbers = computed(() => {
       )
     )
     
-    // 🆕 DEBUG: Log plumber availability analysis
-    console.log(`🔍 Plumber ${plumber.name} (${plumber.id}) Availability Analysis:`)
-    console.log(`   📅 Selected dates:`, selectedDateRange.value.map(d => d.toDateString()))
-    console.log(`   📋 Booked dates:`, Array.from(plumberBookedDates))
-    console.log(`   ✅ Available dates:`, selectedDateRange.value.filter(d => !plumberBookedDates.has(d.toDateString())).map(d => d.toDateString()))
-    
     // Check if plumber is available on at least one selected date
     const hasSomeAvailability = selectedDateRange.value.some(selectedDate => {
       // ✅ O(1) lookup instead of O(n × m) nested loops
       const isBookedOnDate = plumberBookedDates.has(selectedDate.toDateString())
       return !isBookedOnDate  // Available on this date
     })
-    
-    console.log(`   🎯 Has some availability: ${hasSomeAvailability}`)
-    console.log(`   📊 Availability status: ${hasSomeAvailability ? 'AVAILABLE' : 'UNAVAILABLE'}`)
-    console.log('---')
 
     return hasSomeAvailability
   })
 
-  // 🆕 DEBUG: Log final available plumbers result
-  console.log(`🎯 FINAL AVAILABLE PLUMBERS (${availablePlumbers.length}):`)
-  availablePlumbers.forEach(plumber => {
-    console.log(`   ✅ ${plumber.displayName} - ${plumber.level} - $${plumber.rate}/hr`)
-  })
-  console.log('---')
-
   return availablePlumbers
+})
+
+// 🆕 Step 1: Get plumbers who match job type requirements (levels + emergency)
+const plumbersMatchingJobRequirements = computed(() => {
+  // If no job type selected, show all available plumbers
+  if (!selectedJobType.value) return availablePlumbers.value
+  
+  const jobType = selectedJobType.value
+  
+  return availablePlumbers.value.filter(plumber => {
+    // Check if plumber has required level
+    const hasRequiredLevel = !jobType.requiredLevels?.length || 
+                            jobType.requiredLevels.includes(plumber.level)
+    
+    // Check if plumber can handle emergency (if needed)
+    const canHandleEmergency = !jobType.emergencyRequired || 
+                              Boolean(plumber.emergencyAvailable)
+    
+    // Include plumber only if both conditions pass
+    return hasRequiredLevel && canHandleEmergency
+  })
 })
 
 // Selected resources details
@@ -623,9 +651,9 @@ const handleDateSelection = (dateRange) => {
 }
 
 // 🆕 Handle job type selection from JobTypeSelector
-const handleJobTypeSelection = (jobTypeId) => {
-  console.log('🎯 Job type selected in BookingCalendar:', jobTypeId)
-  selectedJobType.value = jobTypeId
+const handleJobTypeSelection = (jobType) => {
+  console.log('🎯 Job type selected in BookingCalendar:', jobType)
+  selectedJobType.value = jobType
   // TODO: Later we can use this for team validation or AI suggestions
 }
 
@@ -765,8 +793,3 @@ const formatDateRange = (dates) => {
 // 🎯 STEP 5: Add Methods (Next)
 </script>
 
-<style scoped>
-.booking-calendar {
-  /* We'll add styles in Step 4 */
-}
-</style>
