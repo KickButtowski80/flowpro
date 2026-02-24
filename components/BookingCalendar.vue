@@ -83,12 +83,6 @@
       </h4>
 
 
-      <!-- 🆕 Team Status Message -->
-      <div v-if="selectedJobType && teamStatusMessage" class="mb-3 p-2 rounded-lg border text-sm" 
-           :class="canFormRequiredTeam ? 'bg-green-50 border-green-200 text-green-800' : 'bg-amber-50 border-amber-200 text-amber-800'">
-        <p class="font-medium">{{ teamStatusMessage }}</p>
-      </div>
-
       <!-- No plumbers available message -->
       <div v-if="plumbersMatchingJobRequirements.length === 0" class="text-center py-3 sm:py-4">
         <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for {{selectedJobType.name}} at this moment </p>
