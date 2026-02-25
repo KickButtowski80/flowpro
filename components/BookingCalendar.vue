@@ -172,7 +172,7 @@
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <p class="font-medium text-gray-800 text-sm sm:text-base">
-                {{ formatDateRange(booking.dates) }}
+                {{ formatDateRange(booking.dates) }} • {{ booking.jobType?.name || 'General Work' }}
               </p>
               <p class="text-xs sm:text-sm text-gray-600">
                 {{booking.plumberDetails.map(p => p.displayName).join(', ')}}
@@ -679,6 +679,7 @@ const addBooking = () => {
     dates: [...selectedDateRange.value],
     plumbers: [...selectedPlumbers.value],
     plumberDetails: [...selectedPlumbersDetails.value],
+    jobType: selectedJobType.value,
     totalCost: totalCost.value,
     createdAt: new Date()
   }
