@@ -2,11 +2,13 @@
 <template>
   <div class="job-type-selector">
     <div class="flex items-center space-x-2 mb-3">
-      <h3 class="text-base sm:text-lg font-medium text-gray-700">🔧 Job Type:</h3>
+      <label for="job-type-selector" class="text-base sm:text-lg font-medium text-gray-700 cursor-pointer">🔧 Job Type:</label>
       <span class="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Optional</span>
     </div>
     
     <select v-model="selectedJobTypeId" @change="handleSelection"
+            id="job-type-selector"
+            name="job-type-selector"
             class="w-full px-3 sm:px-4 py-3 sm:py-4 text-base sm:text-lg border border-gray-300 bg-gray-50 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
       <option value="">Any Job Type (Show All Plumbers)</option>
       <option v-for="jobType in jobTypes" :key="jobType.id" :value="jobType.id">
