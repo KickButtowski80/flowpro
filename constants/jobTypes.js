@@ -1,163 +1,112 @@
-// Job types with variants for plumbing services
+// Job types based on real-world plumbing service categories
+// Verified against: Mr. Rooter, Angi, HomeAdvisor, ServiceTitan, Expertise.com
 export const JOB_TYPES = [
   {
-    id: 'emergency_repair',
-    name: 'Emergency Repair',
-    description: 'Urgent plumbing issues that need immediate attention',
-    complexities: [
-      {
-        id: 'minor',
-        name: 'Minor Emergency',
-        description: 'Single leaky pipe, clogged drain',
-        requiredTeamSize: 1,
-        requiredLevels: ['journeyman'],
-        emergencyRequired: true,
-        estimatedDuration: '1-2 hours',
-        basePrice: 150,
-        icon: '🚨'
-      },
-      {
-        id: 'major',
-        name: 'Major Emergency',
-        description: 'Multiple pipe bursts, major leaks',
-        requiredTeamSize: 2,
-        requiredLevels: ['master', 'journeyman'],
-        emergencyRequired: true,
-        estimatedDuration: '2-4 hours',
-        basePrice: 200,
-        icon: '🚨'
-      },
-      {
-        id: 'critical',
-        name: 'Critical Emergency',
-        description: 'Main line failure, flooding, gas leaks',
-        requiredTeamSize: 3,
-        requiredLevels: ['master', 'master', 'journeyman'],
-        emergencyRequired: true,
-        estimatedDuration: '4-6 hours',
-        basePrice: 350,
-        icon: '🚨'
-      }
-    ]
+    id: 'emergency_plumbing',
+    name: 'Emergency Plumbing',
+    description: 'Urgent issues: burst pipes, flooding, leaks, no water',
+    requiredTeamSize: 1,
+    requiredLevels: ['journeyman', 'master'],
+    emergencyRequired: true,
+    requiredSpecialties: ['Emergency'],
+    estimatedDuration: '1-4 hours',
+    basePrice: 150,
+    icon: '🚨'
   },
   {
-    id: 'water_heater_installation',
-    name: 'Water Heater Installation',
-    description: 'Install or replace water heater units',
-    sizes: [
-      {
-        id: 'small',
-        name: 'Small Unit (40gal)',
-        description: 'Apartment, small home',
-        requiredTeamSize: 1,
-        requiredLevels: ['journeyman'],
-        emergencyRequired: false,
-        estimatedDuration: '2-3 hours',
-        basePrice: 200,
-        icon: '🔥'
-      },
-      {
-        id: 'standard',
-        name: 'Standard Unit (50gal)',
-        description: 'Average family home',
-        requiredTeamSize: 2,
-        requiredLevels: ['journeyman', 'apprentice'],
-        emergencyRequired: false,
-        estimatedDuration: '4-6 hours',
-        basePrice: 250,
-        icon: '🔥'
-      },
-      {
-        id: 'large',
-        name: 'Large Unit (80gal+)',
-        description: 'Large home, high demand',
-        requiredTeamSize: 3,
-        requiredLevels: ['master', 'journeyman', 'apprentice'],
-        emergencyRequired: false,
-        estimatedDuration: '6-8 hours',
-        basePrice: 400,
-        icon: '🔥'
-      }
-    ]
+    id: 'water_heater_services',
+    name: 'Water Heater Services',
+    description: 'Installation, repair, replacement of water heaters',
+    requiredTeamSize: 1,
+    requiredLevels: ['journeyman', 'master'],
+    emergencyRequired: false,
+    requiredSpecialties: ['Water Heaters'],
+    estimatedDuration: '2-6 hours',
+    basePrice: 200,
+    icon: '🔥'
   },
   {
-    id: 'repiping_project',
-    name: 'Repiping Project',
-    description: 'Complete pipe replacement for home or business',
-    scopes: [
-      {
-        id: 'small',
-        name: 'Small Home',
-        description: '1-2 bedroom house, apartment',
-        requiredTeamSize: 2,
-        requiredLevels: ['journeyman', 'apprentice'],
-        emergencyRequired: false,
-        estimatedDuration: '2-4 days',
-        basePrice: 300,
-        icon: '🔧'
-      },
-      {
-        id: 'medium',
-        name: 'Medium Home',
-        description: '3-4 bedroom house',
-        requiredTeamSize: 3,
-        requiredLevels: ['master', 'journeyman', 'apprentice'],
-        emergencyRequired: false,
-        estimatedDuration: '4-6 days',
-        basePrice: 500,
-        icon: '🔧'
-      },
-      {
-        id: 'large',
-        name: 'Large/Commercial',
-        description: '5+ bedroom, commercial building',
-        requiredTeamSize: 4,
-        requiredLevels: ['master', 'master', 'journeyman', 'apprentice'],
-        emergencyRequired: false,
-        estimatedDuration: '1-2 weeks',
-        basePrice: 800,
-        icon: '🔧'
-      }
-    ]
+    id: 'drain_cleaning_sewer',
+    name: 'Drain Cleaning & Sewer',
+    description: 'Clogged drains, sewer line repair, backups',
+    requiredTeamSize: 1,
+    requiredLevels: ['apprentice', 'journeyman', 'master'],
+    emergencyRequired: false,
+    requiredSpecialties: ['Drain Cleaning'],
+    estimatedDuration: '1-3 hours',
+    basePrice: 100,
+    icon: '🌊'
   },
   {
-    id: 'routine_maintenance',
-    name: 'Routine Maintenance',
-    description: 'Regular plumbing maintenance and inspections',
-    propertyTypes: [
-      {
-        id: 'small',
-        name: 'Small Property',
-        description: 'Studio, 1-bedroom apartment',
-        requiredTeamSize: 1,
-        requiredLevels: ['apprentice'],
-        emergencyRequired: false,
-        estimatedDuration: '1 hour',
-        basePrice: 75,
-        icon: '🔩'
-      },
-      {
-        id: 'medium',
-        name: 'Medium Home',
-        description: '2-3 bedroom house',
-        requiredTeamSize: 1,
-        requiredLevels: ['apprentice', 'journeyman'],
-        emergencyRequired: false,
-        estimatedDuration: '1-2 hours',
-        basePrice: 100,
-        icon: '🔩'
-      },
-      {
-        id: 'large',
-        name: 'Large Property',
-        description: '4+ bedroom house, multi-unit',
-        requiredTeamSize: 2,
-        requiredLevels: ['journeyman', 'apprentice'],
-        emergencyRequired: false,
-        estimatedDuration: '2-3 hours',
-        basePrice: 150,
-        icon: '🔩'
-      }
-    ]
+    id: 'plumbing_repairs',
+    name: 'Plumbing Repairs',
+    description: 'Leaks, fixture repair, general plumbing fixes',
+    requiredTeamSize: 1,
+    requiredLevels: ['apprentice', 'journeyman', 'master'],
+    emergencyRequired: false,
+    requiredSpecialties: ['Repairs', 'Basic Repairs'],
+    estimatedDuration: '1-3 hours',
+    basePrice: 100,
+    icon: '�'
+  },
+  {
+    id: 'repiping_remodeling',
+    name: 'Repiping & Remodeling',
+    description: 'Full pipe replacement, renovations, new construction',
+    requiredTeamSize: 2,
+    requiredLevels: ['journeyman', 'master'],
+    emergencyRequired: false,
+    requiredSpecialties: ['Repiping'],
+    estimatedDuration: '2-14 days',
+    basePrice: 300,
+    icon: '🏗️'
+  },
+  {
+    id: 'gas_line_services',
+    name: 'Gas Line Services',
+    description: 'Gas line installation, repair, inspection',
+    requiredTeamSize: 1,
+    requiredLevels: ['master'],
+    emergencyRequired: false,
+    requiredSpecialties: ['Gas Lines'],
+    estimatedDuration: '2-4 hours',
+    basePrice: 200,
+    icon: '⚡'
+  },
+  {
+    id: 'maintenance_inspection',
+    name: 'Maintenance & Inspection',
+    description: 'Routine checkups, preventive care, inspections',
+    requiredTeamSize: 1,
+    requiredLevels: ['apprentice', 'journeyman', 'master'],
+    emergencyRequired: false,
+    requiredSpecialties: ['Maintenance', 'Inspections'],
+    estimatedDuration: '1-2 hours',
+    basePrice: 75,
+    icon: '🔩'
+  },
+  {
+    id: 'bathroom_kitchen_fixtures',
+    name: 'Bathroom & Kitchen Fixtures',
+    description: 'Faucet, toilet, sink, garbage disposal, dishwasher installation and repair',
+    requiredTeamSize: 1,
+    requiredLevels: ['apprentice', 'journeyman', 'master'],
+    emergencyRequired: false,
+    requiredSpecialties: ['Installations', 'Repairs'],
+    estimatedDuration: '2-4 hours',
+    basePrice: 150,
+    icon: '🚽'
+  },
+  {
+    id: 'outdoor_drainage',
+    name: 'Outdoor & Drainage',
+    description: 'Sump pumps, French drains, gutter plumbing, outdoor faucet installation',
+    requiredTeamSize: 1,
+    requiredLevels: ['journeyman', 'master'],
+    emergencyRequired: false,
+    requiredSpecialties: ['Drain Cleaning', 'Installations'],
+    estimatedDuration: '3-6 hours',
+    basePrice: 200,
+    icon: '🌧️'
   }
 ]
