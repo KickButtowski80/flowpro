@@ -34,7 +34,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { JOB_TYPES } from '@/constants/jobTypes'
+import { JOB_TYPES } from '~/constants/jobTypes'
 
 // 🎯 No props needed - component manages its own data
 // 🎯 Emit event when job type is selected
@@ -46,55 +46,14 @@ const jobTypes = ref(JOB_TYPES)
 // 🎯 Selected job type ID state
 const selectedJobTypeId = ref('')
 
-// 🎯 Get selected job type details
+// 🎯 Get selected job type details (flat structure - no variants)
 const getSelectedJobType = () => {
-  const jobType = jobTypes.value.find(jt => jt.id === selectedJobTypeId.value)
-  
-  if (!jobType) return null
-  
-  // Handle different variant types - return default variant
-  if (jobType?.complexities) {
-    return jobType.complexities[1] // Default to 'major'
-  }
-  
-  if (jobType?.sizes) {
-    return jobType.sizes[1] // Default to 'standard'
-  }
-  
-  if (jobType?.scopes) {
-    return jobType.scopes[1] // Default to 'medium'
-  }
-  
-  if (jobType?.propertyTypes) {
-    return jobType.propertyTypes[1] // Default to 'medium'
-  }
-  
-  return jobType
-}
-
-// 🎯 Get variant options for the selected job type
-const getVariantOptions = () => {
-  const jobType = jobTypes.value.find(jt => jt.id === selectedJobTypeId.value)
-  
-  if (jobType?.complexities) return jobType.complexities
-  if (jobType?.sizes) return jobType.sizes
-  if (jobType?.scopes) return jobType.scopes
-  if (jobType?.propertyTypes) return jobType.propertyTypes
-  
-  return []
+  return jobTypes.value.find(jt => jt.id === selectedJobTypeId.value) || null
 }
 
 // 🎯 Handle job type selection - emit full object
 const handleSelection = () => {
-  const jobType = jobTypes.value.find(jt => jt.id === selectedJobTypeId.value)
-  
-  if (!jobType) {
-    emit('job-type-selected', null)
-    return
-  }
-  
-  const selectedJobType = getSelectedJobType()
-  emit('job-type-selected', selectedJobType)
+  emit('job-type-selected', getSelectedJobType())
 }
 </script>
 
