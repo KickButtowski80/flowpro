@@ -12,7 +12,7 @@
             class="w-full px-3 sm:px-4 py-3 sm:py-4 text-base sm:text-lg border border-gray-300 bg-gray-50 text-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
       <option value="">Any Job Type (Show All Plumbers)</option>
       <option v-for="jobType in jobTypes" :key="jobType.id" :value="jobType.id">
-        {{ jobType.name }} - {{ jobType.requiredTeamSize }} plumbers
+        {{ jobType.name }}
       </option>
     </select>
     
@@ -34,75 +34,67 @@
 
 <script setup>
 import { ref } from 'vue'
+import { JOB_TYPES } from '@/constants/jobTypes'
 
 // 🎯 No props needed - component manages its own data
 // 🎯 Emit event when job type is selected
 const emit = defineEmits(['job-type-selected'])
 
-// 🎯 Job type data - managed by this component
-const jobTypes = ref([
-  {
-    id: 'emergency_repair',
-    name: 'Emergency Repair',
-    description: 'Urgent plumbing issues that need immediate attention',
-    requiredTeamSize: 2,
-    requiredLevels: ['master', 'journeyman'],
-    emergencyRequired: true,
-    estimatedDuration: '2-4 hours',
-    basePrice: 200,
-    icon: '🚨'
-  },
-  {
-    id: 'water_heater_installation',
-    name: 'Water Heater Installation',
-    description: 'Install or replace water heater units',
-    requiredTeamSize: 2,
-    requiredLevels: ['master', 'journeyman'],
-    emergencyRequired: false,
-    estimatedDuration: '4-6 hours',
-    basePrice: 250,
-    icon: '🔥'
-  },
-  {
-    id: 'repiping_project',
-    name: 'Repiping Project',
-    description: 'Complete pipe replacement for home or business',
-    requiredTeamSize: 3,
-    requiredLevels: ['master', 'journeyman', 'apprentice'],
-    emergencyRequired: false,
-    estimatedDuration: '1-3 days',
-    basePrice: 400,
-    icon: '🔧'
-  },
-  {
-    id: 'routine_maintenance',
-    name: 'Routine Maintenance',
-    description: 'Regular plumbing maintenance and inspections',
-    requiredTeamSize: 1,
-    requiredLevels: ['apprentice', 'journeyman'],
-    emergencyRequired: false,
-    estimatedDuration: '1-2 hours',
-    basePrice: 100,
-    icon: '🔩'
-  }
-])
+// 🎯 Job type data - imported from constants
+const jobTypes = ref(JOB_TYPES)
 
 // 🎯 Selected job type ID state
 const selectedJobTypeId = ref('')
 
 // 🎯 Get selected job type details
 const getSelectedJobType = () => {
-  console.log('🎯 Selected job type ID:', selectedJobTypeId.value)
-  if (!selectedJobTypeId.value) return null
-  return jobTypes.value.find(job => job.id === selectedJobTypeId.value)
+  const jobType = jobTypes.value.find(jt => jt.id === selectedJobTypeId.value)
+  
+  if (!jobType) return null
+  
+  // Handle different variant types - return default variant
+  if (jobType?.complexities) {
+    return jobType.complexities[1] // Default to 'major'
+  }
+  
+  if (jobType?.sizes) {
+    return jobType.sizes[1] // Default to 'standard'
+  }
+  
+  if (jobType?.scopes) {
+    return jobType.scopes[1] // Default to 'medium'
+  }
+  
+  if (jobType?.propertyTypes) {
+    return jobType.propertyTypes[1] // Default to 'medium'
+  }
+  
+  return jobType
+}
+
+// 🎯 Get variant options for the selected job type
+const getVariantOptions = () => {
+  const jobType = jobTypes.value.find(jt => jt.id === selectedJobTypeId.value)
+  
+  if (jobType?.complexities) return jobType.complexities
+  if (jobType?.sizes) return jobType.sizes
+  if (jobType?.scopes) return jobType.scopes
+  if (jobType?.propertyTypes) return jobType.propertyTypes
+  
+  return []
 }
 
 // 🎯 Handle job type selection - emit full object
 const handleSelection = () => {
-  const jobType = getSelectedJobType() // Get full object
-  console.log('🎯 Job type selected:', jobType)
-
-  emit('job-type-selected', jobType) // Emit full object
+  const jobType = jobTypes.value.find(jt => jt.id === selectedJobTypeId.value)
+  
+  if (!jobType) {
+    emit('job-type-selected', null)
+    return
+  }
+  
+  const selectedJobType = getSelectedJobType()
+  emit('job-type-selected', selectedJobType)
 }
 </script>
 
