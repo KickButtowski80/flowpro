@@ -82,6 +82,24 @@
         👥 Available Plumbers:
       </h4>
 
+      <!-- 🆕 Job Requirements Display -->
+      <div v-if="selectedJobType" class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <h5 class="font-semibold text-blue-800 text-sm mb-2">📋 Job Requirements:</h5>
+        <div class="space-y-1 text-xs text-blue-700">
+          <div>🎯 Team Size: {{ selectedJobType.requiredTeamSize }} 
+            plumber{{ selectedJobType.requiredTeamSize > 1 ? 's' : '' }}</div>
+          <div>📊 Levels: {{ selectedJobType.requiredLevels?.join(', ') || 'Any level' }}</div>
+          <div v-if="selectedJobType.emergencyRequired" class="text-red-600 font-medium">🚨 Emergency Required: Yes</div>
+          <div v-else class="text-green-600">🚨 Emergency Required: No</div>
+        </div>
+        
+        <!-- 🆕 Team Status Message -->
+        <div v-if="teamStatusMessage" 
+             class="mt-3 p-2 rounded-lg text-sm font-medium"
+             :class="canFormRequiredTeam ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'">
+          {{ teamStatusMessage }}
+        </div>
+      </div>
 
       <!-- No plumbers available message -->
       <div v-if="plumbersMatchingJobRequirements.length === 0" class="text-center py-3 sm:py-4">
@@ -93,10 +111,41 @@
         </p>
       </div>
 
-      <!-- Plumber list -->
-      <div v-else class="space-y-2 sm:space-y-3">
+      <!-- 🆕 Search Bar -->
+      <div v-if="plumbersMatchingJobRequirements.length > 0" class="mb-4">
+        <div class="mb-2 text-sm text-gray-600">
+          🔍 Searching {{ plumbersMatchingJobRequirements.length }} 
+          qualified plumber{{ plumbersMatchingJobRequirements.length > 1 ? 's' : '' }} 
+          for {{ selectedJobType?.name || 'any job type' }}
+        </div>
+        <div class="relative">
+          <input 
+            type="text" 
+            v-model="plumberSearchQuery"
+            :placeholder="`Filter by name, level, or specialty...`"
+            class="w-full px-4 py-3 pl-10 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+          <div class="absolute left-3 top-3.5 text-gray-400">
+            🔍
+          </div>
+          <div v-if="plumberSearchQuery" class="absolute right-3 top-3.5">
+            <button @click="plumberSearchQuery = ''" class="text-gray-400 hover:text-gray-600">
+              ❌
+            </button>
+          </div>
+        </div>
+        <div v-if="plumberSearchQuery && filteredPlumbers.length === 0" class="mt-2 text-sm text-gray-500">
+          No plumbers found matching "{{ plumberSearchQuery }}"
+        </div>
+        <div v-else-if="plumberSearchQuery && filteredPlumbers.length > 0" class="mt-2 text-sm text-gray-500">
+          Found {{ filteredPlumbers.length }} of {{ plumbersMatchingJobRequirements.length }} qualified plumbers matching "{{ plumberSearchQuery }}"
+        </div>
+      </div>
 
-        <label v-for="plumber in plumbersMatchingJobRequirements" :key="plumber.id"
+      <!-- Plumber list -->
+      <div v-if="plumbersMatchingJobRequirements.length > 0" class="space-y-2 sm:space-y-3">
+
+        <label v-for="plumber in filteredPlumbers" :key="plumber.id"
           class="flex items-center p-2 sm:p-3 bg-white rounded-lg cursor-pointer hover:bg-green-100 transition-all duration-200 border-2 border-transparent hover:border-green-300">
           <input type="checkbox" :value="plumber.id" v-model="selectedPlumbers"
             class="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 text-green-600 rounded focus:ring-green-500">
@@ -111,6 +160,27 @@
                 </div>
                 <div class="text-xs text-gray-400 mt-1 hidden sm:block">
                   {{ plumber.specialties.join(' • ') }}
+                </div>
+
+                <!-- 🆕 Matching Indicators -->
+                <div v-if="selectedJobType" class="mt-2 flex flex-wrap gap-1">
+                  <!-- Level Match -->
+                  <span v-if="selectedJobType.requiredLevels?.includes(plumber.level)" 
+                        class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    ✓ Level Match
+                  </span>
+                  
+                  <!-- Emergency Match -->
+                  <span v-if="selectedJobType.emergencyRequired && plumber.emergencyAvailable" 
+                        class="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                    ✓ Emergency
+                  </span>
+                  
+                  <!-- Emergency Not Required (Good) -->
+                  <span v-if="!selectedJobType.emergencyRequired" 
+                        class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    No Emergency Needed
+                  </span>
                 </div>
 
               </div>
@@ -304,7 +374,7 @@ const plumbers = ref([
   {
     id: 'A',
     name: 'John Smith',
-    displayName: 'John (Master Plumber)',
+    displayName: 'Johnny The Wrench',
     rate: 150,
     level: 'master',
     avatar: '👨‍🔧',
@@ -320,7 +390,7 @@ const plumbers = ref([
   {
     id: 'B',
     name: 'Mike Johnson',
-    displayName: 'Mike (Journeyman)',
+    displayName: 'Mike Pipe Dream',
     rate: 120,
     level: 'journeyman',
     avatar: '👨‍🔧',
@@ -336,7 +406,7 @@ const plumbers = ref([
   {
     id: 'C',
     name: 'Tom Wilson',
-    displayName: 'Tom (Apprentice)',
+    displayName: 'Tom Leaky',
     rate: 80,
     level: 'apprentice',
     avatar: '👨‍🔧',
@@ -348,6 +418,86 @@ const plumbers = ref([
     certifications: ['EPA Certified'],
     emergencyAvailable: false, // Apprentices don't do emergencies
     totalJobs: 234
+  },
+  {
+    id: 'D',
+    name: 'Sarah Chen',
+    displayName: 'Sarah Drain Slayer',
+    rate: 160,
+    level: 'master',
+    avatar: '👩‍🔧',
+    specialties: ['Emergency', 'Gas Lines', 'Commercial'],
+    
+    // 🆕 Enhanced real-world data
+    experience: 12, // years of experience
+    license: 'Master License #PLM67890',
+    certifications: ['Gas Certified', 'EPA Certified', 'Commercial Certified', 'Backflow Certified'],
+    emergencyAvailable: true,
+    totalJobs: 1567
+  },
+  {
+    id: 'E',
+    name: 'David Martinez',
+    displayName: 'David Hot Water',
+    rate: 115,
+    level: 'journeyman',
+    avatar: '👨‍🔧',
+    specialties: ['Water Heaters', 'Tankless Systems', 'Installations'],
+    
+    // 🆕 Enhanced real-world data
+    experience: 6, // years of experience
+    license: 'Journeyman License #PLJ11223',
+    certifications: ['Gas Certified', 'EPA Certified', 'Tankless Certified'],
+    emergencyAvailable: true,
+    totalJobs: 743
+  },
+  {
+    id: 'F',
+    name: 'Lisa Rodriguez',
+    displayName: 'Lisa Clog Buster',
+    rate: 75,
+    level: 'apprentice',
+    avatar: '👩‍🔧',
+    specialties: ['Customer Service', 'Basic Repairs', 'Drain Cleaning'],
+    
+    // 🆕 Enhanced real-world data
+    experience: 1, // years of experience
+    license: 'Apprentice License #PLA44556',
+    certifications: ['EPA Certified'],
+    emergencyAvailable: false, // Apprentices don't do emergencies
+    totalJobs: 156
+  },
+  {
+    id: 'G',
+    name: 'Robert Kim',
+    displayName: 'Robert Pipe Master',
+    rate: 125,
+    level: 'journeyman',
+    avatar: '👨‍🔧',
+    specialties: ['Repiping', 'New Construction', 'Remodels'],
+    
+    // 🆕 Enhanced real-world data
+    experience: 8, // years of experience
+    license: 'Journeyman License #PLJ99887',
+    certifications: ['Gas Certified', 'EPA Certified', 'New Construction Certified'],
+    emergencyAvailable: false, // Focuses on scheduled work
+    totalJobs: 912
+  },
+  {
+    id: 'H',
+    name: 'Emily Thompson',
+    displayName: 'Emily Faucet Queen',
+    rate: 155,
+    level: 'master',
+    avatar: '👩‍🔧',
+    specialties: ['High-End Projects', 'Design Work', 'Consulting'],
+    
+    // 🆕 Enhanced real-world data
+    experience: 18, // years of experience
+    license: 'Master License #PLM55443',
+    certifications: ['Gas Certified', 'EPA Certified', 'Design Certified', 'Luxury Installations'],
+    emergencyAvailable: false, // Premium/consulting work only
+    totalJobs: 2103
   }
 ])
 const availabilityStatuses = {
@@ -415,6 +565,9 @@ const plumberStatusText = (plumber) => availabilityStatuses[getPlumberStatus(plu
 const plumberStatusColor = (plumber) => `text-${availabilityStatuses[getPlumberStatus(plumber)].color}-600`
 // Selected resources for current booking
 const selectedPlumbers = ref([])
+
+// 🆕 Search functionality
+const plumberSearchQuery = ref('')
 
 // Accumulated bookings in current session
 const currentBookings = ref([])
@@ -540,11 +693,32 @@ const plumbersMatchingJobRequirements = computed(() => {
     
     // Check if plumber can handle emergency (if needed)
     const canHandleEmergency = !jobType.emergencyRequired || 
-                              Boolean(plumber.emergencyAvailable)
+                              plumber.emergencyAvailable
     
     // Include plumber only if both conditions pass
     return hasRequiredLevel && canHandleEmergency
   })
+})
+
+// 🆕 Step 2: Apply search filter
+const filteredPlumbers = computed(() => {
+  let plumbersToShow = plumbersMatchingJobRequirements.value
+  if(plumberSearchQuery.value.trim() === '') {
+    return plumbersToShow
+  }
+  // Apply search filter
+  if (plumberSearchQuery.value.trim()) {
+    const query = plumberSearchQuery.value.toLowerCase().trim()
+    plumbersToShow = plumbersToShow.filter(plumber => {
+      return plumber.displayName.toLowerCase().includes(query) ||
+             plumber.level.toLowerCase().includes(query) ||
+             plumber.specialties.some(specialty => 
+               specialty.toLowerCase().includes(query)
+             )
+    })
+  }
+  
+  return plumbersToShow
 })
 
 // 🆕 Step 2: Validate if enough plumbers available for required team size
@@ -701,7 +875,7 @@ const handleDateSelection = (dateRange) => {
 
 // 🆕 Handle job type selection from JobTypeSelector
 const handleJobTypeSelection = (jobType) => {
-  console.log('🎯 Job type selected in BookingCalendar:', jobType)
+
   selectedJobType.value = jobType
   // TODO: Later we can use this for team validation or AI suggestions
 }
@@ -750,14 +924,7 @@ const addBooking = () => {
       return !isBookedOnDate  // Available if not booked
     })
     
-    // 🆕 DEBUG: Log booking creation analysis
-    console.log(`🔧 Creating Booking for Plumber ${plumberId}:`)
-    console.log(`   📅 Requested dates:`, selectedDateRange.value.map(d => d.toDateString()))
-    console.log(`   📋 Booked dates:`, Array.from(plumberBookedDates))
-    console.log(`   ✅ Available dates:`, availableDates.map(d => d.toDateString()))
-    console.log(`   💰 Will book ${availableDates.length} out of ${selectedDateRange.value.length} days`)
-    console.log('---')
-
+ 
     // Only book if there are available dates
     if (availableDates.length > 0) {
       resourceBookings.value.push({
