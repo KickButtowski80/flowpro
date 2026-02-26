@@ -79,27 +79,45 @@
     <!-- 🆕 Resource Selection Section -->
     <div v-if="selectedDateRange.length > 0"
       class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border-2 border-green-200 resource-ui">
-      <h4 class="font-semibold text-green-800 mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
-        👥 Available Plumbers:
-      </h4>
-
+      
+      <!-- View Mode Toggle -->
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-semibold text-green-800 text-sm sm:text-base">
+          👥 Available Plumbers:
+        </h4>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-gray-600 font-medium">View:</span>
+          <select 
+            v-model="plumberViewMode"
+            class="px-3 py-1.5 text-xs sm:text-sm font-medium bg-white border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 cursor-pointer"
+          >
+            <option value="jobType">🔧 Filtered by Job Type</option>
+            <option value="all">👥 All Available Plumbers</option>
+          </select>
+        </div>
+      </div>
 
       <!-- No plumbers available message -->
-      <div v-if="plumbersMatchingJobRequirements.length === 0" class="text-center py-3 sm:py-4">
-        <p class="text-red-600 font-medium text-sm sm:text-base">😔 No plumbers available for {{ selectedJobType?.name
-          }}
-          at this moment </p>
+      <div v-if="displayedPlumbers.length === 0" class="text-center py-3 sm:py-4">
+        <p class="text-red-600 font-medium text-sm sm:text-base">
+          😔 No plumbers available 
+          <span v-if="plumberViewMode === 'jobType' && selectedJobTypes.length > 0">
+            for {{ selectedJobTypes.map(jt => jt.name).join(' + ') }}
+          </span>
+          <span v-else>for these dates</span>
+        </p>
         <p class="text-xs sm:text-sm text-gray-600 mt-1">
-          <span v-if="!selectedJobType">Select a job type first</span>
+          <span v-if="plumberViewMode === 'jobType' && selectedJobTypes.length === 0">Select job types first</span>
           <span v-else-if="availablePlumbers.length === 0">No plumbers available for these dates</span>
-          <span v-else>Try a different job type or dates</span>
+          <span v-else-if="plumberViewMode === 'jobType'">Try switching to "All Available Plumbers" view</span>
+          <span v-else>Try different dates</span>
         </p>
       </div>
 
       <!-- Plumber list -->
       <div v-else class="space-y-2 sm:space-y-3">
 
-        <label v-for="plumber in plumbersMatchingJobRequirements" :key="plumber.id"
+        <label v-for="plumber in displayedPlumbers" :key="plumber.id"
           class="flex items-center p-2 sm:p-3 bg-white rounded-lg cursor-pointer hover:bg-green-100 transition-all duration-200 border-2 border-transparent hover:border-green-300">
           <input type="checkbox" :value="plumber.id" v-model="selectedPlumbers"
             class="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 text-green-600 rounded focus:ring-green-500">
@@ -172,7 +190,11 @@
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <p class="font-medium text-gray-800 text-sm sm:text-base">
-                {{ formatDateRange(booking.dates) }} • {{ booking.jobType?.name || 'General Work' }}
+                {{ formatDateRange(booking.dates) }} • 
+                <span v-if="booking.jobTypes && booking.jobTypes.length > 0">
+                  {{ booking.jobTypes.map(jt => jt.name).join(' + ') }}
+                </span>
+                <span v-else>General Work</span>
               </p>
               <p class="text-xs sm:text-sm text-gray-600">
                 {{booking.plumberDetails.map(p => p.displayName).join(', ')}}
@@ -283,7 +305,8 @@ const router = useRouter()
 
 // 🎯 SELECTION STATE
 const selectedDateRange = ref([])
-const selectedJobType = ref(null) // 🆕 Track selected job type
+const selectedJobTypes = ref([]) // 🆕 Track selected job types (array for multiple)
+const plumberViewMode = ref('jobType') // 'jobType' or 'all'
 
 // MULTI-RESOURCE BOOKING STATE
 // Available plumbers/resources
@@ -466,52 +489,66 @@ const availablePlumbers = computed(() => {
   return availablePlumbers
 })
 
-// 🆕 Step 1: Get plumbers who match job type requirements (levels + emergency + specialties)
+// 🆕 Step 1: Get plumbers who match ALL selected job type requirements
 const plumbersMatchingJobRequirements = computed(() => {
-  // If no job type selected, show all available plumbers
-  if (!selectedJobType.value) return availablePlumbers.value
+  // If no job types selected, show all available plumbers
+  if (selectedJobTypes.value.length === 0) return availablePlumbers.value
 
-  const jobType = selectedJobType.value
   return availablePlumbers.value.filter(plumber => {
-    // Check if plumber has required level
-    const hasRequiredLevel = !jobType.requiredLevels?.length ||
-      jobType.requiredLevels.includes(plumber.level)
+    // Check if plumber qualifies for ALL selected job types
+    return selectedJobTypes.value.every(jobType => {
+      // Check if plumber has required level
+      const hasRequiredLevel = !jobType.requiredLevels?.length ||
+        jobType.requiredLevels.includes(plumber.level)
 
-    // Check if plumber can handle emergency (if needed)
-    const canHandleEmergency = !jobType.emergencyRequired ||
-      plumber.emergencyAvailable
+      // Check if plumber can handle emergency (if needed)
+      const canHandleEmergency = !jobType.emergencyRequired ||
+        plumber.emergencyAvailable
 
-    // Explicit specialty requirement (non string-matching):
-    // At least one overlap between jobType.requiredSpecialties and plumber.specialties
-    const hasRequiredSpecialty = (() => {
-      const requiredSpecialties = jobType.requiredSpecialties.map(s => s.toLowerCase())
-      const plumberSpecialties = plumber.specialties.map(s => s.toLowerCase())
-      return requiredSpecialties.some(required => plumberSpecialties.includes(required))
-    })()
+      // Explicit specialty requirement (non string-matching):
+      // At least one overlap between jobType.requiredSpecialties and plumber.specialties
+      const hasRequiredSpecialty = (() => {
+        const requiredSpecialties = jobType.requiredSpecialties.map(s => s.toLowerCase())
+        const plumberSpecialties = plumber.specialties.map(s => s.toLowerCase())
+        return requiredSpecialties.some(required => plumberSpecialties.includes(required))
+      })()
 
-    return hasRequiredLevel &&
-      hasRequiredSpecialty &&
-      (!jobType.emergencyRequired || canHandleEmergency)
+      return hasRequiredLevel &&
+        hasRequiredSpecialty &&
+        (!jobType.emergencyRequired || canHandleEmergency)
+    })
   })
 })
 
-// Helper: whether a specialty is required by the selected job type (case-insensitive)
+// 🆕 Display plumbers based on view mode
+const displayedPlumbers = computed(() => {
+  if (plumberViewMode.value === 'all') {
+    return availablePlumbers.value // Show all available plumbers (regardless of job type)
+  }
+  return plumbersMatchingJobRequirements.value // Show filtered by job type
+})
+
+// Helper: whether a specialty is required by ANY selected job type (case-insensitive)
 // so we can highlight specialties in the UI 
 const isSpecialtyRequired = (spec) => {
-  if (!selectedJobType.value || !selectedJobType.value.requiredSpecialties?.length) return false
-  const req = selectedJobType.value.requiredSpecialties.map(s => String(s).toLowerCase())
-  return req.includes(String(spec).toLowerCase())
+  if (selectedJobTypes.value.length === 0) return false
+  
+  return selectedJobTypes.value.some(jobType => {
+    if (!jobType.requiredSpecialties?.length) return false
+    const req = jobType.requiredSpecialties.map(s => String(s).toLowerCase())
+    return req.includes(String(spec).toLowerCase())
+  })
 }
 
 // 🆕 Step 2: Validate if enough plumbers available for required team size
 const canFormRequiredTeam = computed(() => {
-  // If no job type selected, no team size requirement
-  if (!selectedJobType.value) return true
+  // If no job types selected, no team size requirement
+  if (selectedJobTypes.value.length === 0) return true
 
   const availableCount = plumbersMatchingJobRequirements.value.length
-  const requiredTeamSize = selectedJobType.value.requiredTeamSize
+  const maxTeamSize = Math.max(...selectedJobTypes.value.map(jt => jt.requiredTeamSize))
 
-  return availableCount >= requiredTeamSize
+  return availableCount >= maxTeamSize
 })
 
 // 🆕 Step 2: Team status message for UI
@@ -656,9 +693,8 @@ const handleDateSelection = (dateRange) => {
 }
 
 // 🆕 Handle job type selection from JobTypeSelector
-const handleJobTypeSelection = (jobType) => {
-
-  selectedJobType.value = jobType
+const handleJobTypeSelection = (jobTypes) => {
+  selectedJobTypes.value = jobTypes || []
   // TODO: Later we can use this for team validation or AI suggestions
 }
 
@@ -679,7 +715,7 @@ const addBooking = () => {
     dates: [...selectedDateRange.value],
     plumbers: [...selectedPlumbers.value],
     plumberDetails: [...selectedPlumbersDetails.value],
-    jobType: selectedJobType.value,
+    jobTypes: selectedJobTypes.value,
     totalCost: totalCost.value,
     createdAt: new Date()
   }
@@ -707,14 +743,7 @@ const addBooking = () => {
       return !isBookedOnDate  // Available if not booked
     })
 
-    // 🆕 DEBUG: Log booking creation analysis
-    console.log(`🔧 Creating Booking for Plumber ${plumberId}:`)
-    console.log(`   📅 Requested dates:`, selectedDateRange.value.map(d => d.toDateString()))
-    console.log(`   📋 Booked dates:`, Array.from(plumberBookedDates))
-    console.log(`   ✅ Available dates:`, availableDates.map(d => d.toDateString()))
-    console.log(`   💰 Will book ${availableDates.length} out of ${selectedDateRange.value.length} days`)
-    console.log('---')
-
+    
     // Only book if there are available dates
     if (availableDates.length > 0) {
       resourceBookings.value.push({
