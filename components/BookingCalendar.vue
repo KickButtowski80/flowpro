@@ -495,8 +495,8 @@ const plumbersMatchingJobRequirements = computed(() => {
   if (selectedJobTypes.value.length === 0) return availablePlumbers.value
 
   return availablePlumbers.value.filter(plumber => {
-    // Check if plumber qualifies for ALL selected job types
-    return selectedJobTypes.value.every(jobType => {
+    // Check if plumber qualifies for AT LEAST ONE selected job type
+    return selectedJobTypes.value.some(jobType => {
       // Check if plumber has required level
       const hasRequiredLevel = !jobType.requiredLevels?.length ||
         jobType.requiredLevels.includes(plumber.level)
