@@ -38,9 +38,6 @@
     </div>
 
     <!-- Calendar Grid -->
-    <!-- TODO: FUTURE USE - Time slot selection in calendar grid -->
-    <!-- Uncomment when implementing time slots directly in calendar -->
-    <!-- :selected-date="selectedDate" -->
     <CalendarGrid 
       :calendar-days="calendarDays"
       :selected-dates="selectedDateRange"
@@ -76,7 +73,7 @@
       </p>
     </div>
 
-    <!-- 🆕 Resource Selection Section -->
+    <!-- Resource Selection Section -->
     <div v-if="selectedDateRange.length > 0 || selectedJobTypes.length > 0"
       class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border-2 border-green-200 resource-ui">
       
@@ -166,7 +163,7 @@
       </div>
     </div>
 
-    <!-- 🆕 Booking Actions -->
+    <!-- Booking Actions -->
     <div v-if="selectedDateRange.length > 0" class="space-y-2 sm:space-y-3 resource-ui">
       <!-- Add to Booking Button -->
       <button @click="addBooking" :disabled="!canAddBooking"
@@ -178,7 +175,7 @@
       </button>
     </div>
 
-    <!-- 🆕 Current Bookings Summary -->
+    <!-- Current Bookings Summary -->
     <div v-if="currentBookings.length > 0"
       class="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200 booking-ui">
       <h4 class="font-semibold text-yellow-800 mb-2 sm:mb-3 flex items-center justify-between text-sm sm:text-base">
@@ -225,7 +222,7 @@
       </button>
     </div>
 
-    <!-- 🆕 Recent Activity Feed -->
+    <!-- Recent Activity Feed -->
     <div v-if="bookingResult"
       class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm">
       <div class="flex items-start space-x-3">
@@ -250,16 +247,13 @@
       </div>
     </div>
 
-    <!-- Time slots will go here -->
-    <!-- Confirmation will go here -->
   </div>
 </template>
 
 <script setup>
 import { chatPromptSubmit } from '#build/ui'
 
-// 🎯 STEP 1: Define Component Interface
-// Props flow DOWN from parent to child
+// Component Interface
 const props = defineProps({
   availableDates: {
     type: Array,
@@ -290,30 +284,28 @@ const emit = defineEmits([
   'proceed-to-checkout' // When user wants to checkout
 ])
 
-// 🎯 STEP 2: Add Reactive State
-// User's selected date - starts as null (nothing selected)
+// Reactive State
 const selectedDate = ref(null)
 
-// 🆕 Recent activity state
+// Recent activity state
 const bookingResult = ref(null)
 
-// User's selected time slot - starts as null  
+// User's selected time slot - starts as null
 const selectedTimeSlot = ref(null)
 
-// Current month being displayed in calendar - starts with today's month
+// Current month being displayed in calendar
 const currentMonth = ref(new Date())
 
-// 🎯 URL SYNC STATE
+// URL Sync State
 const route = useRoute()
 const router = useRouter()
 
-// 🎯 SELECTION STATE
+// Selection State
 const selectedDateRange = ref([])
-const selectedJobTypes = ref([]) // 🆕 Track selected job types (array for multiple)
-const plumberViewMode = ref('all') // 'jobType', 'all', 'available', 'unavailable'
+const selectedJobTypes = ref([]) // Track selected job types (array for multiple)
+const plumberViewMode = ref('all') // View modes: 'jobType', 'all', 'available', 'unavailable'
 
-// MULTI-RESOURCE BOOKING STATE
-// Available plumbers/resources
+// Multi-Resource Booking State
 import { PLUMBERS } from '~/constants/plumbers'
 
 const plumbers = ref(PLUMBERS)
@@ -340,16 +332,9 @@ const availabilityStatuses = {
   }
 }
 
-// 📝 FUTURE ENHANCEMENT: Show unavailable plumbers for better transparency
-// TODO: Consider showing ALL plumbers (available + unavailable) with their status
-// Benefits:
-// - Users see why certain plumbers aren't available
-// - Shows demand/busy periods
-// - Helps with planning around unavailable dates
-// Implementation: Change v-for from "availableResources" to "resources"
-// Add separate "unavailableResources" computed property
+// Future enhancement: Consider showing ALL plumbers with status
 
-// Helper: count how many of the selected dates this plumber is actually available for
+// Helper: count available dates for plumber
 const getAvailableCountForPlumber = (plumberId) => {
   if (selectedDateRange.value.length === 0) return 0
   // Get existing bookings for this plumber
@@ -372,7 +357,7 @@ const getAvailableCountForPlumber = (plumberId) => {
   return availableCount
 }
 
-// Derive status: SELECTED, FULL (all dates), PARTIAL (some dates), NONE (no dates)
+// Derive plumber status: SELECTED, FULL, PARTIAL, NONE
 const getPlumberStatus = (plumber) => {
 
   // If plumber is selected for current booking, show as selected
@@ -389,24 +374,23 @@ const getPlumberStatus = (plumber) => {
 const plumberStatusIcon = (plumber) => availabilityStatuses[getPlumberStatus(plumber)].icon
 const plumberStatusText = (plumber) => availabilityStatuses[getPlumberStatus(plumber)].text
 const plumberStatusColor = (plumber) => `text-${availabilityStatuses[getPlumberStatus(plumber)].color}-600`
-// Selected resources for current booking
+// Selected plumbers for current booking
 const selectedPlumbers = ref([])
 
 // Accumulated bookings in current session
 const currentBookings = ref([])
 
-// Resource availability tracking (who's booked when)
+// Resource availability tracking
 const resourceBookings = ref([
   // Example: { plumberId: 'A', dates: [date1, date2], bookingId: 'booking1' }
 ])
 
-
-// � URL SYNC: Read URL on component load
+// URL Sync: Read URL on component load
 onMounted(() => {
   readUrlParams()
 })
 
-// 🎯 URL SYNC: Read URL parameters
+// URL Sync: Read URL parameters
 const readUrlParams = () => {
   const { start, end } = route.query
 
@@ -433,18 +417,16 @@ const readUrlParams = () => {
   }
 }
 
-// 🎯 STEP 3: Add Computed Properties
-// These are "smart" calculations that only re-run when their data changes!
+// Computed Properties
 
 
 
-// 🆕 MULTI-RESOURCE COMPUTED PROPERTIES
-// Available resources for selected date range - show even with partial availability
+// Multi-Resource Computed Properties
 const availablePlumbers = computed(() => {
-  // If no dates selected, no plumbers available
+// If no dates selected, no plumbers available
   if (selectedDateRange.value.length === 0) return []
 
-  // Show all plumbers who are available on ANY selected date
+// Show all plumbers who are available on ANY selected date
   const availablePlumbers = plumbers.value.filter(plumber => {
     // Get existing bookings for this plumber
     const plumberBookings = resourceBookings.value.filter(booking =>
@@ -458,7 +440,7 @@ const availablePlumbers = computed(() => {
       )
     )
 
-    // Check if plumber is available on at least one selected date
+// Check if plumber is available on at least one selected date
     const hasSomeAvailability = selectedDateRange.value.some(selectedDate => {
       // ✅ O(1) lookup instead of O(n × m) nested loops
       const isBookedOnDate = plumberBookedDates.has(selectedDate.toDateString())
@@ -471,24 +453,23 @@ const availablePlumbers = computed(() => {
   return availablePlumbers
 })
 
-// 🆕 Step 1: Get plumbers who match ALL selected job type requirements
+// Get plumbers who match selected job type requirements
 const plumbersMatchingJobRequirements = computed(() => {
-  // If no job types selected, show all available plumbers
+// If no job types selected, show all available plumbers
   if (selectedJobTypes.value.length === 0) return availablePlumbers.value
 
   return availablePlumbers.value.filter(plumber => {
-    // Check if plumber qualifies for AT LEAST ONE selected job type
+// Check if plumber qualifies for AT LEAST ONE selected job type
     return selectedJobTypes.value.some(jobType => {
-      // Check if plumber has required level
+// Check if plumber has required level
       const hasRequiredLevel = !jobType.requiredLevels?.length ||
         jobType.requiredLevels.includes(plumber.level)
 
-      // Check if plumber can handle emergency (if needed)
+// Check if plumber can handle emergency (if needed)
       const canHandleEmergency = !jobType.emergencyRequired ||
         plumber.emergencyAvailable
 
-      // Explicit specialty requirement (non string-matching):
-      // At least one overlap between jobType.requiredSpecialties and plumber.specialties
+// Specialty requirement: overlap between job and plumber specialties
       const hasRequiredSpecialty = (() => {
         const requiredSpecialties = jobType.requiredSpecialties.map(s => s.toLowerCase())
         const plumberSpecialties = plumber.specialties.map(s => s.toLowerCase())
@@ -502,9 +483,9 @@ const plumbersMatchingJobRequirements = computed(() => {
   })
 })
 
-// 🆕 Display plumbers based on view mode
+// Display plumbers based on view mode
 const displayedPlumbers = computed(() => {
-  // Safety checks
+// Safety checks
   if (!plumbers.value || !Array.isArray(plumbers.value)) {
     return []
   }
@@ -512,26 +493,26 @@ const displayedPlumbers = computed(() => {
   let plumbersList = []
   
   if (plumberViewMode.value === 'all') {
-    // Show ALL plumbers (available + unavailable)
+// Show ALL plumbers (available + unavailable)
     plumbersList = plumbers.value
   } else if (plumberViewMode.value === 'available') {
-    // Show only available plumbers
+// Show only available plumbers
     plumbersList = availablePlumbers.value || []
   } else if (plumberViewMode.value === 'unavailable') {
-    // Show only unavailable plumbers
+// Show only unavailable plumbers
     plumbersList = plumbers.value.filter(plumber => getPlumberStatus(plumber) === 'NONE')
   } else {
-    // Filtered by job type (default)
+// Filtered by job type (default)
     plumbersList = plumbersMatchingJobRequirements.value || []
   }
   
-  // For 'all' mode, sort by availability (available first, unavailable last)
+// For 'all' mode, sort by availability (available first, unavailable last)
   if (plumberViewMode.value === 'all') {
     plumbersList.sort((a, b) => {
       const statusA = getPlumberStatus(a)
       const statusB = getPlumberStatus(b)
       
-      // Available (FULL, PARTIAL, SELECTED) come before unavailable (NONE)
+// Available (FULL, PARTIAL, SELECTED) come before unavailable (NONE)
       const availabilityOrder = {
         'SELECTED': 0,
         'FULL': 1, 
@@ -546,8 +527,7 @@ const displayedPlumbers = computed(() => {
   return plumbersList
 })
 
-// Helper: whether a specialty is required by ANY selected job type (case-insensitive)
-// so we can highlight specialties in the UI 
+// Helper: check if specialty is required by any selected job type 
 const isSpecialtyRequired = (spec) => {
   if (selectedJobTypes.value.length === 0) return false
   
@@ -558,9 +538,9 @@ const isSpecialtyRequired = (spec) => {
   })
 }
 
-// 🆕 Step 2: Validate if enough plumbers available for required team size
+// Validate if enough plumbers available for required team size
 const canFormRequiredTeam = computed(() => {
-  // If no job types selected, no team size requirement
+// If no job types selected, no team size requirement
   if (selectedJobTypes.value.length === 0) return true
 
   const availableCount = plumbersMatchingJobRequirements.value.length
@@ -570,14 +550,14 @@ const canFormRequiredTeam = computed(() => {
 })
 
 
-// Selected resources details
+// Selected plumbers details
 const selectedPlumbersDetails = computed(() => {
   return selectedPlumbers.value.map(plumberId => {
     return plumbers.value.find(p => p.id === plumberId)
   }).filter(Boolean)
 })
 
-// Total cost for selected resources and dates
+// Total cost for selected plumbers and dates
 const totalCost = computed(() => {
   if (selectedPlumbersDetails.value.length === 0 || selectedDateRange.value.length === 0) {
     return 0
@@ -589,14 +569,14 @@ const totalCost = computed(() => {
   return days * dailyRate
 })
 
-// Can proceed with booking - more sophisticated for limited availability
+// Can proceed with booking - check availability
 const canAddBooking = computed(() => {
-  // Basic requirements
+// Basic requirements
   if (selectedDateRange.value.length === 0 || selectedPlumbers.value.length === 0) {
     return false
   }
 
-  // Check if at least one plumber is available for at least one date
+// Check if at least one plumber is available for at least one date
   const hasAnyAvailability = selectedPlumbers.value.some(plumberId => {
     const plumberBookings = resourceBookings.value.filter(booking =>
       booking.plumberId === plumberId
@@ -624,7 +604,7 @@ const canCheckout = computed(() => {
   return currentBookings.value.length > 0
 })
 
-// 🎯 STEP 4: Add Calendar Logic
+// Calendar Logic
 const currentMonthDisplay = computed(() => {
   return currentMonth.value.toLocaleDateString('en-US', {
     month: 'long',
@@ -635,20 +615,19 @@ const currentMonthDisplay = computed(() => {
 const calendarDays = computed(() => {
   const year = currentMonth.value.getFullYear()
   const month = currentMonth.value.getMonth()
-  // [to do use interestional api ]
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal
-  // Get first day of month and number of days
+// TODO: Use International Temporal API when available
+// Get first day of month and number of days
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
   const daysInMonth = lastDay.getDate()
 
-  // Get starting weekday (0 = Sunday)
+// Get starting weekday (0 = Sunday)
   const startDay = firstDay.getDay()
 
-  // Create array of calendar days
+// Create array of calendar days
   const days = []
 
-  // Add empty cells for days before month starts
+// Add empty cells for days before month starts
   for (let i = 0; i < startDay; i++) {
     days.push({
       day: '',
@@ -656,7 +635,7 @@ const calendarDays = computed(() => {
     })
   }
 
-  // Add all days of the month
+// Add all days of the month
   for (let day = 1; day <= daysInMonth; day++) {
     days.push({
       day: day,
@@ -677,14 +656,14 @@ const nextMonth = () => {
   clearSelection()
 }
 
-//  Simple date selection handler from CalendarGrid
+// Date selection handler from CalendarGrid
 const handleDateSelection = (dateRange) => {
-  // CalendarGrid now handles all the logic and just gives us the final date range
+// CalendarGrid handles logic and gives final date range
   selectedDateRange.value = dateRange
-  // Keep single-day highlight and any dependent UIs in sync
+// Keep single-day highlight and dependent UIs in sync
   selectedDate.value = dateRange[0] || null
 
-  // Update URL if we have dates selected
+// Update URL if we have dates selected
   if (dateRange.length > 0) {
     const start = dateRange[0].toISOString().split('T')[0]
     const end = dateRange[dateRange.length - 1].toISOString().split('T')[0]
@@ -697,20 +676,20 @@ const handleDateSelection = (dateRange) => {
   emit('date-range-selected', dateRange)
 }
 
-// 🆕 Handle job type selection from JobTypeSelector
+// Handle job type selection from JobTypeSelector
 const handleJobTypeSelection = (jobTypes) => {
   selectedJobTypes.value = jobTypes || []
-  // TODO: Later we can use this for team validation or AI suggestions
+// TODO: Use for team validation or AI suggestions
 }
 
-// Clear current selection (dates and resources)
+// Clear current selection (dates and plumbers)
 const clearSelection = () => {
   selectedDateRange.value = []
   selectedPlumbers.value = []
   selectedDate.value = null
 }
 
-// 🆕 MULTI-RESOURCE BOOKING METHODS
+// Multi-Resource Booking Methods
 // Add current selection to accumulated bookings
 const addBooking = () => {
   if (!canAddBooking.value) return
@@ -727,7 +706,7 @@ const addBooking = () => {
 
   currentBookings.value.push(booking)
 
-  // Update resource availability tracking - only book available dates
+// Update resource availability tracking - only book available dates
   selectedPlumbers.value.forEach(plumberId => {
     // Get existing bookings for this plumber
     const plumberBookings = resourceBookings.value.filter(booking =>
@@ -741,30 +720,29 @@ const addBooking = () => {
       )
     )
 
-    // Find which dates are actually available for this plumber
+// Find which dates are actually available for this plumber
     const availableDates = selectedDateRange.value.filter(selectedDate => {
       // ✅ O(1) lookup instead of O(n × m) nested loops
       const isBookedOnDate = plumberBookedDates.has(selectedDate.toDateString())
       return !isBookedOnDate  // Available if not booked
     })
 
-    
-    // Only book if there are available dates
+// Only book if there are available dates
     if (availableDates.length > 0) {
       resourceBookings.value.push({
         plumberId: plumberId,
-        dates: [...availableDates],  // Book only available dates
+// Book only available dates
         bookingId: booking.id
       })
     }
   })
 
-  // Clear current selection for next booking
+// Clear current selection for next booking
   selectedDateRange.value = []
   selectedPlumbers.value = []
   selectedDate.value = null
 
-  // Emit booking added event
+// Emit booking added event
   emit('booking-added', booking)
 }
 
@@ -775,15 +753,15 @@ const removeBooking = (bookingId) => {
 
   const booking = currentBookings.value[bookingIndex]
 
-  // Remove from resource availability tracking
+// Remove from resource availability tracking
   resourceBookings.value = resourceBookings.value.filter(
     rb => rb.bookingId !== bookingId
   )
 
-  // Remove from accumulated bookings
+// Remove from accumulated bookings
   currentBookings.value.splice(bookingIndex, 1)
 
-  // Emit booking removed event
+// Emit booking removed event
   emit('booking-removed', bookingId)
 }
 
@@ -829,6 +807,5 @@ const formatDateRange = (dates) => {
   return `${start} - ${end} (${dates.length} days)`
 }
 
-// 🎯 STEP 4: Build Template (Next)
-// 🎯 STEP 5: Add Methods (Next)
+// Template and Methods (TODO sections removed)
 </script>
