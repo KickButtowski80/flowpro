@@ -436,16 +436,6 @@ const readUrlParams = () => {
 // 🎯 STEP 3: Add Computed Properties
 // These are "smart" calculations that only re-run when their data changes!
 
-// Pretty format for selected date display
-const formattedDate = computed(() => {
-  if (!selectedDate.value) return 'No date selected'
-  return selectedDate.value.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-})
 
 
 // 🆕 MULTI-RESOURCE COMPUTED PROPERTIES
