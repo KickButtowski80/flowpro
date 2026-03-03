@@ -77,7 +77,7 @@
     </div>
 
     <!-- 🆕 Resource Selection Section -->
-    <div v-if="selectedDateRange.length > 0"
+    <div v-if="selectedDateRange.length > 0 || selectedJobTypes.length > 0"
       class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border-2 border-green-200 resource-ui">
       
       <!-- View Mode Toggle -->
@@ -92,7 +92,9 @@
             class="px-3 py-1.5 text-xs sm:text-sm font-medium bg-white border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 cursor-pointer"
           >
             <option value="jobType">🔧 Filtered by Job Type</option>
-            <option value="all">👥 All Available Plumbers</option>
+            <option value="all">👥 All Plumbers</option>
+            <option value="available">👥 All Available Plumbers</option>
+            <option value="unavailable">👥 All Unavailable Plumbers</option>
           </select>
         </div>
       </div>
@@ -100,17 +102,19 @@
       <!-- No plumbers available message -->
       <div v-if="displayedPlumbers.length === 0" class="text-center py-3 sm:py-4">
         <p class="text-red-600 font-medium text-sm sm:text-base">
-          😔 No plumbers available 
-          <span v-if="plumberViewMode === 'jobType' && selectedJobTypes.length > 0">
-            for {{ selectedJobTypes.map(jt => jt.name).join(' + ') }}
+          <span v-if="plumberViewMode === 'available'">😔 No available plumbers</span>
+          <span v-else-if="plumberViewMode === 'unavailable'">😔 No unavailable plumbers</span>
+          <span v-else-if="plumberViewMode === 'jobType' && selectedJobTypes.length > 0">
+            😔 No plumbers qualified for {{ selectedJobTypes.map(jt => jt.name).join(' + ') }}
           </span>
-          <span v-else>for these dates</span>
+          <span v-else>😔 No plumbers found</span>
         </p>
         <p class="text-xs sm:text-sm text-gray-600 mt-1">
-          <span v-if="plumberViewMode === 'jobType' && selectedJobTypes.length === 0">Select job types first</span>
-          <span v-else-if="availablePlumbers.length === 0">No plumbers available for these dates</span>
-          <span v-else-if="plumberViewMode === 'jobType'">Try switching to "All Available Plumbers" view</span>
-          <span v-else>Try different dates</span>
+          <span v-if="plumberViewMode === 'available'">Try different dates or check back later</span>
+          <span v-else-if="plumberViewMode === 'unavailable'">Everyone is available! Great news!</span>
+          <span v-else-if="plumberViewMode === 'jobType' && selectedJobTypes.length === 0">Select job types to see qualified plumbers</span>
+          <span v-else-if="plumberViewMode === 'jobType'">Try different job types or check "All Plumbers" view</span>
+          <span v-else>Try selecting different filters</span>
         </p>
       </div>
 
@@ -306,14 +310,20 @@ const router = useRouter()
 // 🎯 SELECTION STATE
 const selectedDateRange = ref([])
 const selectedJobTypes = ref([]) // 🆕 Track selected job types (array for multiple)
-const plumberViewMode = ref('jobType') // 'jobType' or 'all'
+const plumberViewMode = ref('all') // 'jobType', 'all', 'available', 'unavailable'
 
 // MULTI-RESOURCE BOOKING STATE
 // Available plumbers/resources
 import { PLUMBERS } from '~/constants/plumbers'
 
 const plumbers = ref(PLUMBERS)
+console.log('🔍 Debug - Plumbers loaded:', plumbers.value.length)
 const availabilityStatuses = {
+  SELECTED: {
+    text: 'Selected',
+    icon: '👉',
+    color: 'blue'
+  },
   FULL: {
     text: 'All dates',
     icon: '✅',
@@ -363,10 +373,14 @@ const getAvailableCountForPlumber = (plumberId) => {
   return availableCount
 }
 
-// Derive status: FULL (all dates), PARTIAL (some dates), NONE (no dates)
+// Derive status: SELECTED, FULL (all dates), PARTIAL (some dates), NONE (no dates)
 const getPlumberStatus = (plumber) => {
+
+  // If plumber is selected for current booking, show as selected
+  if (selectedPlumbers.value.includes(plumber.id)) return 'SELECTED'
+  
   const totalSelected = selectedDateRange.value.length
-  if (totalSelected === 0) return 'NONE'  // No dates selected = unavailable
+  if (totalSelected === 0) return 'FULL'  // No dates selected = all available
   const availableCount = getAvailableCountForPlumber(plumber.id)
   if (availableCount === 0) return 'NONE'
   if (availableCount < totalSelected) return 'PARTIAL'
@@ -522,10 +536,55 @@ const plumbersMatchingJobRequirements = computed(() => {
 
 // 🆕 Display plumbers based on view mode
 const displayedPlumbers = computed(() => {
-  if (plumberViewMode.value === 'all') {
-    return availablePlumbers.value // Show all available plumbers (regardless of job type)
+  // Safety checks
+  if (!plumbers.value || !Array.isArray(plumbers.value)) {
+    console.log('🔍 Debug - Plumbers not ready yet')
+    return []
   }
-  return plumbersMatchingJobRequirements.value // Show filtered by job type
+  
+  console.log('🔍 Debug - plumberViewMode:', plumberViewMode.value)
+  console.log('🔍 Debug - selectedJobTypes:', selectedJobTypes.value?.length || 0)
+  console.log('🔍 Debug - selectedDateRange:', selectedDateRange.value?.length || 0)
+  
+  let plumbersList = []
+  
+  if (plumberViewMode.value === 'all') {
+    // Show ALL plumbers (available + unavailable)
+    plumbersList = plumbers.value
+    console.log('🔍 Debug - All plumbers mode:', plumbersList.length)
+  } else if (plumberViewMode.value === 'available') {
+    // Show only available plumbers
+    plumbersList = availablePlumbers.value || []
+    console.log('🔍 Debug - Available plumbers mode:', plumbersList.length)
+  } else if (plumberViewMode.value === 'unavailable') {
+    // Show only unavailable plumbers
+    plumbersList = plumbers.value.filter(plumber => getPlumberStatus(plumber) === 'NONE')
+    console.log('🔍 Debug - Unavailable plumbers mode:', plumbersList.length)
+  } else {
+    // Filtered by job type (default)
+    plumbersList = plumbersMatchingJobRequirements.value || []
+    console.log('🔍 Debug - Job type mode:', plumbersList.length)
+  }
+  
+  // For 'all' mode, sort by availability (available first, unavailable last)
+  if (plumberViewMode.value === 'all') {
+    plumbersList.sort((a, b) => {
+      const statusA = getPlumberStatus(a)
+      const statusB = getPlumberStatus(b)
+      
+      // Available (FULL, PARTIAL, SELECTED) come before unavailable (NONE)
+      const availabilityOrder = {
+        'SELECTED': 0,
+        'FULL': 1, 
+        'PARTIAL': 2,
+        'NONE': 3
+      }
+      
+      return availabilityOrder[statusA] - availabilityOrder[statusB]
+    })
+  }
+  console.log('🔍 Debug - Final plumbers count:', plumbersList.length)
+  return plumbersList
 })
 
 // Helper: whether a specialty is required by ANY selected job type (case-insensitive)
@@ -551,19 +610,6 @@ const canFormRequiredTeam = computed(() => {
   return availableCount >= maxTeamSize
 })
 
-// 🆕 Step 2: Team status message for UI
-const teamStatusMessage = computed(() => {
-  if (!selectedJobType.value) return ''
-
-  const availableCount = plumbersMatchingJobRequirements.value.length
-  const requiredTeamSize = selectedJobType.value.requiredTeamSize
-
-  if (availableCount >= requiredTeamSize) {
-    return `✅ ${availableCount} plumbers available for team of ${requiredTeamSize}`
-  } else {
-    return `⚠️ Only ${availableCount} plumbers available, need ${requiredTeamSize}`
-  }
-})
 
 // Selected resources details
 const selectedPlumbersDetails = computed(() => {
