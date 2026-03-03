@@ -447,27 +447,6 @@ const formattedDate = computed(() => {
   })
 })
 
-// Available time slots for the selected date
-const availableTimeSlots = computed(() => {
-  // Business hours: 9AM-11AM, 1PM-4PM (skip lunch)
-  const businessHours = [
-    "9:00 AM", "10:00 AM", "11:00 AM",
-    "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"
-  ]
-
-  return businessHours.map(time => {
-    // Check if this time slot is already booked
-    const isBooked = props.bookedSlots.some(slot =>
-      slot.date === selectedDate.value?.toDateString() &&
-      slot.time === time
-    )
-
-    return {
-      time: time,
-      status: isBooked ? 'booked' : 'available'
-    }
-  })
-})
 
 // 🆕 MULTI-RESOURCE COMPUTED PROPERTIES
 // Available resources for selected date range - show even with partial availability
