@@ -317,7 +317,6 @@ const plumberViewMode = ref('all') // 'jobType', 'all', 'available', 'unavailabl
 import { PLUMBERS } from '~/constants/plumbers'
 
 const plumbers = ref(PLUMBERS)
-console.log('🔍 Debug - Plumbers loaded:', plumbers.value.length)
 const availabilityStatuses = {
   SELECTED: {
     text: 'Selected',
@@ -538,32 +537,23 @@ const plumbersMatchingJobRequirements = computed(() => {
 const displayedPlumbers = computed(() => {
   // Safety checks
   if (!plumbers.value || !Array.isArray(plumbers.value)) {
-    console.log('🔍 Debug - Plumbers not ready yet')
     return []
   }
-  
-  console.log('🔍 Debug - plumberViewMode:', plumberViewMode.value)
-  console.log('🔍 Debug - selectedJobTypes:', selectedJobTypes.value?.length || 0)
-  console.log('🔍 Debug - selectedDateRange:', selectedDateRange.value?.length || 0)
   
   let plumbersList = []
   
   if (plumberViewMode.value === 'all') {
     // Show ALL plumbers (available + unavailable)
     plumbersList = plumbers.value
-    console.log('🔍 Debug - All plumbers mode:', plumbersList.length)
   } else if (plumberViewMode.value === 'available') {
     // Show only available plumbers
     plumbersList = availablePlumbers.value || []
-    console.log('🔍 Debug - Available plumbers mode:', plumbersList.length)
   } else if (plumberViewMode.value === 'unavailable') {
     // Show only unavailable plumbers
     plumbersList = plumbers.value.filter(plumber => getPlumberStatus(plumber) === 'NONE')
-    console.log('🔍 Debug - Unavailable plumbers mode:', plumbersList.length)
   } else {
     // Filtered by job type (default)
     plumbersList = plumbersMatchingJobRequirements.value || []
-    console.log('🔍 Debug - Job type mode:', plumbersList.length)
   }
   
   // For 'all' mode, sort by availability (available first, unavailable last)
@@ -583,7 +573,7 @@ const displayedPlumbers = computed(() => {
       return availabilityOrder[statusA] - availabilityOrder[statusB]
     })
   }
-  console.log('🔍 Debug - Final plumbers count:', plumbersList.length)
+  
   return plumbersList
 })
 
