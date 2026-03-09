@@ -84,7 +84,8 @@ const bookedPlumbersByDate = computed(() => {
   const plumbersByDateMap = new Map() // date string -> Set of plumber IDs
   
   props.resourceBookings.forEach(booking => {
-    booking.dates.forEach(bookedDate => {
+    const dates = Array.isArray(booking?.dates) ? booking.dates : []
+    dates.forEach(bookedDate => {
       const dateKey = bookedDate.toDateString()
       if (!plumbersByDateMap.has(dateKey)) {
         plumbersByDateMap.set(dateKey, new Set())
