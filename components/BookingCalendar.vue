@@ -88,8 +88,9 @@
             v-model="plumberViewMode"
             class="px-3 py-1.5 text-xs sm:text-sm font-medium bg-white border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 cursor-pointer"
           >
-            <option value="jobType">🔧 Filtered by Job Type</option>
+            <option value="jobTypes">🔧 Filtered by Job Types</option>
             <option value="all">👥 All Plumbers</option>
+            <option value="all-by-availability">👥 All Plumbers (Sorted by Availability)</option>
             <option value="available">👥 All Available Plumbers</option>
             <option value="unavailable">👥 All Unavailable Plumbers</option>
           </select>
@@ -99,19 +100,10 @@
       <!-- No plumbers available message -->
       <div v-if="displayedPlumbers.length === 0" class="text-center py-3 sm:py-4">
         <p class="text-red-600 font-medium text-sm sm:text-base">
-          <span v-if="plumberViewMode === 'available'">😔 No available plumbers</span>
-          <span v-else-if="plumberViewMode === 'unavailable'">😔 No unavailable plumbers</span>
-          <span v-else-if="plumberViewMode === 'jobType' && selectedJobTypes.length > 0">
-            😔 No plumbers qualified for {{ selectedJobTypes.map(jt => jt.name).join(' + ') }}
-          </span>
-          <span v-else>😔 No plumbers found</span>
+          {{ plumbersListState.title }}
         </p>
         <p class="text-xs sm:text-sm text-gray-600 mt-1">
-          <span v-if="plumberViewMode === 'available'">Try different dates or check back later</span>
-          <span v-else-if="plumberViewMode === 'unavailable'">Everyone is available! Great news!</span>
-          <span v-else-if="plumberViewMode === 'jobType' && selectedJobTypes.length === 0">Select job types to see qualified plumbers</span>
-          <span v-else-if="plumberViewMode === 'jobType'">Try different job types or check "All Plumbers" view</span>
-          <span v-else>Try selecting different filters</span>
+          {{ plumbersListState.message }}
         </p>
       </div>
 
@@ -174,7 +166,6 @@
         </span>
       </button>
     </div>
-
     <!-- Current Bookings Summary -->
     <div v-if="currentBookings.length > 0"
       class="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200 booking-ui">
@@ -303,7 +294,7 @@ const router = useRouter()
 // Selection State
 const selectedDateRange = ref([])
 const selectedJobTypes = ref([]) // Track selected job types (array for multiple)
-const plumberViewMode = ref('all') // View modes: 'jobType', 'all', 'available', 'unavailable'
+const plumberViewMode = ref('all') // View modes: 'jobTypes', 'all', 'all-by-availability', 'available', 'unavailable'
 
 // Multi-Resource Booking State
 import { PLUMBERS } from '~/constants/plumbers'
@@ -337,13 +328,15 @@ const availabilityStatuses = {
 // Helper: count available dates for plumber
 const getAvailableCountForPlumber = (plumberId) => {
   if (selectedDateRange.value.length === 0) return 0
+  
   // Get existing bookings for this plumber
   const plumberBookings = resourceBookings.value.filter(b => b.plumberId === plumberId)
   // 🚀 OPTIMIZATION: Use Set for O(1) date lookups instead of nested some() loops
   const plumberBookedDates = new Set(
-    plumberBookings.flatMap(booking =>
-      booking.dates.map(date => date.toDateString())
-    )
+    plumberBookings.flatMap(booking => {
+      const dates = Array.isArray(booking?.dates) ? booking.dates : []
+      return dates.map(date => date.toDateString())
+    })
   )
 
   // Count dates where this plumber is NOT booked
@@ -458,8 +451,12 @@ const plumbersMatchingJobRequirements = computed(() => {
 // If no job types selected, show all available plumbers
   if (selectedJobTypes.value.length === 0) return availablePlumbers.value
 
-  return availablePlumbers.value.filter(plumber => {
-// Check if plumber qualifies for AT LEAST ONE selected job type
+  // Use all plumbers for job type matching, not just available ones
+  const plumbersToFilter = selectedDateRange.value.length > 0 
+    ? availablePlumbers.value 
+    : plumbers.value
+
+  return plumbersToFilter.filter(plumber => {
     return selectedJobTypes.value.some(jobType => {
 // Check if plumber has required level
       const hasRequiredLevel = !jobType.requiredLevels?.length ||
@@ -490,41 +487,68 @@ const displayedPlumbers = computed(() => {
     return []
   }
   
-  let plumbersList = []
-  
-  if (plumberViewMode.value === 'all') {
-// Show ALL plumbers (available + unavailable)
-    plumbersList = plumbers.value
-  } else if (plumberViewMode.value === 'available') {
-// Show only available plumbers
-    plumbersList = availablePlumbers.value || []
-  } else if (plumberViewMode.value === 'unavailable') {
-// Show only unavailable plumbers
-    plumbersList = plumbers.value.filter(plumber => getPlumberStatus(plumber) === 'NONE')
-  } else {
-// Filtered by job type (default)
-    plumbersList = plumbersMatchingJobRequirements.value || []
+  // View mode configuration with early returns
+  const viewModes = {
+    'all': () => plumbers.value,
+    'all-by-availability': () => {
+      const sorted = [...plumbers.value]
+      const availabilityOrder = { 'SELECTED': 0, 'FULL': 1, 'PARTIAL': 2, 'NONE': 3 }
+      return sorted.sort((a, b) => 
+        availabilityOrder[getPlumberStatus(a)] - availabilityOrder[getPlumberStatus(b)]
+      )
+    },
+    'available': () => availablePlumbers.value || [],
+    'unavailable': () => plumbers.value.filter(plumber => getPlumberStatus(plumber) === 'NONE'),
+    'jobTypes': () => plumbersMatchingJobRequirements.value || []
   }
   
-// For 'all' mode, sort by availability (available first, unavailable last)
-  if (plumberViewMode.value === 'all') {
-    plumbersList.sort((a, b) => {
-      const statusA = getPlumberStatus(a)
-      const statusB = getPlumberStatus(b)
-      
-// Available (FULL, PARTIAL, SELECTED) come before unavailable (NONE)
-      const availabilityOrder = {
-        'SELECTED': 0,
-        'FULL': 1, 
-        'PARTIAL': 2,
-        'NONE': 3
-      }
-      
-      return availabilityOrder[statusA] - availabilityOrder[statusB]
-    })
+  return viewModes[plumberViewMode.value]?.() || plumbers.value
+})
+
+// Plumbers list state title and status message
+const plumbersListState = computed(() => {
+  // Determine which view mode is active and whether job types are selected
+  const isJobTypeMode = plumberViewMode.value === 'jobTypes' && selectedJobTypes.value.length > 0
+  const isJobTypeModeNoSelection = plumberViewMode.value === 'jobTypes' && selectedJobTypes.value.length === 0
+
+  // Handle "All Available Plumbers" view mode - shows message when no plumbers are available
+  if (plumberViewMode.value === 'available') {
+    return {
+      title: '😔 No available plumbers',
+      message: 'All plumbers are booked for these dates'
+    }
   }
-  
-  return plumbersList
+
+  // Handle "All Unavailable Plumbers" view mode - shows message when no plumbers are unavailable
+  if (plumberViewMode.value === 'unavailable') {
+    return {
+      title: '😔 No unavailable plumbers',
+      message: 'No unavailable plumbers found'
+    }
+  }
+
+  // Handle "Filtered by Job Types" view mode WITH job types selected - 
+  // shows message when no plumbers qualify for selected job types
+  if (isJobTypeMode) {
+    return {
+      title: `😔 No plumbers qualified for ${selectedJobTypes.value.map(jt => jt.name).join(' + ')}`,
+      message: 'Try different job types or check "All Plumbers" view'
+    }
+  }
+
+  // Handle "Filtered by Job Types" view mode WITHOUT job types selected - prompts user to select job types
+  if (isJobTypeModeNoSelection) {
+    return {
+      title: '😔 No plumbers found',
+      message: 'Select job types to see qualified plumbers'
+    }
+  }
+
+  // Default fallback for any other view modes - generic message
+  return {
+    title: '😔 No plumbers found',
+    message: 'Try selecting different filters'
+  }
 })
 
 // Helper: check if specialty is required by any selected job type 
@@ -715,9 +739,10 @@ const addBooking = () => {
 
     // 🚀 OPTIMIZATION: Use Set for O(1) date lookups instead of nested some() loops
     const plumberBookedDates = new Set(
-      plumberBookings.flatMap(booking =>
-        booking.dates.map(date => date.toDateString())
-      )
+      plumberBookings.flatMap(booking => {
+        const dates = Array.isArray(booking?.dates) ? booking.dates : []
+        return dates.map(date => date.toDateString())
+      })
     )
 
 // Find which dates are actually available for this plumber
@@ -731,7 +756,7 @@ const addBooking = () => {
     if (availableDates.length > 0) {
       resourceBookings.value.push({
         plumberId: plumberId,
-// Book only available dates
+        dates: [...availableDates],
         bookingId: booking.id
       })
     }
