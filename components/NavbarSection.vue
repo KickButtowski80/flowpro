@@ -41,6 +41,7 @@
           <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center gap-10">
             <NuxtLink to="/calendar">test</NuxtLink> 
+            <NuxtLink to="/ai-test"> ai test </NuxtLink>
             <NuxtLink to="#services" :class="[
               'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('services')
