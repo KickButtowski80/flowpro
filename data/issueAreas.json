@@ -118,5 +118,29 @@
     "aliases": ["backflow preventer", "backflow device", "backflow valve"],
     "category": "plumbing",
     "description": "Backflow prevention devices"
+  },
+  {
+    "id": "water_softener",
+    "aliases": ["water softener", "softener", "water conditioner", "hard water treatment"],
+    "category": "water_treatment",
+    "description": "Water softening systems for hard water treatment"
+  },
+  {
+    "id": "water_filtration",
+    "aliases": ["water filtration", "water filter", "filtration system", "water purifier", "reverse osmosis"],
+    "category": "water_treatment",
+    "description": "Water filtration and purification systems"
+  },
+  {
+    "id": "cleanout",
+    "aliases": ["cleanout", "cleanout point", "sewer cleanout", "drain cleanout", "access point"],
+    "category": "drainage",
+    "description": "Sewer and drain cleanout access points"
+  },
+  {
+    "id": "ice_maker",
+    "aliases": ["ice maker", "ice machine", "refrigerator ice maker", "ice maker line"],
+    "category": "appliance",
+    "description": "Refrigerator ice maker water lines and connections"
   }
 ]
