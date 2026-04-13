@@ -1,0 +1,122 @@
+[
+  {
+    "id": "toilet",
+    "aliases": ["toilet", "commode", "bathroom toilet", "water closet", "lavatory"],
+    "category": "bathroom",
+    "description": "Toilet fixtures and related plumbing"
+  },
+  {
+    "id": "faucet",
+    "aliases": ["faucet", "tap", "fixture", "sink faucet", "bathroom faucet", "kitchen faucet"],
+    "category": "bathroom_kitchen",
+    "description": "Faucets and tap fixtures"
+  },
+  {
+    "id": "sink",
+    "aliases": ["sink", "basin", "wash basin", "kitchen sink", "bathroom sink", "vanity"],
+    "category": "bathroom_kitchen",
+    "description": "Sink and basin fixtures"
+  },
+  {
+    "id": "drain",
+    "aliases": ["drain", "drainage", "drain pipe", "floor drain", "shower drain"],
+    "category": "drainage",
+    "description": "Drain lines and drainage systems"
+  },
+  {
+    "id": "sewer",
+    "aliases": ["sewer", "sewer line", "sewer main", "sewer pipe", "sewer system"],
+    "category": "drainage",
+    "description": "Sewer lines and main drainage"
+  },
+  {
+    "id": "water_heater",
+    "aliases": ["water heater", "heater", "hot water heater", "tankless heater", "boiler", "water tank"],
+    "category": "water_heating",
+    "description": "Water heating systems and units"
+  },
+  {
+    "id": "pipe",
+    "aliases": ["pipe", "pipes", "water pipe", "plumbing pipe", "water line", "pipeline"],
+    "category": "plumbing",
+    "description": "Water pipes and plumbing lines"
+  },
+  {
+    "id": "gas_line",
+    "aliases": ["gas line", "gas pipe", "gas line services", "natural gas line", "gas plumbing"],
+    "category": "gas",
+    "description": "Gas lines and gas plumbing systems"
+  },
+  {
+    "id": "garbage_disposal",
+    "aliases": ["garbage disposal", "disposal", "food disposal", "kitchen disposal"],
+    "category": "kitchen",
+    "description": "Garbage disposal units"
+  },
+  {
+    "id": "sump_pump",
+    "aliases": ["sump pump", "sump", "pump", "sump system", "basement pump"],
+    "category": "drainage",
+    "description": "Sump pumps and basement drainage"
+  },
+  {
+    "id": "shower",
+    "aliases": ["shower", "shower head", "shower fixture", "shower valve"],
+    "category": "bathroom",
+    "description": "Shower fixtures and systems"
+  },
+  {
+    "id": "bathtub",
+    "aliases": ["bathtub", "tub", "bath tub", "soaking tub"],
+    "category": "bathroom",
+    "description": "Bathtub fixtures and drains"
+  },
+  {
+    "id": "dishwasher",
+    "aliases": ["dishwasher", "dish washing machine", "kitchen dishwasher"],
+    "category": "kitchen",
+    "description": "Dishwasher plumbing connections"
+  },
+  {
+    "id": "washing_machine",
+    "aliases": ["washing machine", "washer", "laundry machine", "clothes washer"],
+    "category": "laundry",
+    "description": "Washing machine plumbing connections"
+  },
+  {
+    "id": "water_main",
+    "aliases": ["water main", "main water", "main water line", "water service line"],
+    "category": "plumbing",
+    "description": "Main water service lines"
+  },
+  {
+    "id": "valve",
+    "aliases": ["valve", "shut off valve", "water valve", "main valve", "fixture valve"],
+    "category": "plumbing",
+    "description": "Water control valves"
+  },
+  {
+    "id": "hose_bib",
+    "aliases": ["hose bib", "outdoor faucet", "garden hose", "exterior faucet", "outdoor tap"],
+    "category": "exterior",
+    "description": "Outdoor water fixtures"
+  },
+  {
+    "id": "water_meter",
+    "aliases": ["water meter", "meter", "water measurement"],
+    "category": "plumbing",
+    "description": "Water meter and measuring equipment"
+  },
+  {
+    "id": "pressure_regulator",
+    "aliases": ["pressure regulator", "pressure reducing valve", "water pressure valve"],
+    "category": "plumbing",
+    "description": "Water pressure control devices"
+  },
+  {
+    "id": "backflow_preventer",
+    "aliases": ["backflow preventer", "backflow device", "backflow valve"],
+    "category": "plumbing",
+    "description": "Backflow prevention devices"
+  }
+]
