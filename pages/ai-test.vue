@@ -94,44 +94,81 @@
                 <h2 class="text-xl font-bold text-gray-800">AI Analysis Complete</h2>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-500">Confidence</span>
-                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
-                    :style="{ width: (aiResult.confidence * 100) + '%' }"
-                  ></div>
-                </div>
-                <span class="text-xs font-bold text-gray-700">{{ Math.round(aiResult.confidence * 100) }}%</span>
+                <span class="text-xs text-gray-500">Issues Found</span>
+                <span class="text-xs font-bold text-gray-700">{{ aiResult.totalIssues || 0 }}</span>
               </div>
             </div>
 
-            <!-- Issue Detected -->
-            <div v-if="aiResult.category" class="space-y-4">
-              <!-- Primary Issue Card -->
-              <div class="issue-card primary">
-                <div class="flex items-start gap-4">
-                  <div class="issue-icon bg-gradient-to-r from-red-500 to-orange-500">
-                    <span class="text-2xl">🚨</span>
+            <!-- Issues Detected -->
+            <div v-if="aiResult.totalIssues > 0" class="space-y-4">
+              <!-- Immediate Priority Card -->
+              <div v-if="aiResult.groupedIssues?.IMMEDIATE?.length > 0" class="issue-card immediate">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="issue-icon-sm bg-gradient-to-r from-red-500 to-orange-500">
+                    <span class="text-lg">🚨</span>
                   </div>
-                  <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-800 mb-1">{{ getCategoryName(aiResult.category) }}</h3>
-                    <p class="text-sm text-gray-600 mb-3">{{ getCategoryDescription(aiResult.category) }}</p>
-                    <div class="flex items-center gap-3">
-                      <span class="text-xs px-3 py-1 bg-red-100 text-red-700 rounded-full font-semibold">
-                        PRIMARY ISSUE
-                      </span>
-                      <span class="text-xs text-gray-500">{{ aiResult.category }}</span>
-                    </div>
+                  <h3 class="text-base font-bold text-red-700">IMMEDIATE ATTENTION REQUIRED</h3>
+                  <span class="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full font-semibold">
+                    {{ aiResult.groupedIssues.IMMEDIATE.length }} issue{{ aiResult.groupedIssues.IMMEDIATE.length > 1 ? 's' : '' }}
+                  </span>
+                </div>
+                <div class="space-y-2">
+                  <div 
+                    v-for="(issue, index) in aiResult.groupedIssues.IMMEDIATE" 
+                    :key="index"
+                    class="flex items-start gap-2 p-2 bg-red-50 rounded-lg"
+                  >
+                    <span class="text-sm font-bold text-gray-800">{{ getCategoryName(issue.category) }}</span>
+                    <span class="text-xs text-gray-500">{{ issue.keyword }}</span>
+                    <span class="text-xs text-gray-400">({{ Math.round(issue.confidence * 100) }}%)</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Priority Badge -->
-              <div class="priority-display">
-                <div class="flex items-center gap-4">
-                  <span class="text-sm font-semibold text-gray-600">Priority Level:</span>
-                  <div :class="getPriorityBadgeClass(aiResult.category)" class="px-4 py-2 rounded-full text-white font-bold text-sm shadow-lg">
-                    {{ getPriorityLabel(aiResult.category) }}
+              <!-- Same Day Priority Card -->
+              <div v-if="aiResult.groupedIssues?.SAME_DAY?.length > 0" class="issue-card same-day">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="issue-icon-sm bg-gradient-to-r from-amber-500 to-yellow-500">
+                    <span class="text-lg">⚡</span>
+                  </div>
+                  <h3 class="text-base font-bold text-amber-700">SAME DAY SERVICE</h3>
+                  <span class="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-semibold">
+                    {{ aiResult.groupedIssues.SAME_DAY.length }} issue{{ aiResult.groupedIssues.SAME_DAY.length > 1 ? 's' : '' }}
+                  </span>
+                </div>
+                <div class="space-y-2">
+                  <div 
+                    v-for="(issue, index) in aiResult.groupedIssues.SAME_DAY" 
+                    :key="index"
+                    class="flex items-start gap-2 p-2 bg-amber-50 rounded-lg"
+                  >
+                    <span class="text-sm font-bold text-gray-800">{{ getCategoryName(issue.category) }}</span>
+                    <span class="text-xs text-gray-500">{{ issue.keyword }}</span>
+                    <span class="text-xs text-gray-400">({{ Math.round(issue.confidence * 100) }}%)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Schedule Priority Card -->
+              <div v-if="aiResult.groupedIssues?.SCHEDULE?.length > 0" class="issue-card schedule">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="issue-icon-sm bg-gradient-to-r from-blue-500 to-indigo-500">
+                    <span class="text-lg">📅</span>
+                  </div>
+                  <h3 class="text-base font-bold text-blue-700">SCHEDULED SERVICE</h3>
+                  <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">
+                    {{ aiResult.groupedIssues.SCHEDULE.length }} issue{{ aiResult.groupedIssues.SCHEDULE.length > 1 ? 's' : '' }}
+                  </span>
+                </div>
+                <div class="space-y-2">
+                  <div 
+                    v-for="(issue, index) in aiResult.groupedIssues.SCHEDULE" 
+                    :key="index"
+                    class="flex items-start gap-2 p-2 bg-blue-50 rounded-lg"
+                  >
+                    <span class="text-sm font-bold text-gray-800">{{ getCategoryName(issue.category) }}</span>
+                    <span class="text-xs text-gray-500">{{ issue.keyword }}</span>
+                    <span class="text-xs text-gray-400">({{ Math.round(issue.confidence * 100) }}%)</span>
                   </div>
                 </div>
               </div>
@@ -427,6 +464,27 @@ const clearInput = () => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
+.issue-card.secondary {
+  padding: 16px;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.9), rgba(219, 234, 254, 0.7));
+}
+
+.issue-card.immediate {
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, rgba(254, 226, 226, 0.95), rgba(252, 165, 165, 0.8));
+}
+
+.issue-card.same-day {
+  border: 2px solid rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(253, 186, 116, 0.8));
+}
+
+.issue-card.schedule {
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(191, 219, 254, 0.8));
+}
+
 .issue-icon {
   width: 48px;
   height: 48px;
@@ -435,6 +493,16 @@ const clearInput = () => {
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.issue-icon-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Priority Display */

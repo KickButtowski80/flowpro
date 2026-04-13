@@ -2,176 +2,78 @@
 // Explained like 5-year-old: This is our baby AI that learns to recognize plumbing problems!
 
 import JOB_TYPES from '../../data/jobTypes.json'
+import AI_KEYWORDS from '../../data/aiKeywords.json'
 
 /**
  * 🤖 Magic Word Box - Suggests job types from customer descriptions
  * 
  * @param {string} customerText - What the customer says
- * @returns {object} - { category: jobTypeId, confidence: 0-1 }
+ * @returns {object} - { issues: [], primaryIssue: {}, totalIssues: number }
  */
 export const suggestJobType = (customerText) => {
   if (!customerText || typeof customerText !== 'string') {
-    return { category: null, confidence: 0 }
+    return { issues: [], primaryIssue: null, totalIssues: 0 }
   }
 
-  // 🎯 Sophisticated Magic Word Dictionary - Based on Real Customer Research
-  const magicWords = {
-    // Emergency plumbing (from Balkan Plumbing research)
-    'smell gas': 'gas_line_services',
-    'gas leak': 'gas_line_services',
-    'dizziness': 'gas_line_services',
-    'nausea': 'gas_line_services',
-    'sewer gas': 'gas_line_services',
-    'frozen pipes': 'emergency_plumbing',
-    'frozen pipe': 'emergency_plumbing',
-    'burst pipe': 'emergency_plumbing',
-    'burst pipes': 'emergency_plumbing',
-    'pipe burst': 'emergency_plumbing',
-    'pipes burst': 'emergency_plumbing',
-    'pipe has burst': 'emergency_plumbing',
-    'pipe broke': 'emergency_plumbing',
-    'ruptured pipe': 'emergency_plumbing',
-    'water shooting': 'emergency_plumbing',
-    'no water': 'emergency_plumbing',
-    'water everywhere': 'emergency_plumbing',
-    'flooding': 'emergency_plumbing',
-    'water damage': 'emergency_plumbing',
-    'main water': 'emergency_plumbing',
-    'water main': 'emergency_plumbing',
-    'emergency': 'emergency_plumbing',
-    'urgent': 'emergency_plumbing',
-    'immediately': 'emergency_plumbing',
+  //  ð AI Keywords - Imported from data/aiKeywords.json
+  // Organized by job type for better maintainability
 
-    // Water heater issues (from Nationwide research)
-    'water heater': 'water_heater_services',
-    'heater': 'water_heater_services',
-    'hot water': 'water_heater_services',
-    'no hot water': 'water_heater_services',
-    'lukewarm water': 'water_heater_services',
-    'cold shower': 'water_heater_services',
-    'tankless': 'water_heater_services',
-    'pilot light': 'water_heater_services',
-    'strange noises': 'water_heater_services',
-    'sediment': 'water_heater_services',
-    'heater not working': 'water_heater_services',
-    'water heating': 'water_heater_services',
-    'extinguished pilot': 'water_heater_services',
-
-    // Drain cleaning (from real customer calls)
-    'clogged': 'drain_cleaning_sewer',
-    'drain': 'drain_cleaning_sewer',
-    'clog': 'drain_cleaning_sewer',
-    'blocked': 'drain_cleaning_sewer',
-    'backed up': 'drain_cleaning_sewer',
-    'backing up': 'drain_cleaning_sewer',
-    'slow drain': 'drain_cleaning_sewer',
-    'water pooling': 'drain_cleaning_sewer',
-    'hair buildup': 'drain_cleaning_sewer',
-    'soap buildup': 'drain_cleaning_sewer',
-    'tree roots': 'drain_cleaning_sewer',
-    'sewer backup': 'drain_cleaning_sewer',
-    'foul odors': 'drain_cleaning_sewer',
-    'unsanitary': 'drain_cleaning_sewer',
-    'toilet clogged': 'drain_cleaning_sewer',
-    'sink clogged': 'drain_cleaning_sewer',
-    'bathtub clogged': 'drain_cleaning_sewer',
-    'sewer': 'drain_cleaning_sewer',
-    'hydro jetting': 'drain_cleaning_sewer',
-
-    // Toilet issues (from Nationwide research)
-    'running toilet': 'bathroom_kitchen_fixtures',
-    'toilet running': 'bathroom_kitchen_fixtures',
-    'toilet keeps running': 'bathroom_kitchen_fixtures',
-    'wont stop running': 'bathroom_kitchen_fixtures',
-    'wont flush': 'bathroom_kitchen_fixtures',
-    'toilet overflowing': 'bathroom_kitchen_fixtures',
-    'flapper': 'bathroom_kitchen_fixtures',
-    'fill valve': 'bathroom_kitchen_fixtures',
-    'flush valve': 'bathroom_kitchen_fixtures',
-    'overflow tube': 'bathroom_kitchen_fixtures',
-
-    // Faucet and fixture issues (from real customer language)
-    'leaky faucet': 'bathroom_kitchen_fixtures',
-    'dripping faucet': 'bathroom_kitchen_fixtures',
-    'faucet': 'bathroom_kitchen_fixtures',
-    'dripping': 'bathroom_kitchen_fixtures',
-    'washer': 'bathroom_kitchen_fixtures',
-    'cartridge': 'bathroom_kitchen_fixtures',
-    'worn washers': 'bathroom_kitchen_fixtures',
-    'sink': 'bathroom_kitchen_fixtures',
-    'garbage disposal': 'bathroom_kitchen_fixtures',
-    'dishwasher': 'bathroom_kitchen_fixtures',
-    'fixture': 'bathroom_kitchen_fixtures',
-
-    // Pipe leaks (from professional sources)
-    'pipe leak': 'plumbing_repairs',
-    'leaking pipe': 'plumbing_repairs',
-    'leak': 'plumbing_repairs',
-    'leaking': 'plumbing_repairs',
-    'dripping pipe': 'plumbing_repairs',
-    'pipe': 'plumbing_repairs',
-    'walls': 'plumbing_repairs',
-    'ceilings': 'plumbing_repairs',
-    'under floors': 'plumbing_repairs',
-    'main shut-off': 'plumbing_repairs',
-    'water valve': 'plumbing_repairs',
-
-    // Low water pressure (from Nationwide research)
-    'low water pressure': 'maintenance_inspection',
-    'low pressure': 'maintenance_inspection',
-    'weak water flow': 'maintenance_inspection',
-    'no water flow': 'maintenance_inspection',
-    'mineral buildup': 'maintenance_inspection',
-    'aerators': 'maintenance_inspection',
-    'shower head': 'maintenance_inspection',
-    'faucet heads': 'maintenance_inspection',
-    'blockage': 'maintenance_inspection',
-
-    // General maintenance and inspection
-    'maintenance': 'maintenance_inspection',
-    'inspection': 'maintenance_inspection',
-    'check up': 'maintenance_inspection',
-    'routine': 'maintenance_inspection',
-    'annual': 'maintenance_inspection',
-    'preventive': 'maintenance_inspection',
-    'clean out': 'maintenance_inspection',
-    'service': 'maintenance_inspection',
-
-    // Outdoor and drainage
-    'sump pump': 'outdoor_drainage',
-    'french drain': 'outdoor_drainage',
-    'gutter': 'outdoor_drainage',
-    'outdoor faucet': 'outdoor_drainage',
-    'sprinkler': 'outdoor_drainage',
-    'landscape': 'outdoor_drainage',
-    'yard': 'outdoor_drainage',
-    'outdoor': 'outdoor_drainage',
-    'exterior': 'outdoor_drainage',
-
-    // General repair terms
-    'repair': 'plumbing_repairs',
-    'fix': 'plumbing_repairs',
-    'broken': 'plumbing_repairs',
-    'replace': 'plumbing_repairs',
-    'install': 'bathroom_kitchen_fixtures',
-    'installation': 'bathroom_kitchen_fixtures',
-    'new': 'bathroom_kitchen_fixtures'
-  }
-
-  // 🔍 Look for magic words (case-insensitive)
+  //  ð Look for keywords (case-insensitive)
   const lowerText = customerText.toLowerCase()
   
-  // 🎯 Check each magic word
-  for (const [word, jobType] of Object.entries(magicWords)) {
+  //  ð Check each keyword and deduplicate in one pass
+  const deduplicatedIssues = []
+  
+  for (const [word, jobType] of Object.entries(AI_KEYWORDS)) {
     if (lowerText.includes(word)) {
-      // 🎉 Found a magic word!
       const confidence = word.length > 5 ? 0.8 : 0.6 // Longer words = more confident
-      return { category: jobType, confidence }
+      
+      // Check if this keyword is unique (not redundant with existing)
+      const isUnique = deduplicatedIssues.every(existing =>
+        !existing.keyword.includes(word) && !word.includes(existing.keyword)
+      )
+      
+      if (isUnique) {
+        deduplicatedIssues.push({
+          category: jobType,
+          keyword: word,
+          confidence
+        })
+      }
     }
   }
 
-  // 😔 No magic words found
-  return { category: null, confidence: 0 }
+  //  ð Get priority level for each issue
+  const getPriorityLevel = (category) => {
+    if (category === 'gas_line_services' || category === 'emergency_plumbing') return 'IMMEDIATE'
+    if (category === 'water_heater_services' || category === 'drain_cleaning_sewer') return 'SAME_DAY'
+    return 'SCHEDULE'
+  }
+
+  //  ð Group issues by priority level
+  const groupedIssues = {
+    IMMEDIATE: [],
+    SAME_DAY: [],
+    SCHEDULE: []
+  }
+
+  for (const issue of deduplicatedIssues) {
+    const priority = getPriorityLevel(issue.category)
+    groupedIssues[priority].push(issue)
+  }
+
+  //  ð Sort each group by confidence (highest first)
+  for (const priority in groupedIssues) {
+    groupedIssues[priority].sort((a, b) => b.confidence - a.confidence)
+  }
+
+  //  ð Return grouped issues
+  return {
+    issues: deduplicatedIssues,
+    groupedIssues,
+    primaryIssue: deduplicatedIssues[0] || null,
+    totalIssues: deduplicatedIssues.length
+  }
 }
 
 /**
@@ -195,7 +97,7 @@ export const getJobTypeDetails = (jobTypeId) => {
 export const getAISuggestion = (customerText) => {
   const suggestion = suggestJobType(customerText)
   
-  if (!suggestion.category) {
+  if (suggestion.totalIssues === 0) {
     return {
       ...suggestion,
       jobDetails: null,
@@ -203,11 +105,13 @@ export const getAISuggestion = (customerText) => {
     }
   }
 
-  const jobDetails = getJobTypeDetails(suggestion.category)
+  const jobDetails = getJobTypeDetails(suggestion.primaryIssue.category)
   
   return {
     ...suggestion,
     jobDetails,
-    message: `AI suggests: ${jobDetails?.name || 'Unknown'}`
+    message: suggestion.totalIssues === 1 
+      ? `AI suggests: ${jobDetails?.name || 'Unknown'}`
+      : `AI detected ${suggestion.totalIssues} issues: ${suggestion.primaryIssue.category} + ${suggestion.totalIssues - 1} more`
   }
 }
