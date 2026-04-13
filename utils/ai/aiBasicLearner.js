@@ -1,7 +1,7 @@
 // Basic AI Learner - Our First AI That Learns Patterns!
 // Explained like 5-year-old: This is our baby AI that learns to recognize plumbing problems!
 
-import { JOB_TYPES } from '../../constants/jobTypes.js'
+import JOB_TYPES from '../../data/jobTypes.json'
 
 /**
  * 🤖 Magic Word Box - Suggests job types from customer descriptions
