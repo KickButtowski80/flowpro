@@ -1,22 +1,22 @@
-// PRODUCTION VERSION - Contextual Pattern Matching
-// This version uses advanced contextual pattern matching instead of simple keywords
-
+// TEST VERSION - Uses contextual matching instead of flat regex
 import jobTypes from '../../data/jobTypes.json'
-import SYMPTOMS from '../../data/symptoms.json'
-import { findPatterns, debugMatches } from './lookupMaps.js'
+import SYMPTOMS from '../../data/symptoms.test.json'
+import { findPatterns, debugMatches } from './lookupMaps.test.js'
 
 /**
- * 🤖 AI Job Type Suggestion - Contextual Pattern Matching
- * Uses area+symptom context to solve ambiguity problems
- * 
- * @param {string} customerText - What the customer says
- * @returns {object} - { issues: [], groupedIssues: {}, totalIssues: number }
+ * TEST VERSION: Uses contextual pattern matching to solve ambiguity issues
  */
 export const suggestJobType = (customerText) => {
+  console.log('=== AI BASIC LEARNER TEST ===')
+  console.log('Customer text:', customerText)
+  
   // Use contextual pattern matching
   const matches = findPatterns(customerText)
-
+ 
+  console.log('Matches detected:', matches)
+  
   if (matches.length === 0) {
+    console.log('No matches detected')
     return {
       issues: [],
       groupedIssues: {
@@ -48,26 +48,27 @@ export const suggestJobType = (customerText) => {
         suggestions: match.suggestions
       }
     }
-
+    
     // Handle normal matches
     let jobType = null
     let jobTypeId = null
-
+    
     if (match.pattern) {
       // Pattern match - get job type from pattern
       jobTypeId = match.pattern.jobType
       jobType = jobTypes.find(jt => jt.id === jobTypeId)
     } else if (match.method === 'fallback_symptom_only') {
       // Symptom-only match - no job type available
+      console.log('Symptom-only match - no job type assigned')
     } else {
       // Fallback - try direct job type
       jobTypeId = match.jobType
       jobType = jobTypes.find(jt => jt.id === jobTypeId)
     }
-
+    
     // Get severity from symptom defaults for symptom-only matches
     let severity = 'schedule' // default
-
+    
     if (match.method === 'fallback_symptom_only') {
       // For symptom-only matches, get severity from symptom data
       const symptomData = SYMPTOMS.find(s => s.id === match.symptomId)
@@ -103,51 +104,29 @@ export const suggestJobType = (customerText) => {
 
   // Group by severity
   const groupedIssues = {
-    IMMEDIATE: [],
-    SAME_DAY: [],
-    SCHEDULE: []
+    IMMEDIATE: validIssues.filter(issue => issue.severity === 'immediate'),
+    SAME_DAY: validIssues.filter(issue => issue.severity === 'same_day'), 
+    SCHEDULE: validIssues.filter(issue => issue.severity === 'schedule')
   }
 
-  for (const issue of validIssues) {
-    if (issue.severity === 'immediate') {
-      groupedIssues.IMMEDIATE.push(issue)
-    } else if (issue.severity === 'same_day') {
-      groupedIssues.SAME_DAY.push(issue)
-    } else {
-      groupedIssues.SCHEDULE.push(issue)
-    }
-  }
-
-  return {
+  const result = {
     issues: validIssues,
     groupedIssues,
     totalIssues: validIssues.length
   }
+
+  console.log('Final result:', result)
+  console.log('==========================')
+  
+  return result
 }
 
 /**
- * Debug function to see what would be matched
- */
-export const debugAISuggestion = (customerText) => {
-  debugMatches(customerText)
-  return suggestJobType(customerText)
-}
-
-/**
- * Enhanced AI Suggestion - With job type details
- * Compatible function for UI integration
+ * Wrapper function with job type details
  */
 export const getAISuggestion = (customerText) => {
   const suggestion = suggestJobType(customerText)
   
-  if (suggestion.totalIssues === 0) {
-    return {
-      ...suggestion,
-      jobDetails: null,
-      message: 'No specific job type detected'
-    }
-  }
-
   // Add job type details to all issues if available
   if (suggestion.issues && suggestion.issues.length > 0) {
     suggestion.issues.forEach(issue => {
@@ -157,12 +136,14 @@ export const getAISuggestion = (customerText) => {
       }
     })
   }
+  
+  return suggestion
+}
 
-  return {
-    ...suggestion,
-    jobDetails: suggestion.issues?.[0]?.jobTypeDetails || null,
-    message: suggestion.totalIssues === 1 
-      ? `AI suggests: ${suggestion.issues?.[0]?.jobTypeTitle || 'Unknown'}`
-      : `AI detected ${suggestion.totalIssues} issues`
-  }
+/**
+ * Debug function
+ */
+export const debugAISuggestion = (customerText) => {
+  debugMatches(customerText)
+  return getAISuggestion(customerText)
 }
