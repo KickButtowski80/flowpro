@@ -1,78 +1,22 @@
 [
   {
-    "id": "leak",
-    "aliases": ["leak", "leaking", "dripping", "water leak", "leaky", "water dripping", "slow leak", "minor leak", "major leak"],
-    "category": "water_issue",
-    "severity": "same_day",
-    "description": "Water leaking from fixtures or pipes"
-  },
-  {
-    "id": "clog",
-    "aliases": ["clog", "clogged", "blockage", "blocked", "obstruction", "backup", "backing up", "stopped up"],
-    "category": "drainage_issue",
-    "severity": "same_day",
-    "description": "Drain or pipe blockage preventing water flow"
-  },
-  {
-    "id": "running",
-    "aliases": ["running", "keeps running", "won't stop", "continuous", "non-stop", "constant flow"],
-    "category": "mechanical_issue",
-    "severity": "schedule",
-    "description": "Fixture or appliance that won't stop running"
-  },
-  {
-    "id": "overflowing",
-    "aliases": ["overflowing", "overflow", "overflows", "spilling over", "flooding", "water everywhere"],
+    "id": "pouring",
+    "aliases": ["pouring", "pouring water", "water pouring", "gushing", "water gushing", "flooding", "water flooding"],
     "category": "water_issue",
     "severity": "immediate",
-    "description": "Water overflowing from fixtures causing immediate damage"
+    "description": "Active water pouring or gushing indicating major leak"
+  },
+  {
+    "id": "sagging",
+    "aliases": ["sagging", "sagging ceiling", "drooping", "bulging", "sagging wall", "bulging ceiling", "water damage"],
+    "category": "structural_issue",
+    "severity": "immediate",
+    "description": "Structural sagging or bulging from water damage"
   },
   {
     "id": "noise",
     "aliases": ["noise", "noisy", "strange noises", "weird noise", "loud", "banging", "gurgling", "hissing", "clanking", "knocking", "bubbling", "grinding"],
     "category": "sound_issue",
-    "severity": "schedule",
-    "description": "Unusual sounds from plumbing systems"
-  },
-  {
-    "id": "no_hot_water",
-    "aliases": ["no hot water", "cold water", "no heat", "no warm water", "lukewarm", "cool water", "heater not working"],
-    "category": "temperature_issue",
-    "severity": "same_day",
-    "description": "Lack of hot water from water heating system"
-  },
-  {
-    "id": "low_pressure",
-    "aliases": ["low pressure", "low water pressure", "weak flow", "weak pressure", "poor pressure", "trickle", "slow flow", "no pressure"],
-    "category": "pressure_issue",
-    "severity": "schedule",
-    "description": "Reduced water pressure or flow rate"
-  },
-  {
-    "id": "gas_smell",
-    "aliases": ["gas smell", "smell gas", "gas odor", "rotten egg smell", "sulfur smell", "gas leak smell", "gas odor"],
-    "category": "gas_issue",
-    "severity": "immediate",
-    "description": "Gas odor indicating potential gas leak"
-  },
-  {
-    "id": "bad_smell",
-    "aliases": ["bad smell", "foul odor", "sewer smell", "musty smell", "moldy smell", "unpleasant odor", "stinky", "smelly"],
-    "category": "odor_issue",
-    "severity": "same_day",
-    "description": "Bad odors from plumbing fixtures or drains"
-  },
-  {
-    "id": "not_working",
-    "aliases": ["not working", "broken", "won't work", "doesn't work", "malfunctioning", "defective", "failed", "inoperative"],
-    "category": "functional_issue",
-    "severity": "same_day",
-    "description": "Fixture or appliance not functioning properly"
-  },
-  {
-    "id": "slow_drain",
-    "aliases": ["slow drain", "draining slow", "slow draining", "takes long to drain", "backed up slow", "poor drainage"],
-    "category": "drainage_issue",
     "severity": "schedule",
     "description": "Water draining slower than normal"
   },

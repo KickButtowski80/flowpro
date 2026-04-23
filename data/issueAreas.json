@@ -37,7 +37,7 @@
   },
   {
     "id": "pipe",
-    "aliases": ["pipe", "pipes", "water pipe", "plumbing pipe", "water line", "pipeline"],
+    "aliases": ["pipe", "pipes", "water pipe", "plumbing pipe", "water line", "pipeline", "main water pipe"],
     "category": "plumbing",
     "description": "Water pipes and plumbing lines"
   },
@@ -142,5 +142,24 @@
     "aliases": ["ice maker", "ice machine", "refrigerator ice maker", "ice maker line"],
     "category": "appliance",
     "description": "Refrigerator ice maker water lines and connections"
+  }
+  ,
+  {
+    "id": "ceiling",
+    "aliases": ["ceiling", "bathroom ceiling", "kitchen ceiling", "ceiling drywall", "ceiling paint"],
+    "category": "structure",
+    "description": "Ceiling surfaces affected by plumbing leaks"
+  },
+  {
+    "id": "wall",
+    "aliases": ["wall", "bathroom wall", "kitchen wall", "interior wall", "drywall"],
+    "category": "structure",
+    "description": "Wall surfaces affected by plumbing leaks"
+  },
+  {
+    "id": "kitchen",
+    "aliases": ["kitchen", "in the kitchen", "kitchen area"],
+    "category": "location",
+    "description": "Kitchen room area for room-level issues like gas smell"
   }
 ]
