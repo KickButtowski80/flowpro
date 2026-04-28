@@ -1,4 +1,12 @@
-[
+/**
+ * Area Job Configurations - Dispatch routing configuration
+ * Maps plumbing areas to job types, supported symptoms, and severity overrides
+ * 
+ * This is the dispatch layer: determines job type, urgency, and valid symptoms
+ * for each plumbing area detected by the AI system.
+ */
+
+export default [
   {
     "area": "toilet",
     "jobType": "bathroom_kitchen_fixtures",
@@ -255,6 +263,17 @@
     "supportedSymptoms": ["gas_smell"],
     "severityOverrides": {
       "gas_smell": "immediate"
+    }
+  },
+  {
+    "area": "bathroom",
+    "jobType": "plumbing_repairs",
+    "supportedSymptoms": ["leak", "bubbling", "sagging", "pouring", "noise", "bad_smell"],
+    "severityOverrides": {
+      "leak": "immediate",
+      "bubbling": "immediate",
+      "sagging": "immediate",
+      "pouring": "immediate"
     }
   }
 ]
