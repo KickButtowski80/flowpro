@@ -2,9 +2,11 @@
 // AI PATTERN MATCHING SYSTEM
 // ========================================
 
-import ISSUE_AREAS from '../../data/issueAreas.js'
+// Split location data: damage places (context) vs plumbing locations (work)
+import DAMAGE_PLACES from '../../data/damagePlaces.js'
+import PLUMBING_ISSUE_LOCATIONS from '../../data/plumbingIssueLocations.js'
 import SYMPTOMS from '../../data/symptoms.js'
-import AREA_JOB_CONFIGS from '../../data/areaJobConfigs.json'
+import AREA_JOB_CONFIGS from '../../data/areaJobConfigs.js'
 import { findAreaInText, buildAreaFirstPatterns, processAreaFirstMatches, deduplicateCompounds } from './compoundLocationHelpers.js'
 
 // ========================================
@@ -25,15 +27,27 @@ export const normalizeText = (text) => {
 }
 
 // Create lookup maps for efficient pattern matching
-export const AREA_LOOKUP = {}
+export const DAMAGE_PLACE_LOOKUP = {}
+export const PLUMBING_ISSUE_LOCATION_LOOKUP = {}
 export const SYMPTOM_LOOKUP = {}
 
-// Build area lookup map from aliases
-ISSUE_AREAS.forEach(area => {
-  area.aliases.forEach(alias => {
-    AREA_LOOKUP[alias.toLowerCase()] = area.id
+// Build damage place lookup map (where damage is visible - contextLocation)
+DAMAGE_PLACES.forEach(place => {
+  place.aliases.forEach(alias => {
+    DAMAGE_PLACE_LOOKUP[alias.toLowerCase()] = place.id
   })
 })
+
+// Build plumbing issue location lookup map (where plumber works - workLocation)
+PLUMBING_ISSUE_LOCATIONS.forEach(location => {
+  location.aliases.forEach(alias => {
+    PLUMBING_ISSUE_LOCATION_LOOKUP[alias.toLowerCase()] = location.id
+  })
+})
+
+// Build combined ALL_PLACES_LOOKUP for general area detection
+// Combines both damage places and plumbing locations for pattern matching
+export const ALL_PLACES_LOOKUP = { ...DAMAGE_PLACE_LOOKUP, ...PLUMBING_ISSUE_LOCATION_LOOKUP }
 
 // Build symptom lookup map from aliases
 SYMPTOMS.forEach(symptom => {
@@ -47,10 +61,11 @@ SYMPTOMS.forEach(symptom => {
 // ========================================
 
 // Build comprehensive regex patterns from all aliases
-const AREA_WORDS = Object.keys(AREA_LOOKUP).join('|')
+const ALL_PLACE_WORDS = Object.keys(ALL_PLACES_LOOKUP).join('|')
 const SYMPTOM_WORDS = Object.keys(SYMPTOM_LOOKUP).join('|')
 
-export const AREA_REGEX = new RegExp(`\\b(${AREA_WORDS})\\b`, 'gi')
+export const ALL_PLACE_REGEX = new RegExp(`\\b(${ALL_PLACE_WORDS})\\b`, 'gi')
+export const AREA_REGEX = ALL_PLACE_REGEX // Backward compat alias
 export const SYMPTOM_REGEX = new RegExp(`\\b(${SYMPTOM_WORDS})\\b`, 'gi')
 
 // ========================================
@@ -92,7 +107,7 @@ export const RULES_BY_AREA = (() => {
 
 /**
  * Detects relationships between two areas: where work is done vs where problem shows
- * NOTE: Both are looked up in AREA_LOOKUP (they're all "areas")
+ * Uses ALL_PLACES_LOOKUP for pattern matching (combines damage places + plumbing locations)
  * The distinction is semantic: work location vs context location
  * 
  * Example: "ceiling from upstairs bathroom"
@@ -111,11 +126,11 @@ const detectAreaRelationships = (clause) => {
   
   console.log('DEBUG: Detecting area relationships in clause:', text)
   
-  // Build patterns
-  const patterns = buildAreaFirstPatterns(AREA_LOOKUP)
+  // Build patterns using combined lookup
+  const patterns = buildAreaFirstPatterns(ALL_PLACES_LOOKUP)
   
   // Process matches
-  let relationships = processAreaFirstMatches(text, patterns, AREA_LOOKUP)
+  let relationships = processAreaFirstMatches(text, patterns, ALL_PLACES_LOOKUP)
   
   // Deduplicate
   relationships = deduplicateCompounds(relationships)
@@ -160,7 +175,7 @@ const collectAreaAliases = (clause) => {
   console.log('DEBUG collectAreaAliases: usedAreas:', Array.from(usedAreas))
   
   // Sort aliases by length (longest first) to prevent overlapping matches
-  const sortedEntries = Object.entries(AREA_LOOKUP)
+  const sortedEntries = Object.entries(ALL_PLACES_LOOKUP)
     .sort((a, b) => b[0].length - a[0].length)
   
   for (const [alias, areaId] of sortedEntries) {
@@ -529,7 +544,7 @@ const collectRegexMatches = (text, regex, lookup) => {
 }
 
 export function findAreaMatches(text) {
-  return collectRegexMatches(text, AREA_REGEX, AREA_LOOKUP)
+  return collectRegexMatches(text, ALL_PLACE_REGEX, ALL_PLACES_LOOKUP)
 }
 
 export function findSymptomMatches(text) {
