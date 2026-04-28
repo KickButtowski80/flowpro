@@ -183,6 +183,76 @@ describe('detectCompound - 3-Tier Fallback Strategy', () => {
   })
 
   // ========================================
+  // DAMAGE PLACE CONFIG TESTS
+  // ========================================
+  describe('Damage Place Configurations', () => {
+    
+    test('Should detect baseboard water damage', () => {
+      const input = "Water is coming up through my baseboards"
+      const result = findPatterns(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      expect(result[0].context).not.toBe('ambiguous_input')
+      console.log('✅ Baseboard damage detected:', result[0])
+    })
+
+    test('Should detect floor flooding', () => {
+      const input = "The kitchen floor is flooded"
+      const result = findPatterns(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      console.log('✅ Floor flooding detected:', result[0])
+    })
+
+    test('Should detect yard water line leak', () => {
+      const input = "There's water bubbling up in my front yard"
+      const result = findPatterns(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      console.log('✅ Yard leak detected:', result[0])
+    })
+
+    test('Should detect driveway leak', () => {
+      const input = "Water is pooling on my driveway"
+      const result = findPatterns(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      console.log('✅ Driveway leak detected:', result[0])
+    })
+
+    test('Should detect foundation water intrusion', () => {
+      const input = "Water is seeping into my foundation"
+      const result = findPatterns(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      console.log('✅ Foundation leak detected:', result[0])
+    })
+
+    test('Should detect under sink cabinet leak', () => {
+      const input = "Water is pooling under my bathroom sink cabinet"
+      const result = findPatterns(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      console.log('✅ Under sink cabinet leak detected:', result[0])
+    })
+
+    test('Should detect stairwell leak', () => {
+      const input = "Water is flowing down the stairwell"
+      const result = findPatterns(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      console.log('✅ Stairwell leak detected:', result[0])
+    })
+  })
+
+  // ========================================
   // CONFIDENCE LEVELS
   // ========================================
   describe('Confidence Levels', () => {

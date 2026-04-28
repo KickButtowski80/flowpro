@@ -275,5 +275,72 @@ export default [
       "sagging": "immediate",
       "pouring": "immediate"
     }
+  },
+  // DAMAGE PLACES (context locations - where problem shows)
+  {
+    "area": "floor",
+    "jobType": "leak_detection_repair",
+    "supportedSymptoms": ["leak", "flooding", "water_pooling", "wet_floor", "water_damage"],
+    "severityOverrides": {
+      "flooding": "immediate",
+      "water_pooling": "same_day",
+      "water_damage": "same_day"
+    }
+  },
+  {
+    "area": "foundation",
+    "jobType": "slab_leak_repair",
+    "supportedSymptoms": ["leak", "water_intrusion", "crack", "moisture", "seepage"],
+    "severityOverrides": {
+      "leak": "immediate",
+      "water_intrusion": "immediate"
+    }
+  },
+  {
+    "area": "yard",
+    "jobType": "water_line_repair",
+    "supportedSymptoms": ["leak", "wet_spot", "soggy_ground", "water_bubbling", "low_pressure"],
+    "severityOverrides": {
+      "water_bubbling": "immediate",
+      "leak": "immediate",
+      "low_pressure": "same_day"
+    }
+  },
+  {
+    "area": "driveway",
+    "jobType": "water_line_repair",
+    "supportedSymptoms": ["leak", "wet_spot", "water_pooling", "low_pressure"],
+    "severityOverrides": {
+      "leak": "immediate",
+      "low_pressure": "same_day"
+    }
+  },
+  {
+    "area": "baseboard",
+    "jobType": "slab_leak_repair",
+    "supportedSymptoms": ["leak", "water_damage", "moisture", "staining", "mold"],
+    "severityOverrides": {
+      "leak": "immediate",
+      "water_damage": "same_day"
+    }
+  },
+  {
+    "area": "under_sink_cabinet",
+    "jobType": "plumbing_repairs",
+    "supportedSymptoms": ["leak", "water_damage", "moisture", "bad_smell", "slow_drain"],
+    "severityOverrides": {
+      "leak": "same_day",
+      "water_damage": "same_day"
+    }
+  },
+  {
+    "area": "stairwell",
+    "jobType": "emergency_plumbing",
+    "supportedSymptoms": ["leak", "water_flowing", "flooding", "water_damage"],
+    "severityOverrides": {
+      "water_flowing": "immediate",
+      "flooding": "immediate",
+      "leak": "immediate"
+    }
   }
 ]
