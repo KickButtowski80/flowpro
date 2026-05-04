@@ -5,10 +5,14 @@
 import { PLUMBING_ISSUE_ITEM_LOOKUP, DAMAGE_PLACE_LOOKUP } from './lookupMaps.js';
 
 // Prepositions for compound location detection
+// NOTE: Considered but excluded to prevent false connections:
+// - 'on' (e.g., "water on floor" - floor isn't source, just collection point)
+// - 'by' (e.g., "leak by sink" - ambiguous proximity, not clear source)
+// Current set focuses on clear source-location relationships
 const SPATIAL_PREPOSITIONS = [
   'from', 'in', 'at', 'above', 'below', 'under', 'behind', 
   'next to', 'near', 'around', 'through', 'inside', 
-  'underneath', 'over', 'across'
+  'underneath', 'over', 'across', 'along'
 ];
 
 /**
