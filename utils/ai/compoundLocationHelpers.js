@@ -4,7 +4,7 @@
 
 import { PLUMBING_ISSUE_ITEM_LOOKUP, DAMAGE_PLACE_LOOKUP } from './lookupMaps.js';
 
-// Prepositions for compound location detection
+// Prepositions for compound location detection (damage_first patterns)
 // NOTE: Considered but excluded to prevent false connections:
 // - 'on' (e.g., "water on floor" - floor isn't source, just collection point)
 // - 'by' (e.g., "leak by sink" - ambiguous proximity, not clear source)
@@ -13,6 +13,13 @@ const SPATIAL_PREPOSITIONS = [
   'from', 'in', 'at', 'above', 'below', 'under', 'behind', 
   'next to', 'near', 'around', 'through', 'inside', 
   'underneath', 'over', 'across', 'along'
+];
+
+// Reverse-direction verbs for source-first patterns
+// Pattern: "upstairs bathroom has ceiling leak"
+const REVERSE_DIRECTION_VERBS = [
+  'has', 'have', 'with', 'shows', 'showing', 'is leaking', 'are leaking',
+  'was leaking', 'were leaking', 'dripping from', 'coming from', 'running from'
 ];
 
 /**
@@ -46,6 +53,94 @@ export const buildAreaRelationshipPatterns = (lookup) => {
     patterns.push(pattern)
   }
   return patterns
+}
+
+/**
+ * Helper: Build reverse-direction patterns for source-first relationships
+ * Pattern: "upstairs bathroom has ceiling leak" (source has damage)
+ * 
+ * @param {Object} lookup - Lookup map (PLUMBING_ISSUE_ITEM_LOOKUP or DAMAGE_PLACE_LOOKUP)
+ * @returns {Array} - Array of RegExp patterns
+ */
+export const buildReverseDirectionPatterns = (lookup) => {
+  const patterns = []
+  const verbPattern = REVERSE_DIRECTION_VERBS.join('|')
+  
+  for (const [alias] of Object.entries(lookup)) {
+    // Skip multi-word areas (they're locations, not areas)
+    if (alias.includes(' ')) continue
+    
+    // Pattern: source_location [verbs] (optional the) damage_area
+    const pattern = new RegExp(`([^.,;!?\\n]+)\\s+(${verbPattern})\\s+(?:the\\s+)?(${alias})`, 'gi')
+    console.log('reverse pattern', {pattern})
+    patterns.push(pattern)
+  }
+  return patterns
+}
+
+/**
+ * Helper: Find reverse-direction connections in text using verb patterns
+ * Searches text for patterns like "upstairs bathroom has ceiling leak" and returns connections
+ * 
+ * @param {string} text - Text to search in
+ * @param {Array} regexPatterns - Array of RegExp patterns built by buildReverseDirectionPatterns
+ * @param {Object} lookupMap - Lookup map (PLUMBING_ISSUE_ITEM_LOOKUP or DAMAGE_PLACE_LOOKUP)
+ * @returns {Array} - Array of area connection objects with workLocation and contextLocation
+ */
+export const findReverseDirectionConnections = (text, regexPatterns, lookupMap) => {
+  const foundConnections = []
+  const uniqueDamageAreas = new Set()
+  
+  console.log('DEBUG findReverseDirectionConnections: text:', text)
+  
+  for (const pattern of regexPatterns) {
+    let match
+    while ((match = pattern.exec(text)) !== null) {
+      console.log('DEBUG findReverseDirectionConnections: pattern match:', match)
+      // Pattern: (source_candidate) (verb) (damage_candidate)
+      // e.g., "upstairs bathroom has ceiling"
+      const [, sourceCandidate, verb, damageCandidate] = match
+      
+      // Track unique damage areas mentioned
+      uniqueDamageAreas.add(damageCandidate.toLowerCase())
+      
+      // For reverse patterns, sourceCandidate should be work location, damageCandidate should be damage area
+      const sourceMatch = findAreaInText(sourceCandidate, PLUMBING_ISSUE_ITEM_LOOKUP) || 
+                         findAreaInText(sourceCandidate, DAMAGE_PLACE_LOOKUP)
+      const damageMatch = findAreaInText(damageCandidate, lookupMap)
+      
+      console.log('DEBUG findReverseDirectionConnections: sourceMatch:', sourceMatch, 'damageMatch:', damageMatch)
+      
+      if (sourceMatch && damageMatch) {
+        const [sourceAlias, sourceAreaId] = sourceMatch
+        const [damageAlias, damageAreaId] = damageMatch
+        
+        foundConnections.push({
+          matchText: `${sourceCandidate} ${verb} ${damageCandidate}`.trim(),
+          workLocation: {
+            plumbingIssueLocId: sourceAreaId,
+            alias: sourceAlias,
+            role: 'work_site'
+          },
+          contextLocation: {
+            plumbingIssueLocId: damageAreaId,
+            alias: damageAlias,
+            role: 'context'
+          },
+          consumedText: [sourceCandidate.toLowerCase(), damageCandidate.toLowerCase()],
+          uniqueDamageAreas: Array.from(uniqueDamageAreas),
+          verb,
+          confidence: 0.85, // Slightly lower confidence for reverse patterns
+          ambiguity: false,
+          pattern: 'source-first'
+        })
+      }
+    }
+  }
+  
+  console.log('DEBUG findReverseDirectionConnections: unique damage areas found:', Array.from(uniqueDamageAreas))
+  
+  return foundConnections
 }
 
 /**
