@@ -240,11 +240,14 @@ export default [
   {
     "area": "ceiling",
     "jobType": "plumbing_repairs",
-    "supportedSymptoms": ["leak", "overflowing", "noise"],
+    "supportedSymptoms": ["leak", "overflowing", "noise", "bubbling", "sagging", "pouring"],
     "severityOverrides": {
       "leak": "immediate",
       "overflowing": "immediate",
-      "noise": "immediate"
+      "noise": "immediate",
+      "bubbling": "immediate",
+      "sagging": "immediate",
+      "pouring": "immediate"
     }
   },
   {
@@ -255,25 +258,6 @@ export default [
       "leak": "immediate",
       "overflowing": "immediate",
       "noise": "immediate"
-    }
-  },
-  {
-    "area": "kitchen",
-    "jobType": "gas_line_services",
-    "supportedSymptoms": ["gas_smell"],
-    "severityOverrides": {
-      "gas_smell": "immediate"
-    }
-  },
-  {
-    "area": "bathroom",
-    "jobType": "plumbing_repairs",
-    "supportedSymptoms": ["leak", "bubbling", "sagging", "pouring", "noise", "bad_smell"],
-    "severityOverrides": {
-      "leak": "immediate",
-      "bubbling": "immediate",
-      "sagging": "immediate",
-      "pouring": "immediate"
     }
   },
   // DAMAGE PLACES (context locations - where problem shows)
