@@ -4,6 +4,13 @@
 
 import { PLUMBING_ISSUE_ITEM_LOOKUP, DAMAGE_PLACE_LOOKUP } from './lookupMaps.js';
 
+// Prepositions for compound location detection
+const SPATIAL_PREPOSITIONS = [
+  'from', 'in', 'at', 'above', 'below', 'under', 'behind', 
+  'next to', 'near', 'around', 'through', 'inside', 
+  'underneath', 'over', 'across'
+];
+
 /**
  * Helper: Find area in text using lookup map
  */
@@ -28,8 +35,9 @@ export const buildAreaRelationshipPatterns = (lookup) => {
     // Skip multi-word areas (they're locations, not areas)
     if (alias.includes(' ')) continue
     
-    // Pattern: area_name from/in/at (optional the) location_words
-    const pattern = new RegExp(`(${alias})\\s+(from|in|at)\\s+(?:the\\s+)?([^.,;!?\\n]+)`, 'gi')
+    // Pattern: area_name [prepositions] (optional the) location_words
+    const prepositionPattern = SPATIAL_PREPOSITIONS.join('|')
+    const pattern = new RegExp(`(${alias})\\s+(${prepositionPattern})\\s+(?:the\\s+)?([^.,;!?\\n]+)`, 'gi')
     console.log('pattern', {pattern})
     patterns.push(pattern)
   }
@@ -38,7 +46,7 @@ export const buildAreaRelationshipPatterns = (lookup) => {
 
 /**
  * Helper: Find area connections in text using regex patterns
- * Searches text for patterns like "ceiling from bathroom" and returns connections
+ * Searches text for patterns like "ceiling from bathroom", "wall behind sink", "floor under toilet" and returns connections
  * 
  * @param {string} text - Text to search in
  * @param {Array} regexPatterns - Array of RegExp patterns built by buildAreaRelationshipPatterns
@@ -85,9 +93,9 @@ export const findAreaConnectionsInText = (text, regexPatterns, lookupMap) => {
         const [sourceAlias, sourceAreaId] = sourceMatch
         
         // Determine work location vs context based on preposition
-        // "from/in/at" means sourceCandidate is the work location (where plumber goes)
+        // Most prepositions mean sourceCandidate is the work location (where plumber goes)
         // damageCandidate is where damage shows (context for dispatcher)
-        const prepositionIndicatesSource = ['from', 'in', 'at'].includes(preposition.toLowerCase())
+        const prepositionIndicatesSource = SPATIAL_PREPOSITIONS.includes(preposition.toLowerCase())
         
         foundConnections.push({
           matchText: `${damageCandidate} ${preposition} ${sourceCandidate}`.trim(),
