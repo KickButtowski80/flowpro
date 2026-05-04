@@ -24,10 +24,10 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.symptomId === expected || r.areaId)
+        const detected = result.find(r => r.symptomId === expected || r.plumbingIssueLocId)
         expect(detected).toBeDefined()
         
-        console.log(`✅ Emergency detected: "${input.substring(0, 50)}..." -> ${detected.areaId}.${detected.symptomId || 'N/A'}`)
+        console.log(`✅ Emergency detected: "${input.substring(0, 50)}..." -> ${detected.plumbingIssueLocId}.${detected.symptomId || 'N/A'}`)
       })
     })
 
@@ -44,7 +44,7 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const hasGas = result.some(r => r.areaId === 'gas_line' || r.symptomId === 'gas_smell')
+        const hasGas = result.some(r => r.plumbingIssueLocId === 'gas_line' || r.symptomId === 'gas_smell')
         if (hasGas) {
           console.log(`✅ Gas emergency detected: "${input.substring(0, 40)}..."`)
         } else {
@@ -109,7 +109,7 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const hasToilet = result.some(r => r.areaId === 'toilet')
+        const hasToilet = result.some(r => r.plumbingIssueLocId === 'toilet')
         expect(hasToilet).toBe(true)
         console.log(`✅ Toilet issue: "${input}"`)
       })
@@ -130,8 +130,8 @@ describe('Real-World Customer Scenarios', () => {
         expect(result.length).toBeGreaterThan(0)
         
         const hasSink = result.some(r => 
-          r.areaId === 'sink' || r.areaId === 'drain' || r.areaId === 'garbage_disposal' ||
-          r.areaId === 'kitchen' || r.areaId === 'bathroom'
+          r.plumbingIssueLocId === 'sink' || r.plumbingIssueLocId === 'drain' || r.plumbingIssueLocId === 'garbage_disposal' ||
+          r.plumbingIssueLocId === 'kitchen' || r.plumbingIssueLocId === 'bathroom'
         )
         if (hasSink) {
           console.log(`✅ Sink/drain issue: "${input}"`)
@@ -155,7 +155,14 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const hasShower = result.some(r => r.areaId === 'shower' || r.areaId === 'bathtub')
+        const hasShower = result.some(r => 
+          r.plumbingIssueLocId === 'shower' || 
+          r.plumbingIssueLocId === 'shower_head' ||
+          r.plumbingIssueLocId === 'shower_valve' ||
+          r.plumbingIssueLocId === 'bathtub' ||
+          r.plumbingIssueLocId === 'tub_drain' ||
+          r.plumbingIssueLocId === 'faucet'
+        )
         expect(hasShower).toBe(true)
         console.log(`✅ Shower/bath issue: "${input}"`)
       })
@@ -175,7 +182,7 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const hasHeater = result.some(r => r.areaId === 'water_heater')
+        const hasHeater = result.some(r => r.plumbingIssueLocId === 'water_heater')
         if (hasHeater) {
           console.log(`✅ Water heater issue: "${input}"`)
         } else {
@@ -201,7 +208,7 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const hasSewer = result.some(r => r.areaId === 'sewer' || r.areaId === 'drain' || r.areaId === 'toilet')
+        const hasSewer = result.some(r => r.plumbingIssueLocId === 'sewer' || r.plumbingIssueLocId === 'drain' || r.plumbingIssueLocId === 'toilet')
         if (hasSewer) {
           console.log(`✅ Sewer issue: "${input}"`)
         } else {
@@ -225,14 +232,14 @@ describe('Real-World Customer Scenarios', () => {
         expect(result.length).toBeGreaterThan(0)
         
         const hasMainLine = result.some(r => 
-          r.areaId === 'water_main' || r.areaId === 'valve' || r.areaId === 'water_meter' ||
-          r.areaId === 'yard' || r.areaId === 'exterior' // fallback areas
+          r.plumbingIssueLocId === 'water_main' || r.plumbingIssueLocId === 'valve' || r.plumbingIssueLocId === 'water_meter' ||
+          r.plumbingIssueLocId === 'yard' || r.plumbingIssueLocId === 'exterior' // fallback areas
         )
         
         if (hasMainLine) {
           console.log(`✅ Main line issue: "${input}"`)
         } else {
-          console.log(`⚠️ Main line areas not detected (fallback): "${input}" -> ${result[0]?.areaId || 'N/A'}`)
+          console.log(`⚠️ Main line areas not detected (fallback): "${input}" -> ${result[0]?.plumbingIssueLocId || 'N/A'}`)
         }
       })
     })
@@ -253,7 +260,7 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'dishwasher')
+        const detected = result.find(r => r.plumbingIssueLocId === 'dishwasher')
         expect(detected).toBeDefined()
         console.log(`✅ Dishwasher: "${input}"`)
       })
@@ -271,7 +278,7 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'washing_machine')
+        const detected = result.find(r => r.plumbingIssueLocId === 'washing_machine')
         expect(detected).toBeDefined()
         console.log(`✅ Washing machine: "${input}"`)
       })
@@ -289,7 +296,7 @@ describe('Real-World Customer Scenarios', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'sump_pump')
+        const detected = result.find(r => r.plumbingIssueLocId === 'sump_pump')
         expect(detected).toBeDefined()
         console.log(`✅ Sump pump: "${input}"`)
       })
@@ -328,8 +335,8 @@ describe('Real-World Customer Scenarios', () => {
         expect(result.length).toBeGreaterThan(0)
         
         const hasExterior = result.some(r => 
-          r.areaId === 'exterior' || r.areaId === 'hose_bib' || 
-          r.areaId === 'water_meter' || r.areaId === 'yard'
+          r.plumbingIssueLocId === 'exterior' || r.plumbingIssueLocId === 'hose_bib' || 
+          r.plumbingIssueLocId === 'water_meter' || r.plumbingIssueLocId === 'yard'
         )
         expect(hasExterior).toBe(true)
         console.log(`✅ Exterior: "${input}"`)
@@ -351,9 +358,9 @@ describe('Real-World Customer Scenarios', () => {
         expect(result.length).toBeGreaterThan(0)
         
         const hasStructural = result.some(r => 
-          r.areaId === 'ceiling' || r.areaId === 'wall' || 
-          r.areaId === 'floor' || r.areaId === 'foundation' ||
-          r.areaId === 'baseboard'
+          r.plumbingIssueLocId === 'ceiling' || r.plumbingIssueLocId === 'wall' || 
+          r.plumbingIssueLocId === 'floor' || r.plumbingIssueLocId === 'foundation' ||
+          r.plumbingIssueLocId === 'baseboard'
         )
         expect(hasStructural).toBe(true)
         console.log(`✅ Structural: "${input}"`)
@@ -438,11 +445,11 @@ describe('Real-World Customer Scenarios', () => {
       expect(result.length).toBeGreaterThan(0)
       
       // Should provide enough info for dispatcher to act
-      const hasArea = result.some(r => r.areaId)
+      const hasArea = result.some(r => r.plumbingIssueLocId)
       const hasSymptom = result.some(r => r.symptomId)
       
       expect(hasArea).toBe(true)
-      console.log(`✅ Emergency dispatch-ready: area=${result[0].areaId}, symptom=${result[0].symptomId}`)
+      console.log(`✅ Emergency dispatch-ready: area=${result[0].plumbingIssueLocId}, symptom=${result[0].symptomId}`)
     })
 
     test('Should provide confidence for dispatcher decision', () => {

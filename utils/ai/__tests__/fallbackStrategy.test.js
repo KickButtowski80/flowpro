@@ -64,7 +64,7 @@ describe('Fallback Strategy - 3-Tier Detection', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const hasArea = result.some(r => r.areaId)
+        const hasArea = result.some(r => r.plumbingIssueLocId)
         expect(hasArea).toBe(true)
         console.log(`✅ Fallback detection: "${input}"`)
       })
@@ -156,7 +156,7 @@ describe('Fallback Strategy - 3-Tier Detection', () => {
         
         // Should either detect something specific OR flag as ambiguous
         const isAmbiguous = result.some(r => r.context === 'ambiguous_input')
-        const hasDetection = result.some(r => r.areaId)
+        const hasDetection = result.some(r => r.plumbingIssueLocId)
         
         expect(isAmbiguous || hasDetection).toBe(true)
         console.log(`${isAmbiguous ? '✅' : '⚠️'} Unclear emergency: "${input}"`)
@@ -230,7 +230,7 @@ describe('Fallback Strategy - 3-Tier Detection', () => {
       expect(result).toBeDefined()
       
       // Dispatcher can see both detections and decide
-      const hasDetection = result.some(r => r.areaId)
+      const hasDetection = result.some(r => r.plumbingIssueLocId)
       const hasAmbiguous = result.some(r => r.context === 'ambiguous_input')
       
       console.log(`✅ Dispatcher has options: ${hasDetection ? 'detection' : ''} ${hasAmbiguous ? 'ambiguous' : ''}`)
@@ -287,7 +287,7 @@ describe('Fallback Strategy - 3-Tier Detection', () => {
       
       expect(result).toBeDefined()
       
-      const hasToilet = result.some(r => r.areaId === 'toilet')
+      const hasToilet = result.some(r => r.plumbingIssueLocId === 'toilet')
       console.log(`${hasToilet ? '✅' : '⚠️'} Mixed input: toilet detected = ${hasToilet}`)
     })
   })

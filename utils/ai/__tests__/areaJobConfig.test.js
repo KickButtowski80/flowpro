@@ -116,20 +116,20 @@ describe('Area Job Configuration - Dispatch Routing', () => {
 
     test('Should respect severity in dispatch decisions', () => {
       const scenarios = [
-        { input: "Toilet is overflowing", areaId: 'toilet', symptomId: 'overflowing', expectedSeverity: 'immediate' },
-        { input: "Sink is just dripping slowly", areaId: 'sink', symptomId: 'leak', expectedSeverity: undefined }
+        { input: "Toilet is overflowing", plumbingIssueLocId: 'toilet', symptomId: 'overflowing', expectedSeverity: 'immediate' },
+        { input: "Sink is just dripping slowly", plumbingIssueLocId: 'sink', symptomId: 'leak', expectedSeverity: undefined }
       ]
       
-      scenarios.forEach(({ input, areaId, symptomId, expectedSeverity }) => {
-        const config = AREA_JOB_CONFIGS.find(c => c.area === areaId)
+      scenarios.forEach(({ input, plumbingIssueLocId, symptomId, expectedSeverity }) => {
+        const config = AREA_JOB_CONFIGS.find(c => c.area === plumbingIssueLocId)
         expect(config).toBeDefined()
         
         const severity = config.severityOverrides[symptomId]
         if (expectedSeverity) {
           expect(severity).toBe(expectedSeverity)
-          console.log(`✅ Severity respected: ${areaId}.${symptomId} = ${severity}`)
+          console.log(`✅ Severity respected: ${plumbingIssueLocId}.${symptomId} = ${severity}`)
         } else {
-          console.log(`✅ Default severity for: ${areaId}.${symptomId}`)
+          console.log(`✅ Default severity for: ${plumbingIssueLocId}.${symptomId}`)
         }
       })
     })
@@ -244,9 +244,9 @@ describe('Area Job Configuration - Dispatch Routing', () => {
       expect(result).toBeDefined()
       expect(result.length).toBeGreaterThan(0)
       
-      const gasRelated = result.find(r => r.areaId === 'kitchen' || r.areaId === 'gas_line')
+      const gasRelated = result.find(r => r.plumbingIssueLocId === 'kitchen' || r.plumbingIssueLocId === 'gas_line')
       if (gasRelated) {
-        const config = AREA_JOB_CONFIGS.find(c => c.area === gasRelated.areaId)
+        const config = AREA_JOB_CONFIGS.find(c => c.area === gasRelated.plumbingIssueLocId)
         if (config && config.severityOverrides['gas_smell'] === 'immediate') {
           console.log(`✅ Gas smell routed to immediate emergency`)
         }
@@ -259,9 +259,9 @@ describe('Area Job Configuration - Dispatch Routing', () => {
       
       expect(result).toBeDefined()
       
-      const pipeResult = result.find(r => r.areaId === 'pipe' || r.areaId === 'basement')
+      const pipeResult = result.find(r => r.plumbingIssueLocId === 'pipe' || r.plumbingIssueLocId === 'basement')
       if (pipeResult) {
-        console.log(`✅ Burst pipe detected for area: ${pipeResult.areaId}`)
+        console.log(`✅ Burst pipe detected for area: ${pipeResult.plumbingIssueLocId}`)
       }
     })
 

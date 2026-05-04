@@ -41,16 +41,16 @@ describe('Compound Location Detection - Area Relationships', () => {
         // Check for compound detection
         const hasCompound = result.some(r => 
           r.compound && 
-          r.compound.contextLocation?.areaId === damage &&
-          r.compound.workLocation?.areaId === source
+          r.compound.contextLocation?.plumbingIssueLocId === damage &&
+          r.compound.workLocation?.plumbingIssueLocId === source
         )
         
         if (hasCompound) {
           console.log(`✅ Compound detected: "${input}"`)
         } else {
           // Check for individual detections
-          const hasDamage = result.some(r => r.areaId === damage)
-          const hasSource = result.some(r => r.areaId === source)
+          const hasDamage = result.some(r => r.plumbingIssueLocId === damage)
+          const hasSource = result.some(r => r.plumbingIssueLocId === source)
           console.log(`⚠️ Partial: damage=${hasDamage}, source=${hasSource} for "${input}"`)
         }
       })
@@ -76,9 +76,9 @@ describe('Compound Location Detection - Area Relationships', () => {
         expect(result.length).toBeGreaterThan(0)
         
         const hasLocation = result.some(r => 
-          r.areaId === location ||
-          r.compound?.workLocation?.areaId === location ||
-          r.compound?.contextLocation?.areaId === location
+          r.plumbingIssueLocId === location ||
+          r.compound?.workLocation?.plumbingIssueLocId === location ||
+          r.compound?.contextLocation?.plumbingIssueLocId === location
         )
         
         if (hasLocation) {
@@ -127,8 +127,8 @@ describe('Compound Location Detection - Area Relationships', () => {
         expect(compound.compound.contextLocation).toBeDefined()
         expect(compound.compound.workLocation).toBeDefined()
         console.log(`✅ Context/Work distinction:`, {
-          context: compound.compound.contextLocation?.areaId,
-          work: compound.compound.workLocation?.areaId
+          context: compound.compound.contextLocation?.plumbingIssueLocId,
+          work: compound.compound.workLocation?.plumbingIssueLocId
         })
       } else {
         console.log(`⚠️ No compound detected for: "${input}"`)
@@ -160,8 +160,8 @@ describe('Compound Location Detection - Area Relationships', () => {
         
         // Find work area for dispatch
         const workArea = result.find(r => 
-          r.areaId === expectedWorkArea ||
-          r.compound?.workLocation?.areaId === expectedWorkArea
+          r.plumbingIssueLocId === expectedWorkArea ||
+          r.compound?.workLocation?.plumbingIssueLocId === expectedWorkArea
         )
         
         if (workArea) {
@@ -196,8 +196,8 @@ describe('Compound Location Detection - Area Relationships', () => {
       
       expect(result).toBeDefined()
       
-      const hasBathroom = result.some(r => r.areaId === 'bathroom')
-      const hasKitchen = result.some(r => r.areaId === 'kitchen')
+      const hasBathroom = result.some(r => r.plumbingIssueLocId === 'bathroom')
+      const hasKitchen = result.some(r => r.plumbingIssueLocId === 'kitchen')
       
       expect(hasBathroom || hasKitchen).toBe(true)
       console.log(`✅ Multiple areas: bathroom=${hasBathroom}, kitchen=${hasKitchen}`)
@@ -273,8 +273,8 @@ describe('Compound Location Detection - Area Relationships', () => {
       
       // Should identify bathroom as dispatch target
       const bathroomRelated = result.some(r => 
-        r.areaId === 'bathroom' || 
-        r.compound?.workLocation?.areaId === 'bathroom'
+        r.plumbingIssueLocId === 'bathroom' || 
+        r.compound?.workLocation?.plumbingIssueLocId === 'bathroom'
       )
       
       if (bathroomRelated) {

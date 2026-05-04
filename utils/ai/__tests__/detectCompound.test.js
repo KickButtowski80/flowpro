@@ -23,7 +23,7 @@ describe('detectCompound - 3-Tier Fallback Strategy', () => {
       expect(result).toBeDefined()
       if (result[0].context !== 'ambiguous_input') {
         expect(result[0].method).toBe('contextual')
-        expect(result[0].areaId).toBeDefined()
+        expect(result[0].plumbingIssueLocId).toBeDefined()
         expect(result[0].symptomId).toBeDefined()
       }
       console.log('✅ Contextual match:', result[0])

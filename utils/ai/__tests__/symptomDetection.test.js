@@ -83,7 +83,7 @@ describe('Symptom Detection - Active Symptoms', () => {
         } else {
           // Fallback: emergency area detected
           const isEmergency = result.some(r => 
-            ['ceiling', 'basement', 'floor'].includes(r.areaId)
+            ['ceiling', 'basement', 'floor'].includes(r.plumbingIssueLocId)
           )
           if (isEmergency) {
             console.log(`✅ Emergency context detected: "${input}"`)
@@ -116,10 +116,10 @@ describe('Symptom Detection - Active Symptoms', () => {
         } else {
           // Fallback: structural area detected
           const structural = result.find(r => 
-            ['ceiling', 'wall'].includes(r.areaId)
+            ['ceiling', 'wall'].includes(r.plumbingIssueLocId)
           )
           if (structural) {
-            console.log(`✅ Structural area detected: "${input}" -> ${structural.areaId}`)
+            console.log(`✅ Structural area detected: "${input}" -> ${structural.plumbingIssueLocId}`)
           }
         }
       })
@@ -130,18 +130,18 @@ describe('Symptom Detection - Active Symptoms', () => {
     
     test('Should detect area even when symptom not active', () => {
       const combos = [
-        { input: "Toilet is clogged", areaId: 'toilet', note: 'clog symptom commented out' },
-        { input: "Sink is leaking", areaId: 'sink', note: 'leak symptom commented out' },
-        { input: "Water heater not working", areaId: 'water_heater', note: 'not_working commented out' },
-        { input: "Drain is slow", areaId: 'drain', note: 'slow_drain commented out' }
+        { input: "Toilet is clogged", plumbingIssueLocId: 'toilet', note: 'clog symptom commented out' },
+        { input: "Sink is leaking", plumbingIssueLocId: 'sink', note: 'leak symptom commented out' },
+        { input: "Water heater not working", plumbingIssueLocId: 'water_heater', note: 'not_working commented out' },
+        { input: "Drain is slow", plumbingIssueLocId: 'drain', note: 'slow_drain commented out' }
       ]
       
-      combos.forEach(({ input, areaId, note }) => {
+      combos.forEach(({ input, plumbingIssueLocId, note }) => {
         const result = findPatterns(input)
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const areaResult = result.find(r => r.areaId === areaId)
+        const areaResult = result.find(r => r.plumbingIssueLocId === plumbingIssueLocId)
         expect(areaResult).toBeDefined()
         console.log(`✅ Area detected (${note}): "${input}" -> ${areaResult.areaAlias}`)
       })
@@ -164,7 +164,7 @@ describe('Symptom Detection - Active Symptoms', () => {
         expect(result.length).toBeGreaterThan(0)
         
         // Should detect at least the area even without symptom
-        const hasArea = result.some(r => r.areaId)
+        const hasArea = result.some(r => r.plumbingIssueLocId)
         expect(hasArea).toBe(true)
         
         console.log(`✅ Fallback area detection: "${input}" -> ${result[0]?.areaAlias || 'N/A'}`)

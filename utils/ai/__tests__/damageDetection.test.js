@@ -24,8 +24,8 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'ceiling' || 
-          (r.compound && r.compound.contextLocation?.areaId === 'ceiling'))
+        const detected = result.find(r => r.plumbingIssueLocId === 'ceiling' || 
+          (r.compound && r.compound.contextLocation?.plumbingIssueLocId === 'ceiling'))
         expect(detected).toBeDefined()
         console.log(`✅ Ceiling detected: "${input}"`)
       })
@@ -44,8 +44,8 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'wall' ||
-          (r.compound && r.compound.contextLocation?.areaId === 'wall'))
+        const detected = result.find(r => r.plumbingIssueLocId === 'wall' ||
+          (r.compound && r.compound.contextLocation?.plumbingIssueLocId === 'wall'))
         expect(detected).toBeDefined()
         console.log(`✅ Wall detected: "${input}"`)
       })
@@ -64,7 +64,7 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'floor')
+        const detected = result.find(r => r.plumbingIssueLocId === 'floor')
         expect(detected).toBeDefined()
         console.log(`✅ Floor detected: "${input}"`)
       })
@@ -83,7 +83,7 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'baseboard')
+        const detected = result.find(r => r.plumbingIssueLocId === 'baseboard')
         expect(detected).toBeDefined()
         console.log(`✅ Baseboard detected: "${input}"`)
       })
@@ -102,7 +102,7 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'under_sink_cabinet')
+        const detected = result.find(r => r.plumbingIssueLocId === 'under_sink_cabinet')
         expect(detected).toBeDefined()
         console.log(`✅ Under sink cabinet detected: "${input}"`)
       })
@@ -121,7 +121,7 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'stairwell')
+        const detected = result.find(r => r.plumbingIssueLocId === 'stairwell')
         if (detected) {
           console.log(`✅ Stairwell detected: "${input}"`)
         } else {
@@ -146,7 +146,7 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'foundation')
+        const detected = result.find(r => r.plumbingIssueLocId === 'foundation')
         expect(detected).toBeDefined()
         console.log(`✅ Foundation detected: "${input}"`)
       })
@@ -168,7 +168,7 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'yard')
+        const detected = result.find(r => r.plumbingIssueLocId === 'yard')
         expect(detected).toBeDefined()
         console.log(`✅ Yard detected: "${input}"`)
       })
@@ -187,7 +187,7 @@ describe('Damage Place Detection - All Surfaces', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === 'driveway')
+        const detected = result.find(r => r.plumbingIssueLocId === 'driveway')
         expect(detected).toBeDefined()
         console.log(`✅ Driveway detected: "${input}"`)
       })
@@ -198,19 +198,19 @@ describe('Damage Place Detection - All Surfaces', () => {
     
     test('Should prioritize emergency damage locations', () => {
       const emergencies = [
-        { input: "Water gushing from ceiling", areaId: 'ceiling', severity: 'immediate' },
-        { input: "Foundation flooding", areaId: 'foundation', severity: 'immediate' },
-        { input: "Stairwell full of water", areaId: 'stairwell', severity: 'immediate' }
+        { input: "Water gushing from ceiling", plumbingIssueLocId: 'ceiling', severity: 'immediate' },
+        { input: "Foundation flooding", plumbingIssueLocId: 'foundation', severity: 'immediate' },
+        { input: "Stairwell full of water", plumbingIssueLocId: 'stairwell', severity: 'immediate' }
       ]
       
-      emergencies.forEach(({ input, areaId }) => {
+      emergencies.forEach(({ input, plumbingIssueLocId }) => {
         const result = findPatterns(input)
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === areaId)
+        const detected = result.find(r => r.plumbingIssueLocId === plumbingIssueLocId)
         expect(detected).toBeDefined()
-        console.log(`✅ Emergency ${areaId} detected: "${input}"`)
+        console.log(`✅ Emergency ${plumbingIssueLocId} detected: "${input}"`)
       })
     })
 
@@ -240,8 +240,8 @@ describe('Damage Place Detection - All Surfaces', () => {
         // Check for compound detection
         const hasCompound = result.some(r => 
           r.compound && 
-          r.compound.contextLocation?.areaId === contextId &&
-          r.compound.workLocation?.areaId === workId
+          r.compound.contextLocation?.plumbingIssueLocId === contextId &&
+          r.compound.workLocation?.plumbingIssueLocId === workId
         )
         
         if (hasCompound) {
@@ -249,8 +249,8 @@ describe('Damage Place Detection - All Surfaces', () => {
         } else {
           // Fallback: at least one part should be detected
           const hasContext = result.some(r => 
-            r.areaId === contextId || 
-            r.compound?.contextLocation?.areaId === contextId
+            r.plumbingIssueLocId === contextId || 
+            r.compound?.contextLocation?.plumbingIssueLocId === contextId
           )
           expect(hasContext).toBe(true)
           console.log(`⚠️ Partial detection: "${input}" (context: ${hasContext})`)
@@ -267,8 +267,8 @@ describe('Damage Place Detection - All Surfaces', () => {
       
       expect(result).toBeDefined()
       
-      const hasCeiling = result.some(r => r.areaId === 'ceiling')
-      const hasWall = result.some(r => r.areaId === 'wall')
+      const hasCeiling = result.some(r => r.plumbingIssueLocId === 'ceiling')
+      const hasWall = result.some(r => r.plumbingIssueLocId === 'wall')
       
       expect(hasCeiling || hasWall).toBe(true)
       console.log(`✅ Multiple locations: ceiling=${hasCeiling}, wall=${hasWall}`)
@@ -276,18 +276,18 @@ describe('Damage Place Detection - All Surfaces', () => {
 
     test('Should detect damage with various symptoms', () => {
       const combos = [
-        { input: "Ceiling is dripping", areaId: 'ceiling', symptomId: 'leak' },
-        { input: "Wall is bubbling", areaId: 'wall', symptomId: 'bubbling' },
-        { input: "Floor is flooded", areaId: 'floor', symptomId: 'flooding' },
-        { input: "Baseboard is wet", areaId: 'baseboard', symptomId: 'leak' }
+        { input: "Ceiling is dripping", plumbingIssueLocId: 'ceiling', symptomId: 'leak' },
+        { input: "Wall is bubbling", plumbingIssueLocId: 'wall', symptomId: 'bubbling' },
+        { input: "Floor is flooded", plumbingIssueLocId: 'floor', symptomId: 'flooding' },
+        { input: "Baseboard is wet", plumbingIssueLocId: 'baseboard', symptomId: 'leak' }
       ]
       
-      combos.forEach(({ input, areaId }) => {
+      combos.forEach(({ input, plumbingIssueLocId }) => {
         const result = findPatterns(input)
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        const detected = result.find(r => r.areaId === areaId)
+        const detected = result.find(r => r.plumbingIssueLocId === plumbingIssueLocId)
         expect(detected).toBeDefined()
         console.log(`✅ Damage+symptom: "${input}"`)
       })
