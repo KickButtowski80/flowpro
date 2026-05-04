@@ -2,12 +2,12 @@
 // AI PATTERN MATCHING SYSTEM
 // ========================================
 
-// Split location data: damage places (context) vs plumbing locations (work)
+// Split location data: damage places (context) vs plumbing issue locations (work)
 import DAMAGE_PLACES from '../../data/damagePlaces.js'
-import PLUMBING_ISSUE_LOCATIONS from '../../data/plumbingIssueLocations.js'
+import { PLUMBING_ISSUE_ITEMS } from '../../data/plumbingIssueItems.js'
 import SYMPTOMS from '../../data/symptoms.js'
 import AREA_JOB_CONFIGS from '../../data/areaJobConfigs.js'
-import { findAreaInText, buildAreaFirstPatterns, processAreaFirstMatches, deduplicateCompounds } from './compoundLocationHelpers.js'
+import { findAreaInText, buildAreaRelationshipPatterns, findAreaConnectionsInText, deduplicateCompounds } from './compoundLocationHelpers.js'
 
 // ========================================
 // NORMALIZATION & LOOKUP MAPS
@@ -28,26 +28,39 @@ export const normalizeText = (text) => {
 
 // Create lookup maps for efficient pattern matching
 export const DAMAGE_PLACE_LOOKUP = {}
-export const PLUMBING_ISSUE_LOCATION_LOOKUP = {}
+export const PLUMBING_ISSUE_ITEM_LOOKUP = {}
 export const SYMPTOM_LOOKUP = {}
+
+// Metadata maps to store category and other properties
+export const PLUMBING_LOCATION_METADATA = {}
+export const DAMAGE_PLACE_METADATA = {}
 
 // Build damage place lookup map (where damage is visible - contextLocation)
 DAMAGE_PLACES.forEach(place => {
   place.aliases.forEach(alias => {
     DAMAGE_PLACE_LOOKUP[alias.toLowerCase()] = place.id
   })
+  DAMAGE_PLACE_METADATA[place.id] = {
+    category: place.category || 'location',
+    description: place.description
+  }
 })
 
-// Build plumbing issue location lookup map (where plumber works - workLocation)
-PLUMBING_ISSUE_LOCATIONS.forEach(location => {
-  location.aliases.forEach(alias => {
-    PLUMBING_ISSUE_LOCATION_LOOKUP[alias.toLowerCase()] = location.id
+// Build plumbing work items lookup map (where plumber works - workLocation)
+PLUMBING_ISSUE_ITEMS.forEach(item => {
+  item.customerSearchTerms.forEach(alias => {
+    PLUMBING_ISSUE_ITEM_LOOKUP[alias.toLowerCase()] = item.locationId
   })
+  PLUMBING_LOCATION_METADATA[item.locationId] = {
+    dispatchCategory: item.dispatchCategory,
+    technicalDescription: item.technicalDescription
+  }
 })
 
-// Build combined ALL_PLACES_LOOKUP for general area detection
-// Combines both damage places and plumbing locations for pattern matching
-export const ALL_PLACES_LOOKUP = { ...DAMAGE_PLACE_LOOKUP, ...PLUMBING_ISSUE_LOCATION_LOOKUP }
+// NOTE: Separate lookups maintained for semantic clarity
+// DAMAGE_PLACE_LOOKUP = where damage is visible (context location)
+// PLUMBING_ISSUE_ITEM_LOOKUP = where plumber works (work location)
+// These are NOT combined to enforce strict semantic separation
 
 // Build symptom lookup map from aliases
 SYMPTOMS.forEach(symptom => {
@@ -60,13 +73,48 @@ SYMPTOMS.forEach(symptom => {
 // REGEX PATTERNS
 // ========================================
 
-// Build comprehensive regex patterns from all aliases
-const ALL_PLACE_WORDS = Object.keys(ALL_PLACES_LOOKUP).join('|')
+// Build separate regex patterns for semantic clarity
+const DAMAGE_PLACE_WORDS = Object.keys(DAMAGE_PLACE_LOOKUP).join('|')
+const PLUMBING_LOCATION_WORDS = Object.keys(PLUMBING_ISSUE_ITEM_LOOKUP).join('|')
 const SYMPTOM_WORDS = Object.keys(SYMPTOM_LOOKUP).join('|')
 
-export const ALL_PLACE_REGEX = new RegExp(`\\b(${ALL_PLACE_WORDS})\\b`, 'gi')
-export const AREA_REGEX = ALL_PLACE_REGEX // Backward compat alias
-export const SYMPTOM_REGEX = new RegExp(`\\b(${SYMPTOM_WORDS})\\b`, 'gi')
+// Separate regexes for each location type
+export const DAMAGE_PLACE_REGEX = new RegExp(`\b(${DAMAGE_PLACE_WORDS})\b`, 'gi')
+export const PLUMBING_LOCATION_REGEX = new RegExp(`\\b(${PLUMBING_LOCATION_WORDS})\\b`, 'gi')
+export const SYMPTOM_REGEX = new RegExp(`\b(${SYMPTOM_WORDS})\b`, 'gi')
+
+// ========================================
+// SYMPTOM GROUPING
+// ========================================
+
+/**
+ * Detect symptom groups connected by "and"
+ * Example: "bubbling and sagging" → ["bubbling", "sagging"]
+ * Example: "leaking, dripping, and running" → ["leaking", "dripping", "running"]
+ * 
+ * @param {string} text - Text to search for symptom groups
+ * @returns {Array} - Array of symptom groups, each containing multiple symptoms
+ */
+export const detectSymptomGroups = (text) => {
+  const symptomGroups = []
+  
+  // Pattern: symptom (and|,) symptom (and|,) symptom
+  // Matches: "bubbling and sagging", "leaking, dripping, and running"
+  const symptomGroupPattern = new RegExp(
+    `(${SYMPTOM_WORDS})\\s*(?:and|,)\\s*(${SYMPTOM_WORDS})(?:\\s*(?:and|,)\\s*(${SYMPTOM_WORDS}))*`,
+    'gi'
+  )
+  
+  let match
+  while ((match = symptomGroupPattern.exec(text)) !== null) {
+    const group = match.slice(1).filter(Boolean) // Remove undefined/null values
+    if (group.length > 1) {
+      symptomGroups.push(group)
+    }
+  }
+  
+  return symptomGroups
+}
 
 // ========================================
 // MATCHING RULES
@@ -80,7 +128,7 @@ const createMatchingRules = () => {
     // For each area job config, create rules for all its supported symptoms
     areaJobConfig.supportedSymptoms.forEach(symptomId => {
       const rule = {
-        areaId: areaJobConfig.area,       // e.g., "toilet" 
+        plumbingIssueLocId: areaJobConfig.area,       // e.g., "toilet" 
         symptomId: symptomId,             // e.g., "clog", "running"
         pattern: areaJobConfig            // Full area job config with jobType, overrides, etc.
       }
@@ -94,12 +142,91 @@ const createMatchingRules = () => {
 export const MATCHING_RULES = createMatchingRules()
 export const RULES_BY_AREA = (() => {
   const byArea = new Map()
-  for (const { areaId, symptomId } of MATCHING_RULES) {
-    if (!byArea.has(areaId)) byArea.set(areaId, new Set())
-    byArea.get(areaId).add(symptomId)
+  for (const { plumbingIssueLocId, symptomId } of MATCHING_RULES) {
+    if (!byArea.has(plumbingIssueLocId)) byArea.set(plumbingIssueLocId, new Set())
+    byArea.get(plumbingIssueLocId).add(symptomId)
   }
   return byArea
 })()
+
+// ========================================
+// CATEGORY HELPER FUNCTIONS
+// ========================================
+
+/**
+ * Get work item category for dispatch decisions
+ * @param {string} plumbingIssueLocId - The plumbing issue location ID
+ * @returns {string|null} - Category (fixture, component, appliance, system) or null
+ */
+export const getWorkItemCategory = (plumbingIssueLocId) => {
+  return PLUMBING_LOCATION_METADATA[plumbingIssueLocId]?.dispatchCategory || null
+}
+
+/**
+ * Get category for a damage place ID
+ * @param {string} placeId - The damage place ID
+ * @returns {string|null} - Category or null
+ */
+export const getDamagePlaceCategory = (placeId) => {
+  return DAMAGE_PLACE_METADATA[placeId]?.dispatchCategory || null
+}
+
+/**
+ * Check if a plumbing issue location is a component (specific part)
+ * @param {string} plumbingIssueLocId - The plumbing issue location ID
+ * @returns {boolean}
+ */
+export const isComponent = (plumbingIssueLocId) => {
+  return getWorkItemCategory(plumbingIssueLocId) === 'component'
+}
+
+/**
+ * Check if a plumbing issue location is a fixture (complete unit)
+ * @param {string} plumbingIssueLocId - The plumbing issue location ID
+ * @returns {boolean}
+ */
+export const isFixture = (plumbingIssueLocId) => {
+  return getWorkItemCategory(plumbingIssueLocId) === 'fixture'
+}
+
+/**
+ * Check if a plumbing issue location is an appliance (major equipment)
+ * @param {string} plumbingIssueLocId - The plumbing issue location ID
+ * @returns {boolean}
+ */
+export const isAppliance = (plumbingIssueLocId) => {
+  return getWorkItemCategory(plumbingIssueLocId) === 'appliance'
+}
+
+/**
+ * Check if a plumbing issue location is a system (infrastructure)
+ * @param {string} plumbingIssueLocId - The plumbing issue location ID
+ * @returns {boolean}
+ */
+export const isSystem = (plumbingIssueLocId) => {
+  return getWorkItemCategory(plumbingIssueLocId) === 'system'
+}
+
+/**
+ * Get team size recommendation based on category
+ * @param {string} plumbingIssueLocId - The plumbing issue location ID
+ * @returns {number} - Recommended team size (1, 2, or 3)
+ */
+export const getTeamSizeRecommendation = (plumbingIssueLocId) => {
+  const category = getWorkItemCategory(plumbingIssueLocId)
+  switch (category) {
+    case 'component':
+      return 1 // Simple part replacement
+    case 'fixture':
+      return 1 // Most fixture repairs are single plumber
+    case 'appliance':
+      return 2 // Water heaters, sump pumps often need 2 for safety/lifting
+    case 'system':
+      return 2 // Sewer lines, main pipes may need 2+
+    default:
+      return 1
+  }
+}
 
 // ========================================
 // HELPER FUNCTIONS
@@ -107,12 +234,13 @@ export const RULES_BY_AREA = (() => {
 
 /**
  * Detects relationships between two areas: where work is done vs where problem shows
- * Uses ALL_PLACES_LOOKUP for pattern matching (combines damage places + plumbing locations)
- * The distinction is semantic: work location vs context location
+ * Uses separate lookups for semantic clarity:
+ * - PLUMBING_WORK_LOCATION_LOOKUP for work locations (where plumber fixes)
+ * - DAMAGE_PLACE_LOOKUP for context locations (where damage is visible)
  * 
  * Example: "ceiling from upstairs bathroom"
- * - workLocation: upstairs bathroom (where plumber goes to fix)
- * - contextLocation: ceiling (where damage is visible - extra context)
+ * - workLocation: upstairs bathroom (where plumber goes to fix) - PLUMBING_WORK_LOCATION
+ * - contextLocation: ceiling (where damage is visible) - DAMAGE_PLACE
  * 
  * @param {string} clause - Text clause to search in
  * @returns {Array} - Array of area relationship objects
@@ -126,17 +254,20 @@ const detectAreaRelationships = (clause) => {
   
   console.log('DEBUG: Detecting area relationships in clause:', text)
   
-  // Build patterns using combined lookup
-  const patterns = buildAreaFirstPatterns(ALL_PLACES_LOOKUP)
+  // Build regex patterns for detecting area relationships
+  const workAreaRegexPatterns = buildAreaRelationshipPatterns(PLUMBING_ISSUE_ITEM_LOOKUP)
+  const damageAreaRegexPatterns = buildAreaRelationshipPatterns(DAMAGE_PLACE_LOOKUP)
   
-  // Process matches
-  let relationships = processAreaFirstMatches(text, patterns, ALL_PLACES_LOOKUP)
+  // Search text for area connections using the regex patterns
+  const foundWorkAreaConnections = findAreaConnectionsInText(text, workAreaRegexPatterns, PLUMBING_ISSUE_ITEM_LOOKUP)
+  const foundDamageAreaConnections = findAreaConnectionsInText(text, damageAreaRegexPatterns, DAMAGE_PLACE_LOOKUP)
+  const allDetectedConnections = foundWorkAreaConnections.concat(foundDamageAreaConnections)
   
-  // Deduplicate
-  relationships = deduplicateCompounds(relationships)
+  // Remove duplicate connections
+  const uniqueConnections = deduplicateCompounds(allDetectedConnections)
   
-  console.log('DEBUG: Final area relationships:', JSON.stringify(relationships, null, 2))
-  return relationships
+  console.log('DEBUG: Final detected connections:', JSON.stringify(uniqueConnections, null, 2))
+  return uniqueConnections
 }
 
 /**
@@ -146,49 +277,59 @@ const detectAreaRelationships = (clause) => {
  * Checks for area relationships first (e.g., "ceiling from upstairs bathroom")
  * 
  * @param {string} clause - Text clause to search in
- * @returns {Array} - Array of objects with areaId and alias
+ * @returns {Array} - Array of objects with plumbingIssueLocId and alias
  */
 const collectAreaAliases = (clause) => {
   const aliasMap = new Map()
 
-  // First, check for area relationships (damage showing in one area, source in another)
+  // First, detect symptom groups connected by "and"
+  const symptomGroups = detectSymptomGroups(clause)
+  console.log('DEBUG collectAreaAliases: symptom groups found:', symptomGroups)
+
+  // Then, check for area relationships (damage showing in one area, source in another)
   const relationships = detectAreaRelationships(clause)
   console.log('DEBUG collectAreaAliases: area relationships:', relationships)
   
   if (relationships && relationships.length > 0) {
     for (const rel of relationships) {
+      console.log('DEBUG collectAreaAliases: relationship object:', JSON.stringify(rel, null, 2))
       // Add WORK LOCATION (where plumber goes - e.g., "upstairs bathroom")
-      aliasMap.set(rel.workLocation.areaId, rel.workLocation.alias)
-      console.log('DEBUG collectAreaAliases: added WORK LOCATION:', rel.workLocation.areaId, '->', rel.workLocation.alias)
+      aliasMap.set(rel.workLocation.plumbingIssueLocId, rel.workLocation.alias)
+      console.log('DEBUG collectAreaAliases: added WORK LOCATION:', rel.workLocation.plumbingIssueLocId, '->', rel.workLocation.alias)
       
       // Store context location for dispatcher info (e.g., "ceiling" - where damage shows)
-      rel.contextLocationId = rel.contextLocation.areaId
+      rel.contextLocationId = rel.contextLocation.plumbingIssueLocId
       rel.contextLocationAlias = rel.contextLocation.alias
     }
   }
   
   // Then, check regular aliases (skip if area already has relationship match)
   const usedAreas = relationships && relationships.length > 0 
-    ? new Set(relationships.flatMap(r => [r.workLocation.areaId, r.contextLocation.areaId].filter(Boolean)))
+    ? new Set([
+        ...relationships.flatMap(r => [r.workLocation.plumbingIssueLocId, r.contextLocation.plumbingIssueLocId].filter(Boolean)),
+        ...relationships.flatMap(r => r.consumedText || [])
+      ])
     : new Set()
   
   console.log('DEBUG collectAreaAliases: usedAreas:', Array.from(usedAreas))
   
   // Sort aliases by length (longest first) to prevent overlapping matches
-  const sortedEntries = Object.entries(ALL_PLACES_LOOKUP)
-    .sort((a, b) => b[0].length - a[0].length)
+  // Process work locations first (most important), then damage places
+  const workEntries = Object.entries(PLUMBING_ISSUE_ITEM_LOOKUP).sort((a, b) => b[0].length - a[0].length)
+  const damageEntries = Object.entries(DAMAGE_PLACE_LOOKUP).sort((a, b) => b[0].length - a[0].length)
+  const sortedEntries = [...workEntries, ...damageEntries]
   
-  for (const [alias, areaId] of sortedEntries) {
+  for (const [alias, plumbingIssueLocId] of sortedEntries) {
     // Skip if area already has compound match
-    if (usedAreas.has(areaId)) continue
+    if (usedAreas.has(plumbingIssueLocId)) continue
     
     if (!clause.includes(alias.toLowerCase())) continue
     
     // If same area already has a match, only replace if new alias is longer
-    if (aliasMap.has(areaId)) {
-      const existingAlias = aliasMap.get(areaId)
+    if (aliasMap.has(plumbingIssueLocId)) {
+      const existingAlias = aliasMap.get(plumbingIssueLocId)
       if (alias.length > existingAlias.length) {
-        aliasMap.set(areaId, alias)
+        aliasMap.set(plumbingIssueLocId, alias)
       }
     }
     // If different area, check for overlaps with existing aliases
@@ -196,13 +337,16 @@ const collectAreaAliases = (clause) => {
       const overlaps = Array.from(aliasMap.values())
         .some(existingAlias => existingAlias.includes(alias))
       if (!overlaps) {
-        aliasMap.set(areaId, alias)
+        aliasMap.set(plumbingIssueLocId, alias)
       }
     }
   }
   
   // Convert to objects for compatibility with existing code
-  return Array.from(aliasMap.entries()).map(([areaId, alias]) => ({ areaId, alias }))
+  const areaAliases = Array.from(aliasMap.entries()).map(([plumbingIssueLocId, alias]) => ({ plumbingIssueLocId, alias }))
+  
+  // Add symptom groups to the result for grouped symptom processing
+  return { areaAliases, symptomGroups }
 }
 
 /**
@@ -344,19 +488,20 @@ export function findContextualMatches(text) {
   const seenPairs = new Set()
 
   // Split text into clauses for context
+  // NOTE: Don't split on 'and' - we need it for symptom grouping (e.g., "bubbling and sagging")
   const clauses = text
-    .split(/[,;.]|\band\b/i)
+    .split(/[,;.]/)
     .map(c => normalizeText(c.trim()))
     .filter(c => c.length > 0)
 
   for (const clause of clauses) {
-    // Step 1: Collect area aliases
-    const clauseAreas = collectAreaAliases(clause)
+    // Step 1: Collect area aliases and symptom groups
+    const { areaAliases: clauseAreas, symptomGroups: clauseSymptomGroups } = collectAreaAliases(clause)
 
     // Step 2: For each area, collect ONLY valid symptom aliases for that area
     for (const area of clauseAreas) {
       console.log('DEBUG: Processing area:', area)
-      const allowed = RULES_BY_AREA.get(area.areaId) || new Set()
+      const allowed = RULES_BY_AREA.get(area.plumbingIssueLocId) || new Set()
       console.log('DEBUG: Allowed symptoms for area:', Array.from(allowed))
       if (allowed.size === 0) continue
 
@@ -364,28 +509,85 @@ export function findContextualMatches(text) {
       clauseSymptomsForArea = pruneRedundantSymptomAliases(clauseSymptomsForArea)
       console.log('DEBUG: Found symptoms for area:', clauseSymptomsForArea)
 
-      for (const symptom of clauseSymptomsForArea) {
-        const key = `${area.areaId}:${symptom.symptomId}`
+      // Process grouped symptoms (connected by "and")
+      const groupedSymptoms = []
+      for (const group of clauseSymptomGroups) {
+        const validGroupedSymptoms = group.filter(symptom => {
+          const symptomId = SYMPTOM_LOOKUP[symptom.toLowerCase()]
+          return symptomId && allowed.has(symptomId)
+        })
+        if (validGroupedSymptoms.length > 1) {
+          groupedSymptoms.push(validGroupedSymptoms)
+        }
+      }
+      
+      // Remove individual symptoms that are part of groups
+      const groupedSymptomIds = new Set(
+        groupedSymptoms.flat().map(symptom => SYMPTOM_LOOKUP[symptom.toLowerCase()]).filter(Boolean)
+      )
+      const individualSymptoms = clauseSymptomsForArea.filter(symptom => !groupedSymptomIds.has(symptom.symptomId))
+      
+      console.log('DEBUG: Grouped symptoms:', groupedSymptoms)
+      console.log('DEBUG: Individual symptoms:', individualSymptoms)
+
+      // Process individual symptoms first
+      for (const symptom of individualSymptoms) {
+        const key = `${area.plumbingIssueLocId}:${symptom.symptomId}`
         if (seenPairs.has(key)) continue
 
         const patternEntry = MATCHING_RULES.find(rule =>
-          rule.areaId === area.areaId && rule.symptomId === symptom.symptomId
+          rule.plumbingIssueLocId === area.plumbingIssueLocId && rule.symptomId === symptom.symptomId
         )
 
         matches.push({
-          areaId: area.areaId,
+          plumbingIssueLocId: area.plumbingIssueLocId,
           symptomId: symptom.symptomId,
           areaAlias: area.alias,
           symptomAlias: symptom.alias,
-          context: `${area.areaId}_${symptom.symptomId}`,
+          dispatchCategory: getWorkItemCategory(area.plumbingIssueLocId),
+          teamSizeRecommendation: getTeamSizeRecommendation(area.plumbingIssueLocId),
+          context: `${area.plumbingIssueLocId}_${symptom.symptomId}`,
           pattern: patternEntry?.pattern || null,
           method: 'contextual',
           confidence: 0.95
         })
 
-        usedAreas.add(area.areaId)
+        usedAreas.add(area.plumbingIssueLocId)
         usedSymptoms.add(symptom.symptomId)
         seenPairs.add(key)
+      }
+      
+      // Process grouped symptoms as combined symptoms on same area
+      for (const symptomGroup of groupedSymptoms) {
+        const symptomIds = symptomGroup.map(symptom => SYMPTOM_LOOKUP[symptom.toLowerCase()]).filter(Boolean)
+        const groupKey = `${area.plumbingIssueLocId}:${symptomIds.join('_and_')}`
+        if (seenPairs.has(groupKey)) continue
+        
+        // Find pattern entries for all symptoms in the group
+        const patternEntries = symptomIds.map(symptomId => 
+          MATCHING_RULES.find(rule => 
+            rule.plumbingIssueLocId === area.plumbingIssueLocId && rule.symptomId === symptomId
+          )
+        ).filter(Boolean)
+        
+        // Create combined symptom entry
+        matches.push({
+          plumbingIssueLocId: area.plumbingIssueLocId,
+          symptomId: symptomIds.join('_and_'), // Combined symptom ID
+          areaAlias: area.alias,
+          symptomAlias: symptomGroup.join(' and '), // Combined symptom display
+          dispatchCategory: getWorkItemCategory(area.plumbingIssueLocId),
+          teamSizeRecommendation: getTeamSizeRecommendation(area.plumbingIssueLocId),
+          context: `${area.plumbingIssueLocId}_${symptomIds.join('_and_')}`,
+          pattern: patternEntries.length > 0 ? patternEntries[0].pattern : null,
+          method: 'contextual',
+          confidence: 0.95,
+          isGrouped: true // Mark as grouped symptoms
+        })
+
+        // Mark all symptoms in group as used
+        symptomIds.forEach(symptomId => usedSymptoms.add(symptomId))
+        seenPairs.add(groupKey)
       }
     }
 
@@ -397,7 +599,7 @@ export function findContextualMatches(text) {
     for (const symptom of clauseSymptomsAll) {
       if (usedSymptoms.has(symptom.symptomId)) continue
       matches.push({
-        areaId: null,
+        plumbingIssueLocId: null,
         symptomId: symptom.symptomId,
         areaAlias: null,
         symptomAlias: symptom.alias,
@@ -412,19 +614,21 @@ export function findContextualMatches(text) {
 
     // Step 5: Add unused areas as area-only
     for (const area of clauseAreas) {
-      if (usedAreas.has(area.areaId)) continue
+      if (usedAreas.has(area.plumbingIssueLocId)) continue
       matches.push({
-        areaId: area.areaId,
+        plumbingIssueLocId: area.plumbingIssueLocId,
         symptomId: null,
         areaAlias: area.alias,
         symptomAlias: null,
-        context: `area_${area.areaId}`,
+        dispatchCategory: getWorkItemCategory(area.plumbingIssueLocId),
+        teamSizeRecommendation: getTeamSizeRecommendation(area.plumbingIssueLocId),
+        context: `area_${area.plumbingIssueLocId}`,
         pattern: null,
         method: 'area_only',
         confidence: 0.5,
         message: `Found: ${area.alias}. What issue are you experiencing?`
       })
-      usedAreas.add(area.areaId)
+      usedAreas.add(area.plumbingIssueLocId)
     }
   }
 
@@ -478,7 +682,7 @@ export function findFallbackMatches(text) {
   const symptomMatches = findSymptomMatches(text)
  
   // Step 2: Extract unique IDs for pattern matching
-  const areaIds = new Set(areaMatches.map(match => match.id))
+  const plumbingIssueLocIds = new Set(areaMatches.map(match => match.id))
   const symptomIds = new Set(symptomMatches.map(match => match.id))
 
   // Step 3: Find patterns where BOTH area AND symptom were detected
@@ -486,19 +690,22 @@ export function findFallbackMatches(text) {
 
   for (const entry of MATCHING_RULES) {
     // Skip if we don't have both the area and symptom for this rule
-    if (!areaIds.has(entry.areaId) || !symptomIds.has(entry.symptomId)) continue
+    if (!plumbingIssueLocIds.has(entry.plumbingIssueLocId) || !symptomIds.has(entry.symptomId)) continue
 
     // Find the actual match objects to get the customer's original words
-    const areaMatch = areaMatches.find(match => match.id === entry.areaId)
+    const areaMatch = areaMatches.find(match => match.id === entry.plumbingIssueLocId)
     const symptomMatch = symptomMatches.find(match => match.id === entry.symptomId)
 
     patterns.push({
-      areaId: entry.areaId,
+      plumbingIssueLocId: entry.plumbingIssueLocId,
       symptomId: entry.symptomId,
-      areaAlias: areaMatch?.alias || entry.areaId,
+      areaAlias: areaMatch?.alias || entry.plumbingIssueLocId,
       symptomAlias: symptomMatch?.alias || entry.symptomId,
+      dispatchCategory: getWorkItemCategory(entry.plumbingIssueLocId),
+      teamSizeRecommendation: getTeamSizeRecommendation(entry.plumbingIssueLocId),
       pattern: entry.pattern,  // Contains job type, severity, etc.
-      method: 'fallback'
+      method: 'fallback',
+      confidence: 0.75
     })
   }
 
@@ -544,7 +751,19 @@ const collectRegexMatches = (text, regex, lookup) => {
 }
 
 export function findAreaMatches(text) {
-  return collectRegexMatches(text, ALL_PLACE_REGEX, ALL_PLACES_LOOKUP)
+  // Find matches from both work locations and damage places
+  // Prioritize work locations (where plumber actually works)
+  const workLocationMatches = collectRegexMatches(text, PLUMBING_LOCATION_REGEX, PLUMBING_ISSUE_ITEM_LOOKUP)
+  const damageMatches = collectRegexMatches(text, DAMAGE_PLACE_REGEX, DAMAGE_PLACE_LOOKUP)
+  
+  // Combine and deduplicate by ID
+  const combined = [...workLocationMatches, ...damageMatches]
+  const seen = new Set()
+  return combined.filter(match => {
+    if (seen.has(match.id)) return false
+    seen.add(match.id)
+    return true
+  })
 }
 
 export function findSymptomMatches(text) {
@@ -620,7 +839,7 @@ export function findPatterns(text) {
   // 3. Handle ambiguous input - no clear patterns found
   // Return a special ambiguous result instead of useless symptom-only matches
   return [{
-    areaId: null,
+    plumbingIssueLocId: null,
     symptomId: null,
     areaAlias: null,
     symptomAlias: null,
@@ -646,3 +865,6 @@ export function debugMatches(text) {
     patterns: findPatterns(text)
   }
 }
+
+// Export helper functions for testing
+export { collectAreaAliases }
