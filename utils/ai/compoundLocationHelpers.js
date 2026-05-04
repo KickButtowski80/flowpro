@@ -2,32 +2,29 @@
 // COMPOUND LOCATION DETECTION HELPERS
 // ========================================
 
+import { PLUMBING_ISSUE_ITEM_LOOKUP, DAMAGE_PLACE_LOOKUP } from './lookupMaps.js';
+
 /**
- * Helper: Find area match in text
- * Searches for any known area alias in the given text
- * 
- * @param {string} text - Text to search in
- * @param {Object} areaLookup - AREA_LOOKUP object
- * @returns {Array|null} - [alias, areaId] or null
+ * Helper: Find area in text using lookup map
  */
-export const findAreaInText = (text, areaLookup) => {
+export const findAreaInText = (text, lookupMap) => {
   if (!text) return null
-  const lowerText = text.toLowerCase()
-  return Object.entries(areaLookup).find(([alias]) => 
-    lowerText.includes(alias.toLowerCase())
+  const lowerText = text.toLowerCase().trim()
+  return Object.entries(lookupMap).find(([alias]) => 
+    lowerText === alias.toLowerCase().trim()
   )
 }
 
 /**
- * Helper: Build regex patterns for area-first compounds
- * Pattern: "ceiling from upstairs bathroom"
+ * Helper: Build regex patterns for area relationships
+ * Pattern: "ceiling from upstairs bathroom" (damage from source)
  * 
- * @param {Object} areaLookup - AREA_LOOKUP object
+ * @param {Object} lookup - Lookup map (PLUMBING_ISSUE_ITEM_LOOKUP or DAMAGE_PLACE_LOOKUP)
  * @returns {Array} - Array of RegExp patterns
  */
-export const buildAreaFirstPatterns = (areaLookup) => {
+export const buildAreaRelationshipPatterns = (lookup) => {
   const patterns = []
-  for (const [alias] of Object.entries(areaLookup)) {
+  for (const [alias] of Object.entries(lookup)) {
     // Skip multi-word areas (they're locations, not areas)
     if (alias.includes(' ')) continue
     
@@ -40,34 +37,48 @@ export const buildAreaFirstPatterns = (areaLookup) => {
 }
 
 /**
- * Helper: Process area-first pattern matches
- * Validates and creates area relationship objects
- * NOTE: Both source and damage are looked up in AREA_LOOKUP - the distinction is semantic
+ * Helper: Find area connections in text using regex patterns
+ * Searches text for patterns like "ceiling from bathroom" and returns connections
  * 
- * @param {string} clause - Text clause to search in
- * @param {Array} patterns - Array of RegExp patterns
- * @param {Object} areaLookup - AREA_LOOKUP object
- * @returns {Array} - Array of area relationship objects
+ * @param {string} text - Text to search in
+ * @param {Array} regexPatterns - Array of RegExp patterns built by buildAreaRelationshipPatterns
+ * @param {Object} lookupMap - Lookup map (PLUMBING_ISSUE_ITEM_LOOKUP or DAMAGE_PLACE_LOOKUP)
+ * @returns {Array} - Array of area connection objects with workLocation and contextLocation
  */
-export const processAreaFirstMatches = (clause, patterns, areaLookup) => {
-  const relationships = []
+export const findAreaConnectionsInText = (text, regexPatterns, lookupMap) => {
+  const foundConnections = []
+  const uniqueDamageAreas = new Set() // Track unique damage areas mentioned
   
-  console.log('DEBUG processAreaFirstMatches: clause:', clause)
+  console.log('DEBUG findAreaConnectionsInText: text:', text)
   
-  for (const pattern of patterns) {
+  for (const pattern of regexPatterns) {
     let match
-    while ((match = pattern.exec(clause)) !== null) {
-      console.log('DEBUG processAreaFirstMatches: pattern match:', match)
+    while ((match = pattern.exec(text)) !== null) {
+      console.log('DEBUG findAreaConnectionsInText: pattern match:', match)
       // Pattern: (damage_candidate) (from|in|at) (source_candidate)
       // e.g., "ceiling from upstairs bathroom"
       // Note: "from/in/at" typically means following = source, first = damage
       const [, damageCandidate, preposition, sourceCandidate] = match
       
-      // Validate both parts are known areas
-      const damageMatch = findAreaInText(damageCandidate, areaLookup)
-      const sourceMatch = findAreaInText(sourceCandidate, areaLookup)
+      // Track unique damage areas mentioned
+      uniqueDamageAreas.add(damageCandidate.toLowerCase())
       
-      console.log('DEBUG processAreaFirstMatches: damageMatch:', damageMatch, 'sourceMatch:', sourceMatch)
+      // Validate damage candidate in current lookup map
+      const damageMatch = findAreaInText(damageCandidate, lookupMap)
+      
+      // For source candidate, prioritize work location lookup if damage map
+      // because "from/in/at" usually indicates work location (where plumber goes)
+      let sourceMatch
+      if (lookupMap === DAMAGE_PLACE_LOOKUP) {
+        // Try work locations first, then fallback to damage places
+        sourceMatch = findAreaInText(sourceCandidate, PLUMBING_ISSUE_ITEM_LOOKUP) || 
+                     findAreaInText(sourceCandidate, DAMAGE_PLACE_LOOKUP)
+      } else {
+        // Already searching work locations
+        sourceMatch = findAreaInText(sourceCandidate, lookupMap)
+      }
+      
+      console.log('DEBUG findAreaConnectionsInText: damageMatch:', damageMatch, 'sourceMatch:', sourceMatch)
       
       if (damageMatch && sourceMatch) {
         const [damageAlias, damageAreaId] = damageMatch
@@ -76,20 +87,22 @@ export const processAreaFirstMatches = (clause, patterns, areaLookup) => {
         // Determine work location vs context based on preposition
         // "from/in/at" means sourceCandidate is the work location (where plumber goes)
         // damageCandidate is where damage shows (context for dispatcher)
-        const isSourceSecond = ['from', 'in', 'at'].includes(preposition.toLowerCase())
+        const prepositionIndicatesSource = ['from', 'in', 'at'].includes(preposition.toLowerCase())
         
-        relationships.push({
+        foundConnections.push({
           matchText: `${damageCandidate} ${preposition} ${sourceCandidate}`.trim(),
           workLocation: {
-            alias: isSourceSecond ? sourceAlias : damageAlias,
-            areaId: isSourceSecond ? sourceAreaId : damageAreaId,
+            plumbingIssueLocId: prepositionIndicatesSource ? sourceAreaId : damageAreaId,
+            alias: prepositionIndicatesSource ? sourceAlias : damageAlias,
             role: 'work_site'
           },
           contextLocation: {
-            alias: isSourceSecond ? damageAlias : sourceAlias,
-            areaId: isSourceSecond ? damageAreaId : sourceAreaId,
+            plumbingIssueLocId: prepositionIndicatesSource ? damageAreaId : sourceAreaId,
+            alias: prepositionIndicatesSource ? damageAlias : sourceAlias,
             role: 'context'
           },
+          consumedText: [damageCandidate.toLowerCase(), sourceCandidate.toLowerCase()], // Track consumed parts
+          uniqueDamageAreas: Array.from(uniqueDamageAreas), // All unique damage areas mentioned
           preposition,
           confidence: 0.87, // High confidence for clear patterns
           ambiguity: false,
@@ -99,8 +112,9 @@ export const processAreaFirstMatches = (clause, patterns, areaLookup) => {
     }
   }
   
-  console.log('DEBUG processAreaFirstMatches: final relationships:', relationships)
-  return relationships
+  console.log('DEBUG findAreaConnectionsInText: unique damage areas found:', Array.from(uniqueDamageAreas))
+  
+  return foundConnections
 }
 
 /**
