@@ -40,8 +40,19 @@
 
           <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center gap-10">
-            <NuxtLink to="/calendar">test</NuxtLink> 
-            <NuxtLink to="/ai-test"> ai test </NuxtLink>
+            <NuxtLink to="/ai-test" 
+              class="nav-link relative text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md"
+              :class="[
+                $route.path === '/ai-test'
+                  ? 'text-orange-300 scale-105'
+                  : 'text-white hover:text-orange-200'
+              ]">
+              <span class="relative">
+                AI Test (Contextual)
+                <span v-if="$route.path === '/ai-test'"
+                  class="absolute -top-3 -right-5 text-lg animate-bounce"></span>
+              </span>
+            </NuxtLink>
             <NuxtLink to="#services" :class="[
               'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('services')
