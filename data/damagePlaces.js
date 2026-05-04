@@ -5,6 +5,74 @@
  */
 
 export default [
+  // ROOMS - Context locations where damage is observed
+  {
+    "id": "bathroom",
+    "aliases": ["bathroom", "restroom", "washroom", "upstairs bathroom", "downstairs bathroom", "outside bathroom", "guesthouse bathroom", "master bathroom", "half bathroom", "full bathroom", "main bathroom", "guest bathroom"],
+    "category": "room",
+    "description": "Bathroom room where damage is visible (context only - plumber works on fixtures inside)"
+  },
+  {
+    "id": "kitchen",
+    "aliases": ["kitchen", "in the kitchen", "kitchen area", "main kitchen", "galley kitchen"],
+    "category": "room",
+    "description": "Kitchen room where damage is visible (context only - plumber works on fixtures inside)"
+  },
+  {
+    "id": "basement",
+    "aliases": ["basement", "in the basement", "downstairs basement", "cellar", "lower level"],
+    "category": "room",
+    "description": "Basement room where damage is visible (context only - plumber works on fixtures/lines inside)"
+  },
+  {
+    "id": "garage",
+    "aliases": ["garage", "in the garage", "attached garage", "detached garage", "car garage"],
+    "category": "room",
+    "description": "Garage room where damage is visible (context only - plumber works on fixtures inside)"
+  },
+  {
+    "id": "laundry_room",
+    "aliases": ["laundry room", "laundry area", "utility room", "washer area", "dryer room"],
+    "category": "room",
+    "description": "Laundry room where damage is visible (context only - plumber works on fixtures inside)"
+  },
+  {
+    "id": "master_bedroom",
+    "aliases": ["master bedroom", "master suite", "ensuite bathroom"],
+    "category": "room",
+    "description": "Master bedroom area where damage is visible (context only - plumber works on fixtures inside)"
+  },
+  {
+    "id": "upstairs",
+    "aliases": ["upstairs", "second floor", "upper floor", "upstairs area", "top floor"],
+    "category": "floor",
+    "description": "Upstairs floor where damage is visible (context location)"
+  },
+  {
+    "id": "downstairs",
+    "aliases": ["downstairs", "first floor", "main floor", "ground floor", "lower floor"],
+    "category": "floor",
+    "description": "Downstairs/main floor where damage is visible (context location)"
+  },
+  {
+    "id": "attic",
+    "aliases": ["attic", "in the attic", "attic space", "roof space"],
+    "category": "space",
+    "description": "Attic area where damage is visible (context location)"
+  },
+  {
+    "id": "crawl_space",
+    "aliases": ["crawl space", "crawlspace", "under house", "underneath house"],
+    "category": "space",
+    "description": "Crawl space where damage is visible (context location)"
+  },
+  {
+    "id": "exterior",
+    "aliases": ["outside", "exterior", "outdoor", "outdoors", "external"],
+    "category": "location",
+    "description": "Exterior areas where damage is visible (context location)"
+  },
+  // SURFACES - Physical surfaces where damage appears
   {
     "id": "ceiling",
     "aliases": ["ceiling", "bathroom ceiling", "kitchen ceiling", "ceiling drywall", "ceiling paint", "upstairs ceiling", "downstairs ceiling"],
