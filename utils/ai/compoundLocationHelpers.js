@@ -280,6 +280,31 @@ export const findReverseDirectionConnections = (text, regexPatterns, lookupMap) 
 }
 
 /**
+ * Helper: Detect optimal pattern strategy for text
+ * Returns which detection method to use based on text content
+ */
+export const detectPatternStrategy = (text) => {
+  // Check for prepositions with word boundaries (avoid false matches like "in" in "sink")
+  const hasPreposition = SPATIAL_PREPOSITIONS.some(p => 
+    new RegExp(`\\b${escapeRegex(p)}\\b`, 'i').test(text)
+  )
+  
+  // Check for reverse-direction verbs with word boundaries
+  const hasReverseVerb = REVERSE_DIRECTION_VERBS.some(v => 
+    new RegExp(`\\b${escapeRegex(v)}\\b`, 'i').test(text)
+  )
+  
+  // Strategy selection logic
+  if (hasPreposition) {
+    return 'forward' // Clear preposition pattern: "ceiling from bathroom"
+  } else if (hasReverseVerb) {
+    return 'reverse' // Clear reverse pattern: "bathroom has ceiling leak"
+  } else {
+    return 'adjacent' // No clear indicators, try adjacent patterns
+  }
+}
+
+/**
  * Helper: Find area connections in text using regex patterns
  * Searches text for patterns like "ceiling from bathroom", "wall behind sink", "floor under toilet" and returns connections
  * 
