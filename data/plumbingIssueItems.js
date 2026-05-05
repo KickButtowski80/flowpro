@@ -1,16 +1,16 @@
 /**
- * PLUMBING WORK LOCATIONS REGISTRY
+ * PLUMBING FIXTURES & COMPONENTS REGISTRY
  * 
- * Defines specific fixtures, components, appliances, and systems where plumbers perform work.
- * Used by AI detection system to identify what needs fixing and determine dispatch requirements.
+ * Defines specific fixtures, components, appliances, and systems that need fixing.
+ * Used by AI detection system to identify WHAT needs fixing (not WHERE).
  * 
  * SEMANTIC SEPARATION:
- * - This file = WORK LOCATIONS (where plumber performs repairs)
- * - damagePlaces.js = CONTEXT LOCATIONS (where damage is visible, rooms/surfaces)
+ * - This file = FIXTURES/COMPONENTS (what plumber fixes)
+ * - damagePlaces.js = LOCATIONS (where damage is visible)
  * 
  * Example: "Toilet in bathroom is clogged"
- * - toilet = WORK LOCATION (plumber fixes this) - from this file
- * - bathroom = CONTEXT LOCATION (where damage is seen) - from damagePlaces.js
+ * - toilet = FIXTURE (what plumber fixes) - from this file
+ * - bathroom = LOCATION (where damage is seen) - from damagePlaces.js
  * 
  * PROPERTY GUIDE:
  * - locationId: Unique identifier for this work location (used in detection results)
@@ -24,7 +24,7 @@
  */
 
 export const PLUMBING_ISSUE_ITEMS = [
-  // FIXTURES - Specific plumbing fixtures
+  // FIXTURES - Specific plumbing fixtures that need fixing
   {
     "locationId": "toilet",
     "customerSearchTerms": ["toilet", "commode", "water closet", "john", "throne"],
@@ -302,30 +302,5 @@ export const PLUMBING_ISSUE_ITEMS = [
     "customerSearchTerms": ["gas line", "gas pipe", "natural gas line", "propane line", "gas supply"],
     "dispatchCategory": "system",
     "technicalDescription": "Natural gas or propane supply piping"
-  },
-  // COMPOUND WORK LOCATIONS - Room-specific work areas
-  {
-    "locationId": "upstairs_bathroom",
-    "customerSearchTerms": ["upstairs bathroom", "second floor bathroom", "upstairs restroom"],
-    "dispatchCategory": "fixture",
-    "technicalDescription": "Upstairs bathroom work area - may require carrying tools upstairs, multiple fixtures"
-  },
-  {
-    "locationId": "downstairs_bathroom", 
-    "customerSearchTerms": ["downstairs bathroom", "first floor bathroom", "downstairs restroom"],
-    "dispatchCategory": "fixture",
-    "technicalDescription": "Downstairs bathroom work area - ground floor access, may have different plumbing setup"
-  },
-  {
-    "locationId": "master_bathroom",
-    "customerSearchTerms": ["master bathroom", "ensuite bathroom", "master ensuite"],
-    "dispatchCategory": "fixture", 
-    "technicalDescription": "Master bathroom work area - often larger, may have luxury fixtures, multiple plumbing connections"
-  },
-  {
-    "locationId": "kitchen_sink_area",
-    "customerSearchTerms": ["kitchen sink", "kitchen sink area", "kitchen sink plumbing", "kitchen work area"],
-    "dispatchCategory": "fixture",
-    "technicalDescription": "Kitchen sink work area - includes sink, faucet, garbage disposal, dishwasher connections"
   }
 ]
