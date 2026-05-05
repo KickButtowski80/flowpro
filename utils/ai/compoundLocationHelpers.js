@@ -34,6 +34,85 @@ export const findAreaInText = (text, lookupMap) => {
 }
 
 /**
+ * Helper: Escape string for safe use in RegExp
+ */
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/**
+ * Helper: Find ALL area matches in text using lookup map
+ * Returns array of all matching aliases found in the text
+ * Strategy: find all candidate spans by word-boundary regex, then pick
+ * longest non-overlapping spans greedily. This avoids overlaps such as
+ * "upstairs bathroom" and "bathroom" both matching.
+ */
+export const findAllAreasInText = (text, lookupMap) => {
+  // 1. Guard clause - return empty array if no text
+  if (!text) return []
+  
+  // 2. Convert input text to lowercase and trim whitespace
+  //    "Upstairs Bathroom OR Kitchen" → "upstairs bathroom or kitchen"
+  const lowerText = text.toLowerCase().trim()
+  
+  // 3. Array to hold all potential matches before filtering
+  const candidates = []
+
+  // 4. Loop through all aliases in the lookup map
+  //    lookupMap = { "upstairs bathroom": "upstairs_bathroom", "bathroom": "bathroom", ... }
+  for (const [alias, areaId] of Object.entries(lookupMap)) {
+    // 5. Clean up the alias (lowercase, trim)
+    //    "Upstairs Bathroom" → "upstairs bathroom"
+    const aliasLower = alias.toLowerCase().trim()
+    if (!aliasLower) continue // Skip empty aliases
+    
+    // 6. Create word-boundary regex to find exact matches
+    //    \b = word boundary, ensures "bathroom" doesn't match in "bathroom vanity"
+    //    \bupstairs bathroom\b matches "upstairs bathroom" but not part of other words
+    const pattern = new RegExp(`\\b${escapeRegex(aliasLower)}\\b`, 'i')
+    
+    // 7. Execute regex to find ALL matches in the text (not just first)
+    //    This catches repeated mentions like "bathroom...and bathroom again"
+    let m
+    //.exec() searches the text and returns the first match.
+    //But after each call, the regex remembers where it stopped, 
+    //so the next call continues from there.It's like reading a book with a bookmark 📖.
+    while ((m = pattern.exec(lowerText)) !== null) {
+      // 8. Extract position and length of each match
+      //    For "upstairs bathroom" at start: start=0, end=16, length=16
+      const start = m.index
+      const end = m.index + aliasLower.length
+      candidates.push({ alias, areaId, start, end, length: end - start })
+    }
+  }
+
+  // 9. Sort candidates by length (longest first), then by position for stability
+  //    This ensures "upstairs bathroom" (16 chars) comes before "bathroom" (8 chars)
+  candidates.sort((a, b) => (b.length - a.length) || (a.start - b.start))
+
+  // 10. Array to hold final non-overlapping matches
+  const selected = []
+  let lastEnd = -1
+  
+  // 11. Greedy selection of non-overlapping matches
+  for (const c of candidates) {
+    // 12. Check if this candidate overlaps with any already selected candidate
+    //    Overlap exists if: NOT (c.end <= s.start OR c.start >= s.end)
+    //    Which means: c.start < s.end AND c.end > s.start
+    const overlaps = selected.some(s => !(c.end <= s.start || c.start >= s.end))
+    
+    // 13. Only add if no overlap found
+    if (!overlaps) {
+      selected.push(c)
+    }
+  }
+
+  // 14. Sort final selection back to original text order
+  selected.sort((a, b) => a.start - b.start)
+  
+  // 15. Return just the [alias, areaId] pairs in order
+  return selected.map(s => [s.alias, s.areaId])
+}
+
+/**
  * Helper: Build regex patterns for area relationships
  * Pattern: "ceiling from upstairs bathroom" (damage from source)
  * 
@@ -173,48 +252,52 @@ export const findAreaConnectionsInText = (text, regexPatterns, lookupMap) => {
       // Validate damage candidate in current lookup map
       const damageMatch = findAreaInText(damageCandidate, lookupMap)
       
-      // For source candidate, prioritize work location lookup if damage map
-      // because "from/in/at" usually indicates work location (where plumber goes)
-      let sourceMatch
+      // For source candidate, find ALL possible matches (not just first one)
+      // This handles cases like "ceiling from upstairs bathroom or kitchen"
+      let sourceMatches = []
       if (lookupMap === DAMAGE_PLACE_LOOKUP) {
         // Try work locations first, then fallback to damage places
-        sourceMatch = findAreaInText(sourceCandidate, PLUMBING_ISSUE_ITEM_LOOKUP) || 
-                     findAreaInText(sourceCandidate, DAMAGE_PLACE_LOOKUP)
+        sourceMatches = findAllAreasInText(sourceCandidate, PLUMBING_ISSUE_ITEM_LOOKUP) || 
+                       findAllAreasInText(sourceCandidate, DAMAGE_PLACE_LOOKUP)
       } else {
         // Already searching work locations
-        sourceMatch = findAreaInText(sourceCandidate, lookupMap)
+        sourceMatches = findAllAreasInText(sourceCandidate, lookupMap)
       }
       
-      console.log('DEBUG findAreaConnectionsInText: damageMatch:', damageMatch, 'sourceMatch:', sourceMatch)
+      console.log('DEBUG findAreaConnectionsInText: damageMatch:', damageMatch, 'sourceMatches:', sourceMatches)
       
-      if (damageMatch && sourceMatch) {
+      if (damageMatch && sourceMatches.length > 0) {
         const [damageAlias, damageAreaId] = damageMatch
-        const [sourceAlias, sourceAreaId] = sourceMatch
         
-        // Determine work location vs context based on preposition
-        // Most prepositions mean sourceCandidate is the work location (where plumber goes)
-        // damageCandidate is where damage shows (context for dispatcher)
-        const prepositionIndicatesSource = SPATIAL_PREPOSITIONS.includes(preposition.toLowerCase())
-        
-        foundConnections.push({
-          matchText: `${damageCandidate} ${preposition} ${sourceCandidate}`.trim(),
-          workLocation: {
-            plumbingIssueLocId: prepositionIndicatesSource ? sourceAreaId : damageAreaId,
-            alias: prepositionIndicatesSource ? sourceAlias : damageAlias,
-            role: 'work_site'
-          },
-          contextLocation: {
-            plumbingIssueLocId: prepositionIndicatesSource ? damageAreaId : sourceAreaId,
-            alias: prepositionIndicatesSource ? damageAlias : sourceAlias,
-            role: 'context'
-          },
-          consumedText: [damageCandidate.toLowerCase(), sourceCandidate.toLowerCase()], // Track consumed parts
-          uniqueDamageAreas: Array.from(uniqueDamageAreas), // All unique damage areas mentioned
-          preposition,
-          confidence: 0.87, // High confidence for clear patterns
-          ambiguity: false,
-          pattern: 'area-first'
-        })
+        // Create connections for ALL found source matches
+        for (const [sourceAlias, sourceAreaId] of sourceMatches) {
+          // Determine work location vs context based on preposition
+          // Most prepositions mean sourceCandidate is the work location (where plumber goes)
+          // damageCandidate is where damage shows (context for dispatcher)
+          const prepositionIndicatesSource = SPATIAL_PREPOSITIONS.includes(preposition.toLowerCase())
+          
+          foundConnections.push({
+            matchText: `${damageCandidate} ${preposition} ${sourceAlias}`.trim(),
+            originalText: `${damageCandidate} ${preposition} ${sourceCandidate}`.trim(), // Keep original for reference
+            workLocation: {
+              plumbingIssueLocId: prepositionIndicatesSource ? sourceAreaId : damageAreaId,
+              alias: prepositionIndicatesSource ? sourceAlias : damageAlias,
+              role: 'work_site'
+            },
+            contextLocation: {
+              plumbingIssueLocId: prepositionIndicatesSource ? damageAreaId : sourceAreaId,
+              alias: prepositionIndicatesSource ? damageAlias : sourceAlias,
+              role: 'context'
+            },
+            consumedText: [damageCandidate.toLowerCase(), sourceAlias.toLowerCase()], // Track consumed parts
+            uniqueDamageAreas: Array.from(uniqueDamageAreas), // All unique damage areas mentioned
+            preposition,
+            confidence: sourceMatches.length > 1 ? 0.75 : 0.87, // Lower confidence if multiple possibilities
+            ambiguity: sourceMatches.length > 1, // Mark as ambiguous if multiple sources found
+            pattern: 'area-first',
+            alternativeSources: sourceMatches.length > 1 ? sourceMatches.map(([alias]) => alias) : []
+          })
+        }
       }
     }
   }
