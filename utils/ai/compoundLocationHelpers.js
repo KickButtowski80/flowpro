@@ -120,17 +120,46 @@ export const findAllAreasInText = (text, lookupMap) => {
  * @returns {Array} - Array of RegExp patterns
  */
 export const buildAreaRelationshipPatterns = (lookup) => {
+  // 1. Initialize empty array to hold all regex patterns
   const patterns = []
+  
+  // 2. Loop through all aliases in the lookup map
+  //    lookup = { "ceiling": "ceiling", "wall": "wall", "floor": "floor", ... }
   for (const [alias] of Object.entries(lookup)) {
-    // Skip multi-word areas (they're locations, not areas)
+    // 3. Skip multi-word areas (they're locations, not single damage areas)
+    //    "upstairs bathroom" → skip (location)
+    //    "ceiling" → keep (damage area)
     if (alias.includes(' ')) continue
     
-    // Pattern: area_name [prepositions] (optional the) location_words
+    // 4. Create preposition pattern from our constant array
+    //    SPATIAL_PREPOSITIONS = ['from', 'in', 'at', 'above', ...]
+    //    prepositionPattern = "from|in|at|above|below|under|..."
     const prepositionPattern = SPATIAL_PREPOSITIONS.join('|')
+    
+    // 5. Build regex pattern for this specific alias
+    //    For alias="ceiling": 
+    //    Pattern = "(ceiling)\s+(from|in|at|above|...)\s+(?:the\s+)?([^.,;!?\\n]+)"
+    //    
+    //    Breakdown:
+    //    (ceiling) = capture group 1 (damage area)
+    //    \s+ = one or more spaces
+    //    (from|in|at|...) = capture group 2 (preposition)
+    //    \s+ = one or more spaces  
+    //    (?:the\s+)? = optional "the " (non-capturing group)
+    //    ([^.,;!?\\n]+) = capture group 3 (source location - any chars except punctuation)
+    //    gi = global + case insensitive flags
     const pattern = new RegExp(`(${alias})\\s+(${prepositionPattern})\\s+(?:the\\s+)?([^.,;!?\\n]+)`, 'gi')
+    
+    // 6. Debug: log the generated pattern
+    //    Example output: /([ceiling])\s+(from|in|at|...)\s+(?:the\s+)?([^.,;!?\\n]+)/gi
     console.log('pattern', {pattern})
+    
+    // 7. Add this pattern to our patterns array
     patterns.push(pattern)
   }
+  
+  // 8. Return all generated patterns
+  //    Example: [/(ceiling)\s+(from|in|at|...)/gi, /(wall)\s+(from|in|at|...)/gi, ...]
   return patterns
 }
 
