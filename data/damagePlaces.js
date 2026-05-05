@@ -1,46 +1,52 @@
 /**
  * Damage Places - Locations where plumbing damage/manifestation is VISIBLE
  * These are the "context locations" - where the customer sees the problem
- * e.g., "ceiling from upstairs bathroom" → ceiling is where damage shows
+ * 
+ * This file contains BOTH rooms/areas AND surfaces where damage appears
+ * Fixtures/components are in plumbingIssueItems.js
+ * 
+ * Example distinction:
+ * - "bathroom" (damagePlaces.js) = room where damage is visible
+ * - "toilet" (plumbingIssueItems.js) = fixture that needs fixing
  */
 
 export default [
-  // ROOMS - Context locations where damage is observed
+  // ROOMS - Areas where damage is observed
   {
     "id": "bathroom",
     "aliases": ["bathroom", "restroom", "washroom", "upstairs bathroom", "downstairs bathroom", "outside bathroom", "guesthouse bathroom", "master bathroom", "half bathroom", "full bathroom", "main bathroom", "guest bathroom"],
     "category": "room",
-    "description": "Bathroom room where damage is visible (context only - plumber works on fixtures inside)"
+    "description": "Bathroom room where damage is visible (context location - plumber fixes fixtures inside)"
   },
   {
     "id": "kitchen",
     "aliases": ["kitchen", "in the kitchen", "kitchen area", "main kitchen", "galley kitchen"],
     "category": "room",
-    "description": "Kitchen room where damage is visible (context only - plumber works on fixtures inside)"
+    "description": "Kitchen room where damage is visible (context location - plumber fixes fixtures inside)"
   },
   {
     "id": "basement",
     "aliases": ["basement", "in the basement", "downstairs basement", "cellar", "lower level"],
     "category": "room",
-    "description": "Basement room where damage is visible (context only - plumber works on fixtures/lines inside)"
+    "description": "Basement room where damage is visible (context location - plumber fixes fixtures/lines inside)"
   },
   {
     "id": "garage",
     "aliases": ["garage", "in the garage", "attached garage", "detached garage", "car garage"],
     "category": "room",
-    "description": "Garage room where damage is visible (context only - plumber works on fixtures inside)"
+    "description": "Garage room where damage is visible (context location - plumber fixes fixtures inside)"
   },
   {
     "id": "laundry_room",
     "aliases": ["laundry room", "laundry area", "utility room", "washer area", "dryer room"],
     "category": "room",
-    "description": "Laundry room where damage is visible (context only - plumber works on fixtures inside)"
+    "description": "Laundry room where damage is visible (context location - plumber fixes fixtures inside)"
   },
   {
     "id": "master_bedroom",
     "aliases": ["master bedroom", "master suite", "ensuite bathroom"],
     "category": "room",
-    "description": "Master bedroom area where damage is visible (context only - plumber works on fixtures inside)"
+    "description": "Master bedroom area where damage is visible (context location - plumber fixes fixtures inside)"
   },
   {
     "id": "upstairs",
@@ -114,12 +120,6 @@ export default [
     "aliases": ["baseboard", "baseboards", "molding", "floor trim", "wall bottom", "baseboard molding"],
     "category": "surface",
     "description": "Floor trim and baseboards where water wicks up from slab or floor leaks"
-  },
-  {
-    "id": "under_sink_cabinet",
-    "aliases": ["cabinet", "under sink", "sink cabinet", "vanity", "under kitchen sink", "under bathroom sink", "cabinet under sink"],
-    "category": "surface",
-    "description": "Cabinet areas beneath sinks where drain or faucet leaks pool"
   },
   {
     "id": "stairwell",
