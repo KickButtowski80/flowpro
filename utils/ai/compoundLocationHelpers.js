@@ -171,18 +171,46 @@ export const buildAreaRelationshipPatterns = (lookup) => {
  * @returns {Array} - Array of RegExp patterns
  */
 export const buildReverseDirectionPatterns = (lookup) => {
+  // 1. Initialize empty array to hold reverse regex patterns
   const patterns = []
+  
+  // 2. Create verb pattern from our constant array
+  //    REVERSE_DIRECTION_VERBS = ['has', 'have', 'with', 'shows', 'is leaking', ...]
+  //    verbPattern = "has|have|with|shows|showing|is leaking|are leaking|..."
   const verbPattern = REVERSE_DIRECTION_VERBS.join('|')
   
+  // 3. Loop through all aliases in the lookup map
+  //    lookup = { "ceiling": "ceiling", "wall": "wall", "floor": "floor", ... }
   for (const [alias] of Object.entries(lookup)) {
-    // Skip multi-word areas (they're locations, not areas)
+    // 4. Skip multi-word areas (they're locations, not single damage areas)
+    //    "upstairs bathroom" → skip (location)
+    //    "ceiling" → keep (damage area)
     if (alias.includes(' ')) continue
     
-    // Pattern: source_location [verbs] (optional the) damage_area
+    // 5. Build reverse regex pattern for this specific alias
+    //    For alias="ceiling":
+    //    Pattern = "([^.,;!?\\n]+)\\s+(has|have|with|...)\\s+(?:the\\s+)?(ceiling)"
+    //    
+    //    Breakdown:
+    //    ([^.,;!?\\n]+) = capture group 1 (source location - any text except punctuation)
+    //    \\s+ = one or more spaces
+    //    (has|have|with|...) = capture group 2 (reverse-direction verb)
+    //    \\s+ = one or more spaces
+    //    (?:the\\s+)? = optional "the " (non-capturing group)
+    //    (ceiling) = capture group 3 (damage area)
+    //    gi = global + case insensitive flags
     const pattern = new RegExp(`([^.,;!?\\n]+)\\s+(${verbPattern})\\s+(?:the\\s+)?(${alias})`, 'gi')
+    
+    // 6. Debug: log the generated reverse pattern
+    //    Example output: /([^.,;!?\\n]+)\s+(has|have|with|...)\s+(?:the\s+)?(ceiling)/gi
     console.log('reverse pattern', {pattern})
+    
+    // 7. Add this reverse pattern to our patterns array
     patterns.push(pattern)
   }
+  
+  // 8. Return all generated reverse patterns
+  //    Example: [/(source)\s+(has|have|with|...)\s+(ceiling)/gi, /(source)\s+(has|have|with|...)\s+(wall)/gi, ...]
   return patterns
 }
 
