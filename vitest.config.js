@@ -1,10 +1,15 @@
 import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
+  plugins: [vue()],
   test: {
     globals: true,
-    environment: 'node',
-    include: ['utils/ai/__tests__/**/*.test.js'],
+    environment: 'jsdom', // Change to jsdom for Vue component testing
+    include: [
+      'utils/ai/__tests__/**/*.test.js',
+      'components/__tests__/**/*.test.js'
+    ],
     coverage: {
       reporter: ['text', 'html'],
       exclude: ['node_modules/', '.nuxt/', '.output/']
