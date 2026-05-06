@@ -8,7 +8,10 @@ export default defineConfig({
     environment: 'jsdom', // Change to jsdom for Vue component testing
     include: [
       'utils/ai/__tests__/**/*.test.js',
-      'components/__tests__/**/*.test.js'
+      'components/__tests__/**/*.test.js',
+      'components/admin/__tests__/**/*.test.js',
+      'components/customer/__tests__/**/*.test.js',
+      'components/common/__tests__/**/*.test.js'
     ],
     coverage: {
       reporter: ['text', 'html'],
