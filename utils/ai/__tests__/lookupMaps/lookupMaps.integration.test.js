@@ -3,13 +3,21 @@
  * 
  * Step 2: Core pattern matching functions (memory-safe version)
  * Tests functions that don't trigger heavy pattern building
+ * Uses mock data for predictable test results
  */
 
-import {
-  findAreaMatches,
-  findSymptomMatches,
-  debugMatches
-} from '../../lookupMaps.js'
+import { 
+  createTestFindAreaMatches,
+  createTestFindSymptomMatches,
+  createTestDebugMatches
+} from './testUtils.js'
+
+import { mockPlumbingIssueItems, mockSymptoms } from './mockData.js'
+
+// Create test versions with mock data
+const findAreaMatches = createTestFindAreaMatches(mockPlumbingIssueItems)
+const findSymptomMatches = createTestFindSymptomMatches(mockSymptoms)
+const debugMatches = createTestDebugMatches(mockPlumbingIssueItems, mockSymptoms)
 
 describe('lookupMaps - Integration Tests (Memory-Safe)', () => {
 
@@ -23,8 +31,9 @@ describe('lookupMaps - Integration Tests (Memory-Safe)', () => {
     test('should find rooms/areas in text', () => {
       const result = findAreaMatches('The bathroom ceiling is wet')
       expect(Array.isArray(result)).toBe(true)
-      // Some areas may not be found depending on data loading
-      // Just verify function works and returns array
+      expect(result.length).toBeGreaterThan(0)
+      expect(result[0]).toHaveProperty('id')
+      expect(result[0]).toHaveProperty('category')
     })
     
     test('should find multiple areas in text', () => {
@@ -50,15 +59,15 @@ describe('lookupMaps - Integration Tests (Memory-Safe)', () => {
     test('should find symptoms in text', () => {
       const result = findSymptomMatches('The toilet is leaking')
       expect(Array.isArray(result)).toBe(true)
-      // Symptoms may not be found depending on data loading
-      // Just verify function works and returns array
+      expect(result.length).toBeGreaterThan(0)
+      expect(result[0]).toHaveProperty('id')
+      expect(result[0]).toHaveProperty('urgency')
     })
     
     test('should find multiple symptoms in text', () => {
       const result = findSymptomMatches('The ceiling is leaking and dripping')
       expect(Array.isArray(result)).toBe(true)
-      // Multiple symptoms may not be found depending on data loading
-      // Just verify function works and returns array
+      expect(result.length).toBeGreaterThan(1)
     })
     
     test('should handle case insensitive matching', () => {
@@ -96,17 +105,19 @@ describe('lookupMaps - Integration Tests (Memory-Safe)', () => {
     test('should handle typical customer description', () => {
       const areas = findAreaMatches('My bathroom sink is leaking')
       const symptoms = findSymptomMatches('My bathroom sink is leaking')
-      expect(Array.isArray(areas)).toBe(true)
-      expect(Array.isArray(symptoms)).toBe(true)
-      // Just verify functions work, actual detection depends on data
+      expect(areas.length).toBeGreaterThan(0)
+      expect(symptoms.length).toBeGreaterThan(0)
+      expect(areas.some(a => a.id === 'bathroom' || a.id === 'sink')).toBe(true)
+      expect(symptoms.some(s => s.id === 'leaking')).toBe(true)
     })
     
     test('should handle emergency description', () => {
       const areas = findAreaMatches('Emergency! Water is bursting from the pipe and flooding my kitchen')
       const symptoms = findSymptomMatches('Emergency! Water is bursting from the pipe and flooding my kitchen')
-      expect(Array.isArray(areas)).toBe(true)
-      expect(Array.isArray(symptoms)).toBe(true)
-      // Just verify functions work, actual detection depends on data
+      expect(areas.length).toBeGreaterThan(0)
+      expect(symptoms.length).toBeGreaterThan(0)
+      expect(areas.some(a => a.id === 'kitchen')).toBe(true)
+      expect(symptoms.some(s => s.id === 'bursting' || s.id === 'flooding')).toBe(true)
     })
   })
 
