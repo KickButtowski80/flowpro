@@ -177,12 +177,13 @@ export const getWorkItemCategory = (plumbingIssueLocId) => {
 }
 
 /**
- * Get category for a damage place ID
+ * Get damage place type for cross-trade coordination
+ * Used by other trades (drywall, painters) to plan materials and work
  * @param {string} placeId - The damage place ID
- * @returns {string|null} - Category or null
+ * @returns {string|null} - Type (room, surface, structure, etc.) or null
  */
-export const getDamagePlaceCategory = (placeId) => {
-  return DAMAGE_PLACE_METADATA[placeId]?.dispatchCategory || null
+export const getDamagePlaceType = (placeId) => {
+  return DAMAGE_PLACE_METADATA[placeId]?.category || null
 }
 
 /**
