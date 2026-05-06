@@ -3,7 +3,7 @@
  * Breaks down the large findContextualMatches function into focused, testable modules
  */
 
-import { SYMPTOM_LOOKUP, MATCHING_RULES, RULES_BY_AREA } from './lookupMaps.js'
+import { SYMPTOM_LOOKUP, MATCHING_RULES } from './lookupMaps.js'
 
 /**
  * Process symptoms for a specific area

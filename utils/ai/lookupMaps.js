@@ -7,7 +7,7 @@ import DAMAGE_PLACES from '../../data/damagePlaces.js'
 import { PLUMBING_ISSUE_ITEMS } from '../../data/plumbingIssueItems.js'
 import SYMPTOMS from '../../data/symptoms.js'
 import AREA_JOB_CONFIGS from '../../data/areaJobConfigs.js'
-import { findAreaInText, buildAreaRelationshipPatterns, buildReverseDirectionPatterns, findAreaConnectionsInText, findReverseDirectionConnections, detectPatternStrategy, deduplicateCompounds } from './compoundLocationHelpers.js'
+import { buildAreaRelationshipPatterns, buildReverseDirectionPatterns, findAreaConnectionsInText, findReverseDirectionConnections, detectPatternStrategy, deduplicateCompounds } from './compoundLocationHelpers.js'
 import {
   processSymptomsByArea,
   processAreaSymptomPairs,
@@ -780,7 +780,7 @@ const collectRegexMatches = (text, regex, lookup) => {
   }
 
   // Drop helper len before returning
-  return accepted.map(({ len, ...rest }) => rest)
+  return accepted.map(({ len: _len, ...rest }) => rest)
 }
 
 export function findAreaMatches(text) {

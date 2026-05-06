@@ -90,7 +90,6 @@ export const findAllAreasInText = (text, lookupMap) => {
 
   // 10. Array to hold final non-overlapping matches
   const selected = []
-  let lastEnd = -1
   
   // 11. Greedy selection of non-overlapping matches
   for (const c of candidates) {
