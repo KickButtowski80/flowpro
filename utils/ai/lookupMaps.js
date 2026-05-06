@@ -108,11 +108,11 @@ const SYMPTOM_GROUP_PATTERN = new RegExp(
  */
 export const detectSymptomGroups = (text) => {
   const symptomGroups = []
-  
+
   // Pattern: symptom (and|,) symptom (and|,) symptom
   // Matches: "bubbling and sagging", "leaking, dripping, and running"
   // Uses pre-compiled SYMPTOM_GROUP_PATTERN for performance
-  
+
   let match
   while ((match = SYMPTOM_GROUP_PATTERN.exec(text)) !== null) {
     // exec() returns: [fullMatch, group1, group2, group3]
@@ -126,7 +126,7 @@ export const detectSymptomGroups = (text) => {
       symptomGroups.push(group)
     }
   }
-  
+
   return symptomGroups
 }
 
@@ -154,13 +154,15 @@ const createMatchingRules = () => {
 }
 
 export const MATCHING_RULES = createMatchingRules()
-export const RULES_BY_AREA = (() => {
-  const byArea = new Map()
+export const VALID_SYMPTOMS_BY_CATEGORY = (() => {
+  const byCategory = new Map()
   for (const { plumbingIssueLocId, symptomId } of MATCHING_RULES) {
-    if (!byArea.has(plumbingIssueLocId)) byArea.set(plumbingIssueLocId, new Set())
-    byArea.get(plumbingIssueLocId).add(symptomId)
+    if (!byCategory.has(plumbingIssueLocId)) {
+      byCategory.set(plumbingIssueLocId, new Set())
+    }
+    byCategory.get(plumbingIssueLocId).add(symptomId)
   }
-  return byArea
+  return byCategory
 })()
 
 // ========================================
@@ -270,33 +272,33 @@ export const getTeamSizeRecommendation = (plumbingIssueLocId) => {
  */
 export const detectAreaRelationships = (text) => {
   console.log('DEBUG: Detecting area relationships in clause:', text)
-  
+
   // Determine optimal strategy for this text
   const strategy = detectPatternStrategy(text)
   console.log('DEBUG: Detected pattern strategy:', strategy)
-  
+
   let allDetectedConnections = []
-  
+
   if (strategy === 'forward') {
     // Use forward detection only (preposition patterns)
     console.log('DEBUG: Using forward detection strategy')
     const workAreaRegexPatterns = buildAreaRelationshipPatterns(PLUMBING_ISSUE_ITEM_LOOKUP)
     const damageAreaRegexPatterns = buildAreaRelationshipPatterns(DAMAGE_PLACE_LOOKUP)
-    
+
     const foundWorkAreaConnections = findAreaConnectionsInText(text, workAreaRegexPatterns, PLUMBING_ISSUE_ITEM_LOOKUP)
     const foundDamageAreaConnections = findAreaConnectionsInText(text, damageAreaRegexPatterns, DAMAGE_PLACE_LOOKUP)
     allDetectedConnections = foundWorkAreaConnections.concat(foundDamageAreaConnections)
-    
+
   } else if (strategy === 'reverse') {
     // Use reverse detection only (verb patterns)
     console.log('DEBUG: Using reverse detection strategy')
     const reverseWorkAreaPatterns = buildReverseDirectionPatterns(PLUMBING_ISSUE_ITEM_LOOKUP)
     const reverseDamageAreaPatterns = buildReverseDirectionPatterns(DAMAGE_PLACE_LOOKUP)
-    
+
     const foundWorkAreaConnections = findReverseDirectionConnections(text, reverseWorkAreaPatterns, PLUMBING_ISSUE_ITEM_LOOKUP)
     const foundDamageAreaConnections = findReverseDirectionConnections(text, reverseDamageAreaPatterns, DAMAGE_PLACE_LOOKUP)
     allDetectedConnections = foundWorkAreaConnections.concat(foundDamageAreaConnections)
-    
+
   } else {
     // Adjacent patterns: try both forward and reverse as fallback
     console.log('DEBUG: Using adjacent patterns (try both strategies)')
@@ -304,12 +306,12 @@ export const detectAreaRelationships = (text) => {
     const damageAreaRegexPatterns = buildAreaRelationshipPatterns(DAMAGE_PLACE_LOOKUP)
     const reverseWorkAreaPatterns = buildReverseDirectionPatterns(PLUMBING_ISSUE_ITEM_LOOKUP)
     const reverseDamageAreaPatterns = buildReverseDirectionPatterns(DAMAGE_PLACE_LOOKUP)
-    
+
     const forwardWorkConnections = findAreaConnectionsInText(text, workAreaRegexPatterns, PLUMBING_ISSUE_ITEM_LOOKUP)
     const forwardDamageConnections = findAreaConnectionsInText(text, damageAreaRegexPatterns, DAMAGE_PLACE_LOOKUP)
     const reverseWorkConnections = findReverseDirectionConnections(text, reverseWorkAreaPatterns, PLUMBING_ISSUE_ITEM_LOOKUP)
     const reverseDamageConnections = findReverseDirectionConnections(text, reverseDamageAreaPatterns, DAMAGE_PLACE_LOOKUP)
-    
+
     allDetectedConnections = [
       ...forwardWorkConnections,
       ...forwardDamageConnections,
@@ -317,10 +319,10 @@ export const detectAreaRelationships = (text) => {
       ...reverseDamageConnections
     ]
   }
-  
+
   // Remove duplicate connections
   const uniqueConnections = deduplicateCompounds(allDetectedConnections)
-  
+
   console.log('DEBUG: Final detected connections:', JSON.stringify(uniqueConnections, null, 2))
   return uniqueConnections
 }
@@ -344,42 +346,42 @@ const collectAreaAliases = (clause) => {
   // Then, check for area relationships (damage showing in one area, source in another)
   const relationships = detectAreaRelationships(clause)
   console.log('DEBUG collectAreaAliases: area relationships:', relationships)
-  
+
   if (relationships && relationships.length > 0) {
     for (const rel of relationships) {
       console.log('DEBUG collectAreaAliases: relationship object:', JSON.stringify(rel, null, 2))
       // Add WORK LOCATION (where plumber goes - e.g., "upstairs bathroom")
       aliasMap.set(rel.workLocation.plumbingIssueLocId, rel.workLocation.alias)
       console.log('DEBUG collectAreaAliases: added WORK LOCATION:', rel.workLocation.plumbingIssueLocId, '->', rel.workLocation.alias)
-      
+
       // Store context location for dispatcher info (e.g., "ceiling" - where damage shows)
       rel.contextLocationId = rel.contextLocation.plumbingIssueLocId
       rel.contextLocationAlias = rel.contextLocation.alias
     }
   }
-  
+
   // Then, check regular aliases (skip if area already has relationship match)
-  const usedAreas = relationships && relationships.length > 0 
+  const usedAreas = relationships && relationships.length > 0
     ? new Set([
-        ...relationships.flatMap(r => [r.workLocation.plumbingIssueLocId, r.contextLocation.plumbingIssueLocId].filter(Boolean)),
-        ...relationships.flatMap(r => r.consumedText || [])
-      ])
+      ...relationships.flatMap(r => [r.workLocation.plumbingIssueLocId, r.contextLocation.plumbingIssueLocId].filter(Boolean)),
+      ...relationships.flatMap(r => r.consumedText || [])
+    ])
     : new Set()
-  
+
   console.log('DEBUG collectAreaAliases: usedAreas:', Array.from(usedAreas))
-  
+
   // Sort aliases by length (longest first) to prevent overlapping matches
   // Process work locations first (most important), then damage places
   const workEntries = Object.entries(PLUMBING_ISSUE_ITEM_LOOKUP).sort((a, b) => b[0].length - a[0].length)
   const damageEntries = Object.entries(DAMAGE_PLACE_LOOKUP).sort((a, b) => b[0].length - a[0].length)
   const sortedEntries = [...workEntries, ...damageEntries]
-  
+
   for (const [alias, plumbingIssueLocId] of sortedEntries) {
     // Skip if area already has compound match
     if (usedAreas.has(plumbingIssueLocId)) continue
-    
+
     if (!clause.includes(alias.toLowerCase())) continue
-    
+
     // If same area already has a match, only replace if new alias is longer
     if (aliasMap.has(plumbingIssueLocId)) {
       const existingAlias = aliasMap.get(plumbingIssueLocId)
@@ -396,10 +398,10 @@ const collectAreaAliases = (clause) => {
       }
     }
   }
-  
+
   // Convert to objects for compatibility with existing code
   const areaAliases = Array.from(aliasMap.entries()).map(([plumbingIssueLocId, alias]) => ({ plumbingIssueLocId, alias }))
-  
+
   // Add symptom groups to the result for grouped symptom processing
   return { areaAliases, symptomGroups }
 }
@@ -414,14 +416,14 @@ const collectAreaAliases = (clause) => {
  */
 const collectSymptomAliases = (clause) => {
   const aliasMap = new Map()
-  
+
   // Sort aliases by length (longest first) to prevent overlapping matches
   const sortedEntries = Object.entries(SYMPTOM_LOOKUP)
     .sort((a, b) => b[0].length - a[0].length)
-  
+
   for (const [alias, symptomId] of sortedEntries) {
     if (!clause.includes(alias.toLowerCase())) continue
-    
+
     // If same symptom already has a match, only replace if new alias is longer
     if (aliasMap.has(symptomId)) {
       const existingAlias = aliasMap.get(symptomId)
@@ -438,7 +440,7 @@ const collectSymptomAliases = (clause) => {
       }
     }
   }
-  
+
   // Convert to objects for compatibility with existing code
   return Array.from(aliasMap.entries()).map(([symptomId, alias]) => ({ symptomId, alias }))
 }
@@ -455,15 +457,15 @@ const collectSymptomAliases = (clause) => {
 const collectSymptomAliasesForIds = (clause, allowedIds) => {
   if (!allowedIds || allowedIds.size === 0) return []
   const aliasMap = new Map()
-  
+
   // Sort aliases by length (longest first) to prevent overlapping matches
   const sortedEntries = Object.entries(SYMPTOM_LOOKUP)
     .sort((a, b) => b[0].length - a[0].length)
-  
+
   for (const [alias, symptomId] of sortedEntries) {
     if (!allowedIds.has(symptomId)) continue
     if (!clause.includes(alias.toLowerCase())) continue
-    
+
     // If same symptom already has a match, only replace if new alias is longer
     if (aliasMap.has(symptomId)) {
       const existingAlias = aliasMap.get(symptomId)
@@ -480,7 +482,7 @@ const collectSymptomAliasesForIds = (clause, allowedIds) => {
       }
     }
   }
-  
+
   return Array.from(aliasMap.entries()).map(([symptomId, alias]) => ({ symptomId, alias }))
 }
 
@@ -547,7 +549,7 @@ const pruneRedundantSymptomAliases = (items) => {
  */
 export function findContextualMatches(text) {
   // EXAMPLE INPUT: "The bathroom ceiling is dripping and sagging, the wall is wet"
-  
+
   // 1. Initialize empty arrays and sets to track matches and prevent duplicates
   //    matches = [] (will hold all final matches)
   //    usedAreas = new Set() (tracks areas already matched)
@@ -571,7 +573,7 @@ export function findContextualMatches(text) {
   for (const clause of clauses) {
     // First clause: "the bathroom ceiling is dripping and sagging"
     // Second clause: "the wall is wet"
-    
+
     // 4. Collect location aliases and symptom groups from clause
     //    For "the bathroom ceiling is dripping and sagging":
     //    clauseAreas = [{plumbingIssueLocId: "bathroom", alias: "bathroom"}] (location from damagePlaces.js)
@@ -583,11 +585,11 @@ export function findContextualMatches(text) {
       // First iteration: area = {plumbingIssueLocId: "bathroom", alias: "bathroom"}
       // Note: "bathroom" is a location (from damagePlaces.js), not a fixture
       console.log('DEBUG: Processing area:', area)
-      
-      // 6. Get allowed symptoms for this location from RULES_BY_AREA
+
+      // 6. Get allowed symptoms for this location from VALID_SYMPTOMS_BY_CATEGORY
       //    For bathroom location: allowed = {"leak", "dripping", "overflowing", "clogged", ...}
       //    These symptoms are valid when they appear in bathroom context
-      const allowed = RULES_BY_AREA.get(area.plumbingIssueLocId) || new Set()
+      const allowed = VALID_SYMPTOMS_BY_CATEGORY.get(area.plumbingIssueLocId) || new Set()
       console.log('DEBUG: Allowed symptoms for area:', Array.from(allowed))
       if (allowed.size === 0) continue
 
@@ -713,7 +715,7 @@ export function findFallbackMatches(text) {
   // Step 1: Find area and symptom words independently using regex
   const areaMatches = findAreaMatches(text)
   const symptomMatches = findSymptomMatches(text)
- 
+
   // Step 2: Extract unique IDs for pattern matching
   const plumbingIssueLocIds = new Set(areaMatches.map(match => match.id))
   const symptomIds = new Set(symptomMatches.map(match => match.id))
@@ -788,7 +790,7 @@ export function findAreaMatches(text) {
   // Prioritize plumbing issues (what needs fixing) over locations (where damage shows)
   const plumbingIssueMatches = collectRegexMatches(text, PLUMBING_ISSUE_REGEX, PLUMBING_ISSUE_ITEM_LOOKUP)
   const locationMatches = collectRegexMatches(text, DAMAGE_PLACE_REGEX, DAMAGE_PLACE_LOOKUP)
-  
+
   // Combine and deduplicate by ID
   const combined = [...plumbingIssueMatches, ...locationMatches]
   const seen = new Set()
