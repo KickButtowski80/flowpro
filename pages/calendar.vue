@@ -2,7 +2,7 @@
   <div class="calendar-test-page" id="calendar">
     <div class="container mx-auto p-6">
       <div class="bg-white rounded-lg shadow-lg py-6 md:p-32">
-        <BookingCalendar
+        <AdminDispatchCalendar
           @date-range-selected="handleDateRangeSelected"
           @booking-added="handleBookingAdded"
           @all-bookings-cleared="handleAllBookingsCleared"
@@ -17,7 +17,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import BookingCalendar from '~/components/BookingCalendar.vue'
+import AdminDispatchCalendar from '~/components/AdminDispatchCalendar.vue'
 
 const bookingResult = ref(null)
 
