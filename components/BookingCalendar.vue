@@ -644,10 +644,15 @@ const totalCost = computed(() => {
   return days * dailyRate
 })
 
-// Can proceed with booking - check availability
+// Can proceed with booking - check availability AND team validation
 const canAddBooking = computed(() => {
 // Basic requirements
   if (selectedDateRange.value.length === 0 || selectedPlumbers.value.length === 0) {
+    return false
+  }
+
+// Check team validation first (job type requirements)
+  if (!teamValidation.value.isValid) {
     return false
   }
 
