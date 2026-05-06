@@ -2,7 +2,7 @@
 // AI PATTERN MATCHING SYSTEM
 // ========================================
 
-// Split location data: damage places (context) vs plumbing issue locations (work)
+// Split location data: damage places (locations where damage visible) vs plumbing items (what needs fixing - fixtures, components, appliances, systems)
 import DAMAGE_PLACES from '../../data/damagePlaces.js'
 import { PLUMBING_ISSUE_ITEMS } from '../../data/plumbingIssueItems.js'
 import SYMPTOMS from '../../data/symptoms.js'
@@ -40,7 +40,7 @@ export const SYMPTOM_LOOKUP = {}
 export const PLUMBING_LOCATION_METADATA = {}
 export const DAMAGE_PLACE_METADATA = {}
 
-// Build damage place lookup map (where damage is visible - contextLocation)
+// Build damage place lookup map (locations where damage manifests - visible or detected)
 DAMAGE_PLACES.forEach(place => {
   place.aliases.forEach(alias => {
     DAMAGE_PLACE_LOOKUP[alias.toLowerCase()] = place.id
@@ -51,7 +51,7 @@ DAMAGE_PLACES.forEach(place => {
   }
 })
 
-// Build plumbing work items lookup map (where plumber works - workLocation)
+// Build plumbing items lookup map (what needs fixing - fixtures, components, appliances, systems)
 PLUMBING_ISSUE_ITEMS.forEach(item => {
   item.customerSearchTerms.forEach(alias => {
     PLUMBING_ISSUE_ITEM_LOOKUP[alias.toLowerCase()] = item.locationId
@@ -63,8 +63,8 @@ PLUMBING_ISSUE_ITEMS.forEach(item => {
 })
 
 // NOTE: Separate lookups maintained for semantic clarity
-// DAMAGE_PLACE_LOOKUP = where damage is visible (context location)
-// PLUMBING_ISSUE_ITEM_LOOKUP = where plumber works (work location)
+// DAMAGE_PLACE_LOOKUP = where damage is visible (locations: rooms, surfaces)
+// PLUMBING_ISSUE_ITEM_LOOKUP = what needs fixing (fixtures, components, appliances, systems)
 // These are NOT combined to enforce strict semantic separation
 
 // Build symptom lookup map from aliases
@@ -80,17 +80,23 @@ SYMPTOMS.forEach(symptom => {
 
 // Build separate regex patterns for semantic clarity
 const DAMAGE_PLACE_WORDS = Object.keys(DAMAGE_PLACE_LOOKUP).join('|')
-const PLUMBING_LOCATION_WORDS = Object.keys(PLUMBING_ISSUE_ITEM_LOOKUP).join('|')
+const PLUMBING_ISSUE_TERMS = Object.keys(PLUMBING_ISSUE_ITEM_LOOKUP).join('|')
 const SYMPTOM_WORDS = Object.keys(SYMPTOM_LOOKUP).join('|')
 
-// Separate regexes for each location type
-export const DAMAGE_PLACE_REGEX = new RegExp(`\b(${DAMAGE_PLACE_WORDS})\b`, 'gi')
-export const PLUMBING_LOCATION_REGEX = new RegExp(`\\b(${PLUMBING_LOCATION_WORDS})\\b`, 'gi')
-export const SYMPTOM_REGEX = new RegExp(`\b(${SYMPTOM_WORDS})\b`, 'gi')
+// Separate regexes for each pattern type
+export const DAMAGE_PLACE_REGEX = new RegExp(`\b(${DAMAGE_PLACE_WORDS})\b`, 'gi')  // Locations: ceiling, wall, bathroom, kitchen
+export const PLUMBING_ISSUE_REGEX = new RegExp(`\\b(${PLUMBING_ISSUE_TERMS})\\b`, 'gi')  // Issues: toilet, faucet, water heater, pipes
+export const SYMPTOM_REGEX = new RegExp(`\b(${SYMPTOM_WORDS})\b`, 'gi')  // Symptoms: leaking, dripping, clogged, no_water
 
 // ========================================
 // SYMPTOM GROUPING
 // ========================================
+
+// Pre-compile regex pattern for performance (created once at module load)
+const SYMPTOM_GROUP_PATTERN = new RegExp(
+  `(${SYMPTOM_WORDS})\\s*(?:and|,)\\s*(${SYMPTOM_WORDS})(?:\\s*(?:and|,)\\s*(${SYMPTOM_WORDS}))*`,
+  'gi'
+)
 
 /**
  * Detect symptom groups connected by "and"
@@ -105,13 +111,16 @@ export const detectSymptomGroups = (text) => {
   
   // Pattern: symptom (and|,) symptom (and|,) symptom
   // Matches: "bubbling and sagging", "leaking, dripping, and running"
-  const symptomGroupPattern = new RegExp(
-    `(${SYMPTOM_WORDS})\\s*(?:and|,)\\s*(${SYMPTOM_WORDS})(?:\\s*(?:and|,)\\s*(${SYMPTOM_WORDS}))*`,
-    'gi'
-  )
+  // Uses pre-compiled SYMPTOM_GROUP_PATTERN for performance
   
   let match
-  while ((match = symptomGroupPattern.exec(text)) !== null) {
+  while ((match = SYMPTOM_GROUP_PATTERN.exec(text)) !== null) {
+    // exec() returns: [fullMatch, group1, group2, group3]
+    // match[0] = full matched string (e.g., "bubbling, sagging, and cracking")
+    // match[1] = first capture group (e.g., "bubbling")
+    // match[2] = second capture group (e.g., "sagging")
+    // match[3] = third capture group (e.g., "cracking") or undefined
+    // slice(1) removes the full match at index 0, keeping only captured symptoms
     const group = match.slice(1).filter(Boolean) // Remove undefined/null values
     if (group.length > 1) {
       symptomGroups.push(group)
@@ -238,14 +247,22 @@ export const getTeamSizeRecommendation = (plumbingIssueLocId) => {
 // ========================================
 
 /**
- * Detects relationships between two areas: where work is done vs where problem shows
+ * Detects relationships between locations and plumbing items: where damage shows vs what needs fixing
  * Uses separate lookups for semantic clarity:
- * - PLUMBING_WORK_LOCATION_LOOKUP for work locations (where plumber fixes)
- * - DAMAGE_PLACE_LOOKUP for context locations (where damage is visible)
+ * - PLUMBING_ISSUE_ITEM_LOOKUP for plumbing items (fixtures, components, appliances, systems)
+ * - DAMAGE_PLACE_LOOKUP for locations (where damage is visible)
  * 
- * Example: "ceiling from upstairs bathroom"
- * - workLocation: upstairs bathroom (where plumber goes to fix) - PLUMBING_WORK_LOCATION
+ * Example: "ceiling from bathroom"
+ * - workLocation: bathroom (location where damage originates) - DAMAGE_PLACE
  * - contextLocation: ceiling (where damage is visible) - DAMAGE_PLACE
+ * 
+ * Example: "toilet is leaking"
+ * - workLocation: toilet (fixture that needs fixing) - PLUMBING_ISSUE_ITEM
+ * - contextLocation: bathroom (where damage visible) - DAMAGE_PLACE
+ * 
+ * Example: "water heater in basement"
+ * - workLocation: water_heater (appliance that needs fixing) - PLUMBING_ISSUE_ITEM
+ * - contextLocation: basement (where appliance is located) - DAMAGE_PLACE
  * 
  * @param {string} clause - Text clause to search in
  * @returns {Array} - Array of area relationship objects
@@ -554,19 +571,21 @@ export function findContextualMatches(text) {
     // First clause: "the bathroom ceiling is dripping and sagging"
     // Second clause: "the wall is wet"
     
-    // 4. Collect area aliases and symptom groups from clause
+    // 4. Collect location aliases and symptom groups from clause
     //    For "the bathroom ceiling is dripping and sagging":
-    //    clauseAreas = [{plumbingIssueLocId: "bathroom", alias: "bathroom"}]
+    //    clauseAreas = [{plumbingIssueLocId: "bathroom", alias: "bathroom"}] (location from damagePlaces.js)
     //    clauseSymptomGroups = [["dripping", "sagging"]] (grouped by "and")
     const { areaAliases: clauseAreas, symptomGroups: clauseSymptomGroups } = collectAreaAliases(clause)
 
-    // 5. Process each area found in the clause
+    // 5. Process each location found in the clause
     for (const area of clauseAreas) {
       // First iteration: area = {plumbingIssueLocId: "bathroom", alias: "bathroom"}
+      // Note: "bathroom" is a location (from damagePlaces.js), not a fixture
       console.log('DEBUG: Processing area:', area)
       
-      // 6. Get allowed symptoms for this area from RULES_BY_AREA
-      //    For bathroom: allowed = {"leak", "dripping", "overflowing", "clogged", ...}
+      // 6. Get allowed symptoms for this location from RULES_BY_AREA
+      //    For bathroom location: allowed = {"leak", "dripping", "overflowing", "clogged", ...}
+      //    These symptoms are valid when they appear in bathroom context
       const allowed = RULES_BY_AREA.get(area.plumbingIssueLocId) || new Set()
       console.log('DEBUG: Allowed symptoms for area:', Array.from(allowed))
       if (allowed.size === 0) continue
@@ -764,13 +783,13 @@ const collectRegexMatches = (text, regex, lookup) => {
 }
 
 export function findAreaMatches(text) {
-  // Find matches from both work locations and damage places
-  // Prioritize work locations (where plumber actually works)
-  const workLocationMatches = collectRegexMatches(text, PLUMBING_LOCATION_REGEX, PLUMBING_ISSUE_ITEM_LOOKUP)
-  const damageMatches = collectRegexMatches(text, DAMAGE_PLACE_REGEX, DAMAGE_PLACE_LOOKUP)
+  // Find matches from both plumbing issues and locations
+  // Prioritize plumbing issues (what needs fixing) over locations (where damage shows)
+  const plumbingIssueMatches = collectRegexMatches(text, PLUMBING_ISSUE_REGEX, PLUMBING_ISSUE_ITEM_LOOKUP)
+  const locationMatches = collectRegexMatches(text, DAMAGE_PLACE_REGEX, DAMAGE_PLACE_LOOKUP)
   
   // Combine and deduplicate by ID
-  const combined = [...workLocationMatches, ...damageMatches]
+  const combined = [...plumbingIssueMatches, ...locationMatches]
   const seen = new Set()
   return combined.filter(match => {
     if (seen.has(match.id)) return false
