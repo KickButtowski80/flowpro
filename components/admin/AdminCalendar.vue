@@ -281,8 +281,10 @@
 </template>
 
 <script setup>
+import CalendarGrid from './CalendarGrid.vue'
+import CalendarLegend from './CalendarLegend.vue'
 import { chatPromptSubmit } from '#build/ui'
-import JOB_TYPES from '../data/jobTypes.json'
+import JOB_TYPES from '../../data/jobTypes.json'
 import { 
   getSingleJobTeamSize, 
   getTotalTeamSize, 
@@ -293,7 +295,7 @@ import {
   parseDurationToHours,
   calculateEstimatedJobCost,
   getTeamEmoji
-} from '../utils/teamCalculations.js'
+} from '../../utils/teamCalculations.js'
 
 // Component Interface
 const props = defineProps({
